@@ -27,6 +27,17 @@
   --border-radius-md: 8px;
   --border-radius-lg: 12px;
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --text-sm: 15px;
+  --text-md: 17px;
+  --text-lg: 19px;
+  --text-xl: 22px;
+  --button-sm-height: 40px;
+  --button-md-height: 42px;
+  --button-sm-px: 14px;
+  --button-md-px: 16px;
+  --input-md-height: 40px;
+  --icon-button-size: var(--button-sm-height);
+  --icon-size: 18px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -43,58 +54,66 @@
 }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: var(--color-background-tertiary); -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: var(--color-background-tertiary); -webkit-tap-highlight-color: transparent; font-size: var(--text-md); }
 
 .app-container { width: 100%; max-width: 480px; margin: 0 auto; background: var(--color-background-tertiary); min-height: 100vh; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
 
-.header { background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary); padding: 0.75rem 1rem; position: sticky; top: 0; z-index: 100; }
-.header h1 { margin: 0 0 0.5rem 0; font-size: 16px; font-weight: 500; color: var(--color-text-primary); display: flex; align-items: center; gap: 6px; }
+.header { background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary); padding: 0.5rem 0.625rem; position: sticky; top: 0; z-index: 100; }
 .header-controls { display: flex; gap: 8px; justify-content: space-between; align-items: center; }
 .date-nav { display: flex; gap: 6px; align-items: center; }
-.date-nav button { padding: 0; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); cursor: pointer; white-space: nowrap; height: 32px; width: 32px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
-.date-display { font-size: 13px; font-weight: 500; color: var(--color-text-primary); min-width: 70px; text-align: center; flex-shrink: 0; }
+.header-actions { display: flex; gap: 6px; align-items: center; }
+.date-nav button { padding: 0; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); cursor: pointer; white-space: nowrap; height: var(--button-sm-height); width: var(--button-sm-height); display: inline-flex; align-items: center; justify-content: center; font-size: var(--text-md); }
+.date-display { font-size: var(--text-sm); font-weight: 500; color: var(--color-text-primary); min-width: 84px; text-align: center; flex-shrink: 0; }
 
-.btn-primary { background: #1E40AF; color: #FFFFFF; border: 0.5px solid #1E40AF; cursor: pointer; font-family: var(--font-sans); font-weight: 500; border-radius: var(--border-radius-md); }
-.btn-secondary { background: var(--color-background-primary); color: var(--color-text-primary); border: 0.5px solid var(--color-border-secondary); cursor: pointer; font-family: var(--font-sans); font-weight: 500; border-radius: var(--border-radius-md); }
-.btn-icon { width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.btn-primary { background: #1E40AF; color: #FFFFFF; border: 0.5px solid #1E40AF; cursor: pointer; font-family: var(--font-sans); font-weight: 500; border-radius: var(--border-radius-md); min-height: var(--button-md-height); padding: 0 var(--button-md-px); font-size: var(--text-md); }
+.btn-secondary { background: var(--color-background-primary); color: var(--color-text-primary); border: 0.5px solid var(--color-border-secondary); cursor: pointer; font-family: var(--font-sans); font-weight: 500; border-radius: var(--border-radius-md); min-height: var(--button-md-height); padding: 0 var(--button-md-px); font-size: var(--text-md); }
+.btn-icon { width: var(--icon-button-size); height: var(--icon-button-size); min-width: var(--icon-button-size); min-height: var(--icon-button-size); padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: var(--text-md); flex-shrink: 0; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); }
+.btn-icon.btn-primary,
+.btn-icon.btn-secondary { border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); }
 
 .dropdown { position: relative; display: inline-block; }
-.dropdown-trigger { width: 100%; height: 32px; padding: 0 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); font-family: var(--font-sans); font-size: 13px; font-weight: 400; cursor: pointer; display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; white-space: nowrap; text-align: left; }
+.dropdown-trigger { width: 100%; height: var(--button-sm-height); padding: 0 var(--button-sm-px); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 400; cursor: pointer; display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; white-space: nowrap; text-align: left; }
 .dropdown-trigger .caret { display: inline-block; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--color-text-secondary); flex-shrink: 0; }
 .dropdown-menu { display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); box-shadow: 0 4px 12px rgba(0,0,0,0.1); min-width: 100%; z-index: 200; overflow: hidden; max-height: 240px; overflow-y: auto; }
 .dropdown-menu.right-aligned { left: auto; right: 0; min-width: max-content; }
 .dropdown-menu.open { display: block; }
-.dropdown-item { padding: 10px 12px; font-size: 13px; color: var(--color-text-primary); cursor: pointer; white-space: nowrap; }
+.dropdown-item { padding: 11px 14px; font-size: var(--text-sm); color: var(--color-text-primary); cursor: pointer; white-space: nowrap; }
 .dropdown-item.selected { background: var(--color-background-info); color: var(--color-text-info); }
 
-.macros-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 0.75rem; background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary); }
-.macro-card { background: var(--color-background-secondary); padding: 10px; border-radius: var(--border-radius-md); text-align: center; }
-.macro-card.calories { border-left: 3px solid #C41E1E; }
-.macro-card.carbs { border-left: 3px solid #1E40AF; }
-.macro-card.protein { border-left: 3px solid #166534; }
-.macro-card .label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 3px; }
-.macro-card .value { font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.macros-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 0.625rem; background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary); }
+.macro-card { background: var(--color-background-secondary); padding: 7px; border-radius: var(--border-radius-md); text-align: center; }
+.macro-card.calories { border: 1px solid #C41E1E; background: #FDF2F2; }
+.macro-card.carbs { border: 1px solid #1E40AF; background: #EFF4FF; }
+.macro-card.protein { border: 1px solid #166534; background: #EDF7EF; }
+.macro-card .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 2px; }
+.macro-card .value { font-size: var(--text-lg); font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
 .macro-card .progress { height: 5px; background: var(--color-background-tertiary); border-radius: 2px; overflow: hidden; margin-bottom: 4px; }
 .macro-card.calories .progress-bar { background: #C41E1E; }
 .macro-card.carbs .progress-bar { background: #1E40AF; }
 .macro-card.protein .progress-bar { background: #166534; }
+.macro-card.calories .progress { border: 1px solid #C41E1E; }
+.macro-card.carbs .progress { border: 1px solid #1E40AF; }
+.macro-card.protein .progress { border: 1px solid #166534; }
 .macro-card .progress-bar { height: 100%; transition: width 0.2s; }
-.macro-card .remaining { font-size: 10px; color: var(--color-text-secondary); }
+.macro-card .remaining { font-size: 11px; color: var(--color-text-secondary); }
 
-.content { flex: 1; overflow-y: auto; padding: 0.75rem; }
-.food-category { margin-bottom: 1.25rem; }
-.food-category-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; }
+.content { flex: 1; overflow-y: auto; padding: 0.625rem; }
+.food-category { margin-bottom: 0.5rem; }
+.food-category-shell { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); overflow: hidden; }
+.food-category-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; gap: 8px; }
 .food-category-title { display: flex; align-items: baseline; gap: 8px; flex: 1; min-width: 0; }
-.food-category h3 { margin: 0; font-size: 13px; font-weight: 500; color: var(--color-text-primary); text-transform: capitalize; flex-shrink: 0; }
-.category-total { font-size: 11px; color: var(--color-text-secondary); min-width: 0; overflow: hidden; }
-.add-food-header { padding: 6px 10px; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
+.food-category h3 { margin: 0; font-size: var(--text-sm); font-weight: 500; color: var(--color-text-primary); text-transform: capitalize; flex-shrink: 0; }
+.category-total { font-size: 12px; color: var(--color-text-secondary); min-width: 0; overflow: hidden; }
+.add-food-header { padding: 0 var(--button-sm-px); min-height: var(--button-sm-height); font-size: var(--text-sm); white-space: nowrap; flex-shrink: 0; }
 
-.food-item { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: start; gap: 10px; }
+.food-list { padding: 0 10px; border-top: 0.5px solid var(--color-border-tertiary); }
+.food-item { padding: 6px 0; display: flex; justify-content: space-between; align-items: start; gap: 10px; }
+.food-item + .food-item { border-top: 0.5px solid var(--color-border-tertiary); }
 .food-info { flex: 1; }
-.food-name-row { display: flex; gap: 4px; margin-bottom: 4px; align-items: baseline; }
-.food-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin: 0; }
-.food-weight { font-size: 12px; color: var(--color-text-secondary); margin: 0; font-weight: 400; }
-.food-macros { font-size: 11px; color: var(--color-text-secondary); margin: 0; }
+.food-name-row { display: flex; gap: 4px; margin-bottom: 2px; align-items: baseline; }
+.food-name { font-size: var(--text-sm); font-weight: 500; color: var(--color-text-primary); margin: 0; }
+.food-weight { font-size: 13px; color: var(--color-text-secondary); margin: 0; font-weight: 400; }
+.food-macros { font-size: 12px; color: var(--color-text-secondary); margin: 0; }
 
 .macro-line .cal { color: #C41E1E; font-weight: 500; }
 .macro-line .carb { color: #1E40AF; font-weight: 500; }
@@ -102,76 +121,93 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
 .macro-line .sep { color: var(--color-text-tertiary); display: inline-block; padding: 0 6px; font-weight: 400; }
 .macro-line.muted .cal, .macro-line.muted .carb, .macro-line.muted .prot { color: var(--color-text-secondary); font-weight: 400; }
 
-.food-actions { display: flex; gap: 4px; flex-shrink: 0; }
-.food-actions button { padding: 4px 6px; border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-secondary); cursor: pointer; border-radius: var(--border-radius-md); font-size: 14px; min-width: 28px; min-height: 28px; }
+.food-actions { display: flex; gap: 3px; flex-shrink: 0; }
+.food-actions button { padding: 0; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); cursor: pointer; border-radius: var(--border-radius-md); font-size: var(--text-sm); min-width: var(--icon-button-size); min-height: var(--icon-button-size); display: inline-flex; align-items: center; justify-content: center; }
 
-.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: flex-end; }
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: stretch; justify-content: center; }
 .modal-overlay.active { display: flex; }
-.modal { background: var(--color-background-primary); width: 100%; border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0; max-height: 90vh; overflow-y: auto; padding-bottom: env(safe-area-inset-bottom); }
-.modal-header { padding: 0.75rem 1rem; border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--color-background-primary); z-index: 10; }
-.modal-header h2 { margin: 0; font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+.modal { background: var(--color-background-primary); width: 100%; height: 100vh; border-radius: 0; overflow-y: auto; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+.modal-header { padding: 0.625rem 0.875rem; border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--color-background-primary); z-index: 10; }
+.modal-header h2 { margin: 0; font-size: var(--text-md); font-weight: 500; color: var(--color-text-primary); }
 .modal-header-left { display: flex; gap: 8px; align-items: center; }
-.modal-add-new { padding: 6px 10px; font-size: 12px; white-space: nowrap; }
-.modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--color-text-secondary); padding: 4px 8px; }
-.modal-body { padding: 0.75rem; }
+.modal-add-new { padding: 0 var(--button-sm-px); min-height: var(--button-sm-height); font-size: var(--text-sm); white-space: nowrap; }
+.modal-close { background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); width: var(--icon-button-size); height: var(--icon-button-size); min-width: var(--icon-button-size); min-height: var(--icon-button-size); border-radius: var(--border-radius-md); cursor: pointer; color: var(--color-text-primary); padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+.modal-body { padding: 0.625rem; }
 
-.search-input { width: 100%; padding: 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 16px; margin-bottom: 8px; background: var(--color-background-primary); color: var(--color-text-primary); }
+.search-input { width: 100%; padding: 0 12px; height: var(--input-md-height); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-md); margin-bottom: 6px; background: var(--color-background-primary); color: var(--color-text-primary); }
+.search-controls { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+.search-controls .search-input { margin-bottom: 0; flex: 1; }
 
-.search-results { max-height: 60vh; overflow-y: auto; }
-.food-option { padding: 10px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); margin-bottom: 6px; background: var(--color-background-secondary); display: flex; justify-content: space-between; align-items: center; gap: 8px; cursor: pointer; }
+.search-results { max-height: 60vh; overflow-y: auto; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 0 10px; }
+.food-option { padding: 8px 0; background: transparent; display: flex; justify-content: space-between; align-items: center; gap: 8px; cursor: pointer; }
+.food-option + .food-option { border-top: 0.5px solid var(--color-border-tertiary); }
 .food-option .info { flex: 1; min-width: 0; }
-.food-option .name { font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; font-size: 13px; }
-.food-option .macros { font-size: 11px; color: var(--color-text-secondary); }
+.food-option .name-row { display: flex; gap: 6px; margin-bottom: 2px; align-items: baseline; }
+.food-option .name { font-weight: 500; color: var(--color-text-primary); margin: 0; font-size: var(--text-sm); }
+.food-option .measure { font-size: 13px; color: var(--color-text-secondary); font-weight: 400; margin: 0; }
+.food-option .macros { font-size: 12px; color: var(--color-text-secondary); }
 .food-option .actions { display: flex; gap: 6px; flex-shrink: 0; }
+.search-empty { text-align: center; color: var(--color-text-secondary); padding: 1rem 0; margin: 0; }
 
-.form-group { margin-bottom: 0.5rem; }
-.form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
-.form-group input { width: 100%; padding: 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 16px; font-family: var(--font-sans); background: var(--color-background-primary); color: var(--color-text-primary); }
+.form-group { margin-bottom: 0.375rem; }
+.form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
+.form-group input { width: 100%; padding: 0 12px; height: var(--input-md-height); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-md); font-family: var(--font-sans); background: var(--color-background-primary); color: var(--color-text-primary); }
+.serving-input-group { display: flex; gap: 6px; margin-bottom: 0.375rem; }
+.serving-input-group .form-group { margin-bottom: 0; }
+.serving-input-group .serving-size { flex: 1 1 50%; min-width: 0; }
+.serving-input-group .serving-unit { flex: 1 1 50%; min-width: 0; }
+.serving-input-group .serving-unit .dropdown { display: block; width: 100%; }
+.form-select { width: 100%; height: var(--input-md-height); padding: 0 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-md); font-family: var(--font-sans); background: var(--color-background-primary); color: var(--color-text-primary); }
 
-.form-actions { display: flex; gap: 6px; margin-top: 0.75rem; }
-.form-actions button { flex: 1; padding: 12px; font-size: 14px; }
+.form-actions { display: flex; gap: 6px; margin-top: 0.5rem; }
+.form-actions button { flex: 1; min-height: var(--button-md-height); padding: 0 var(--button-md-px); font-size: var(--text-md); }
+.delete-food-link { margin-top: 0.5rem; background: none; border: none; padding: 0; color: #B42318; font-size: var(--text-sm); text-decoration: underline; cursor: pointer; text-align: left; }
 
-.quantity-input-group { display: flex; gap: 6px; align-items: center; margin-bottom: 0.75rem; }
-.quantity-input-group input { flex: 1; padding: 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 16px; background: var(--color-background-primary); color: var(--color-text-primary); height: 40px; }
-.quantity-input-group .qty-label { font-size: 12px; font-weight: 500; color: var(--color-text-primary); flex: 0 0 30px; }
-.quantity-input-group .dropdown { flex: 0 0 80px; }
-.quantity-input-group .dropdown-trigger { height: 40px; }
+.quantity-input-group { display: flex; gap: 6px; margin-bottom: 0.5rem; }
+.quantity-input-group .form-group { margin-bottom: 0; flex: 1 1 50%; min-width: 0; }
+.quantity-input-group input { width: 100%; min-width: 0; padding: 0 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-md); background: var(--color-background-primary); color: var(--color-text-primary); height: var(--input-md-height); }
+.quantity-input-group .dropdown { width: 100%; min-width: 0; }
+.quantity-input-group .dropdown-trigger { height: var(--input-md-height); }
+.modal-body .form-group > .dropdown { width: 100%; }
 
-.log-food-preview { background: var(--color-background-secondary); padding: 10px; border-radius: var(--border-radius-md); margin-bottom: 0.75rem; font-size: 13px; }
-.log-food-preview strong { color: var(--color-text-primary); display: block; margin-bottom: 3px; font-size: 13px; }
+.log-food-preview { background: var(--color-background-secondary); padding: 8px; border-radius: var(--border-radius-md); margin-bottom: 0.5rem; font-size: var(--text-sm); }
+.log-food-preview strong { color: var(--color-text-primary); display: block; margin-bottom: 2px; font-size: var(--text-sm); }
 
-.editable-macros { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 0.75rem; }
+.editable-macros { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 0.5rem; }
 .editable-macro { display: flex; flex-direction: column; }
-.editable-macro label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 3px; font-weight: 500; }
-.editable-macro input { padding: 8px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 14px; background: var(--color-background-primary); color: var(--color-text-primary); }
+.editable-macro label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 3px; font-weight: 500; }
+.editable-macro input { padding: 0 10px; height: 40px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-sm); background: var(--color-background-primary); color: var(--color-text-primary); }
 
-.settings-section { margin-top: 1rem; padding-top: 1rem; border-top: 0.5px solid var(--color-border-tertiary); }
-.settings-section h4 { margin: 0 0 8px 0; font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+.settings-section { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 0.5px solid var(--color-border-tertiary); }
+.settings-section h4 { margin: 0 0 8px 0; font-size: var(--text-sm); font-weight: 500; color: var(--color-text-primary); }
 .settings-actions { display: flex; gap: 6px; }
-.settings-actions button { flex: 1; padding: 10px; font-size: 13px; }
+.settings-actions button { flex: 1; min-height: var(--button-sm-height); padding: 0 var(--button-sm-px); font-size: var(--text-sm); }
+.lucide { width: var(--icon-size); height: var(--icon-size); stroke-width: 2; }
 </style>
 </head>
 <body>
 
 <div class="app-container">
   <div class="header">
-    <h1>🔥 Macro Tracker <button id="settingsBtn" style="margin-left: auto; background: transparent; border: 0; cursor: pointer; font-size: 16px; padding: 4px;">⚙</button></h1>
     <div class="header-controls">
       <div class="date-nav">
-        <button id="prevBtn" title="Previous day">←</button>
+        <button id="prevBtn" title="Previous day" aria-label="Previous day"><i data-lucide="chevron-left"></i></button>
         <div class="date-display" id="dateDisplay">Today</div>
-        <button id="todayBtn" title="Go to today">📅</button>
+        <button id="todayBtn" title="Go to today" aria-label="Go to today"><i data-lucide="calendar-days"></i></button>
       </div>
-      <div class="dropdown" id="activityDropdown">
-        <button type="button" class="dropdown-trigger" id="activityTrigger">
-          <span id="activityLabel">Med (2,000)</span>
-          <span class="caret"></span>
-        </button>
-        <div class="dropdown-menu right-aligned" id="activityMenu">
-          <div class="dropdown-item" data-value="low">Low (1,200)</div>
-          <div class="dropdown-item selected" data-value="medium">Med (2,000)</div>
-          <div class="dropdown-item" data-value="high">High (2,600)</div>
+      <div class="header-actions">
+        <div class="dropdown" id="activityDropdown">
+          <button type="button" class="dropdown-trigger" id="activityTrigger">
+            <span id="activityLabel">Med (2,000)</span>
+            <span class="caret"></span>
+          </button>
+          <div class="dropdown-menu right-aligned" id="activityMenu">
+            <div class="dropdown-item" data-value="low">Low (1,200)</div>
+            <div class="dropdown-item selected" data-value="medium">Med (1,700)</div>
+            <div class="dropdown-item" data-value="high">High (2,200)</div>
+          </div>
         </div>
+        <button id="settingsBtn" class="btn-icon" aria-label="Settings"><i data-lucide="settings"></i></button>
       </div>
     </div>
   </div>
@@ -203,14 +239,14 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
 <div class="modal-overlay" id="addFoodModal">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-header-left">
-        <h2>Add Food</h2>
-        <button class="modal-add-new btn-secondary" id="addNewFoodBtn">+ Add New</button>
-      </div>
-      <button class="modal-close" id="addFoodClose">×</button>
+      <h2>Add Food</h2>
+      <button class="modal-close" id="addFoodClose" aria-label="Close"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body">
-      <input type="text" class="search-input" id="searchInput" placeholder="Search foods...">
+      <div class="search-controls">
+        <input type="text" class="search-input" id="searchInput" placeholder="Search foods...">
+        <button class="modal-add-new btn-secondary" id="addNewFoodBtn">+ Add New</button>
+      </div>
       <div class="search-results" id="searchResults"></div>
     </div>
   </div>
@@ -220,21 +256,40 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
   <div class="modal">
     <div class="modal-header">
       <h2 id="editFoodTitle">Edit Food</h2>
-      <button class="modal-close" id="editFoodClose">×</button>
+      <button class="modal-close" id="editFoodClose" aria-label="Close"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body">
       <form id="editFoodForm">
-        <div class="form-group"><label>Food Name *</label><input type="text" id="editFoodName" required></div>
-        <div class="form-group"><label>Brand (optional)</label><input type="text" id="editFoodBrand"></div>
-        <div class="editable-macros">
-          <div class="editable-macro"><label>Calories</label><input type="number" id="editFoodCalories" required step="0.1"></div>
-          <div class="editable-macro"><label>Carbs (g)</label><input type="number" id="editFoodCarbs" required step="0.1"></div>
-          <div class="editable-macro"><label>Protein (g)</label><input type="number" id="editFoodProtein" required step="0.1"></div>
+        <div class="form-group"><label>Food Name</label><input type="text" id="editFoodName" required></div>
+        <div class="serving-input-group">
+          <div class="form-group serving-size"><label>Serving Size</label><input type="number" id="editFoodServingSize" required min="0.1" step="0.1"></div>
+          <div class="form-group serving-unit">
+            <label>Unit</label>
+            <div class="dropdown" id="editFoodServingUnitDropdown">
+              <button type="button" class="dropdown-trigger">
+                <span class="dropdown-trigger-label">g</span>
+                <span class="caret"></span>
+              </button>
+              <div class="dropdown-menu right-aligned">
+                <div class="dropdown-item selected" data-value="g">g</div>
+                <div class="dropdown-item" data-value="ml">ml</div>
+                <div class="dropdown-item" data-value="oz">oz</div>
+                <div class="dropdown-item" data-value="cup">cup</div>
+                <div class="dropdown-item" data-value="tbsp">tbsp</div>
+                <div class="dropdown-item" data-value="tsp">teaspoon</div>
+                <div class="dropdown-item" data-value="piece">piece</div>
+              </div>
+            </div>
+          </div>
         </div>
+        <div class="form-group"><label>Calories</label><input type="number" id="editFoodCalories" required step="0.1"></div>
+        <div class="form-group"><label>Carbs (g)</label><input type="number" id="editFoodCarbs" required step="0.1"></div>
+        <div class="form-group"><label>Protein (g)</label><input type="number" id="editFoodProtein" required step="0.1"></div>
         <div class="form-actions">
           <button type="button" class="btn-secondary" id="cancelEditFood">Cancel</button>
           <button type="submit" class="btn-primary">Save Food</button>
         </div>
+        <button type="button" class="delete-food-link" id="deleteFoodFromDbBtn">Delete from food database</button>
       </form>
     </div>
   </div>
@@ -244,17 +299,35 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
   <div class="modal">
     <div class="modal-header">
       <h2>Create New Food</h2>
-      <button class="modal-close" id="createFoodClose">×</button>
+      <button class="modal-close" id="createFoodClose" aria-label="Close"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body">
       <form id="createFoodForm">
-        <div class="form-group"><label>Food Name *</label><input type="text" id="createFoodName" required></div>
-        <div class="form-group"><label>Brand (optional)</label><input type="text" id="createFoodBrand"></div>
-        <div class="editable-macros">
-          <div class="editable-macro"><label>Calories</label><input type="number" id="createFoodCalories" required step="0.1"></div>
-          <div class="editable-macro"><label>Carbs (g)</label><input type="number" id="createFoodCarbs" required step="0.1"></div>
-          <div class="editable-macro"><label>Protein (g)</label><input type="number" id="createFoodProtein" required step="0.1"></div>
+        <div class="form-group"><label>Food Name</label><input type="text" id="createFoodName" required></div>
+        <div class="serving-input-group">
+          <div class="form-group serving-size"><label>Serving Size</label><input type="number" id="createFoodServingSize" required min="0.1" step="0.1" value="100"></div>
+          <div class="form-group serving-unit">
+            <label>Unit</label>
+            <div class="dropdown" id="createFoodServingUnitDropdown">
+              <button type="button" class="dropdown-trigger">
+                <span class="dropdown-trigger-label">g</span>
+                <span class="caret"></span>
+              </button>
+              <div class="dropdown-menu right-aligned">
+                <div class="dropdown-item selected" data-value="g">g</div>
+                <div class="dropdown-item" data-value="ml">ml</div>
+                <div class="dropdown-item" data-value="oz">oz</div>
+                <div class="dropdown-item" data-value="cup">cup</div>
+                <div class="dropdown-item" data-value="tbsp">tbsp</div>
+                <div class="dropdown-item" data-value="tsp">teaspoon</div>
+                <div class="dropdown-item" data-value="piece">piece</div>
+              </div>
+            </div>
+          </div>
         </div>
+        <div class="form-group"><label>Calories</label><input type="number" id="createFoodCalories" required step="0.1"></div>
+        <div class="form-group"><label>Carbs (g)</label><input type="number" id="createFoodCarbs" required step="0.1"></div>
+        <div class="form-group"><label>Protein (g)</label><input type="number" id="createFoodProtein" required step="0.1"></div>
         <div class="form-actions">
           <button type="button" class="btn-secondary" id="cancelCreateFood">Cancel</button>
           <button type="submit" class="btn-primary">Save Food</button>
@@ -268,23 +341,45 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
   <div class="modal">
     <div class="modal-header">
       <h2>Add to Log</h2>
-      <button class="modal-close" id="addToLogClose">×</button>
+      <button class="modal-close" id="addToLogClose" aria-label="Close"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body">
-      <div class="quantity-input-group">
-        <span class="qty-label">Qty</span>
-        <input type="number" id="foodQuantity" value="100" step="0.1">
-        <div class="dropdown" id="logUnitDropdown">
+      <div class="form-group">
+        <label>Meal</label>
+        <div class="dropdown" id="logMealDropdown">
           <button type="button" class="dropdown-trigger">
-            <span class="dropdown-trigger-label">g</span>
+            <span class="dropdown-trigger-label">Breakfast</span>
             <span class="caret"></span>
           </button>
           <div class="dropdown-menu right-aligned">
-            <div class="dropdown-item selected" data-value="g">g</div>
-            <div class="dropdown-item" data-value="ml">ml</div>
-            <div class="dropdown-item" data-value="oz">oz</div>
-            <div class="dropdown-item" data-value="cup">cup</div>
-            <div class="dropdown-item" data-value="tbsp">tbsp</div>
+            <div class="dropdown-item selected" data-value="breakfast">Breakfast</div>
+            <div class="dropdown-item" data-value="lunch">Lunch</div>
+            <div class="dropdown-item" data-value="dinner">Dinner</div>
+            <div class="dropdown-item" data-value="snack">Snack</div>
+          </div>
+        </div>
+      </div>
+      <div class="quantity-input-group">
+        <div class="form-group">
+          <label>Quantity</label>
+          <input type="number" id="foodQuantity" value="100" step="0.1">
+        </div>
+        <div class="form-group">
+          <label>Unit</label>
+          <div class="dropdown" id="logUnitDropdown">
+            <button type="button" class="dropdown-trigger">
+              <span class="dropdown-trigger-label">g</span>
+              <span class="caret"></span>
+            </button>
+            <div class="dropdown-menu right-aligned">
+              <div class="dropdown-item selected" data-value="g">g</div>
+              <div class="dropdown-item" data-value="ml">ml</div>
+              <div class="dropdown-item" data-value="oz">oz</div>
+              <div class="dropdown-item" data-value="cup">cup</div>
+              <div class="dropdown-item" data-value="tbsp">tbsp</div>
+              <div class="dropdown-item" data-value="tsp">teaspoon</div>
+              <div class="dropdown-item" data-value="piece">piece</div>
+            </div>
           </div>
         </div>
       </div>
@@ -301,12 +396,12 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
   <div class="modal">
     <div class="modal-header">
       <h2>Settings</h2>
-      <button class="modal-close" id="settingsClose">×</button>
+      <button class="modal-close" id="settingsClose" aria-label="Close"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body">
       <div class="settings-section" style="margin-top: 0; padding-top: 0; border-top: 0;">
         <h4>Backup your data</h4>
-        <p style="font-size: 12px; color: var(--color-text-secondary); margin: 0 0 8px 0;">Export your foods and logs as JSON. Import to restore on another device.</p>
+        <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0 0 8px 0;">Export your foods and logs as JSON. Import to restore on another device.</p>
         <div class="settings-actions">
           <button class="btn-secondary" id="exportBtn">Export</button>
           <button class="btn-secondary" id="importBtn">Import</button>
@@ -315,50 +410,59 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
       </div>
       <div class="settings-section">
         <h4>Reset</h4>
-        <p style="font-size: 12px; color: var(--color-text-secondary); margin: 0 0 8px 0;">Clear all logged foods (keeps your custom food database).</p>
+        <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0 0 8px 0;">Clear all logged foods (keeps your custom food database).</p>
         <button class="btn-secondary" id="clearLogsBtn" style="width: 100%;">Clear all logs</button>
       </div>
     </div>
   </div>
 </div>
 
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>
 const ACTIVITY_LEVELS = {
   low: { calories: 1200, protein: 90, carbs: 150, fat: 40, label: 'Low (1,200)' },
-  medium: { calories: 2000, protein: 150, carbs: 250, fat: 67, label: 'Med (2,000)' },
-  high: { calories: 2600, protein: 195, carbs: 325, fat: 87, label: 'High (2,600)' }
+  medium: { calories: 1700, protein: 128, carbs: 213, fat: 57, label: 'Med (1,700)' },
+  high: { calories: 2200, protein: 165, carbs: 275, fat: 73, label: 'High (2,200)' }
 };
 
 const DEFAULT_FOODS = [
-  { id: 'chicken_breast', name: 'Chicken Breast', brand: '', calories: 165, carbs: 0, protein: 31 },
-  { id: 'brown_rice', name: 'Brown Rice', brand: '', calories: 111, carbs: 23, protein: 2.6 },
-  { id: 'broccoli', name: 'Broccoli', brand: '', calories: 34, carbs: 7, protein: 2.8 },
-  { id: 'egg', name: 'Egg', brand: '', calories: 155, carbs: 1.1, protein: 13 },
-  { id: 'salmon', name: 'Salmon', brand: '', calories: 206, carbs: 0, protein: 22 },
-  { id: 'sweet_potato', name: 'Sweet Potato', brand: '', calories: 86, carbs: 20, protein: 1.6 },
-  { id: 'banana', name: 'Banana', brand: '', calories: 89, carbs: 23, protein: 1.1 },
-  { id: 'greek_yogurt', name: 'Greek Yogurt', brand: '', calories: 59, carbs: 3.3, protein: 10 },
-  { id: 'almonds', name: 'Almonds', brand: '', calories: 579, carbs: 22, protein: 21 },
-  { id: 'oats', name: 'Oats', brand: '', calories: 389, carbs: 66, protein: 17 },
-  { id: 'apple', name: 'Apple', brand: '', calories: 52, carbs: 14, protein: 0.3 },
-  { id: 'tuna', name: 'Canned Tuna', brand: '', calories: 98, carbs: 0, protein: 22 },
+  { id: 'chicken_breast', name: 'Chicken Breast', servingSize: 100, servingUnit: 'g', calories: 165, carbs: 0, protein: 31 },
+  { id: 'brown_rice', name: 'Brown Rice', servingSize: 100, servingUnit: 'g', calories: 111, carbs: 23, protein: 2.6 },
+  { id: 'broccoli', name: 'Broccoli', servingSize: 100, servingUnit: 'g', calories: 34, carbs: 7, protein: 2.8 },
+  { id: 'egg', name: 'Egg', servingSize: 100, servingUnit: 'g', calories: 155, carbs: 1.1, protein: 13 },
+  { id: 'salmon', name: 'Salmon', servingSize: 100, servingUnit: 'g', calories: 206, carbs: 0, protein: 22 },
+  { id: 'sweet_potato', name: 'Sweet Potato', servingSize: 100, servingUnit: 'g', calories: 86, carbs: 20, protein: 1.6 },
+  { id: 'banana', name: 'Banana', servingSize: 100, servingUnit: 'g', calories: 89, carbs: 23, protein: 1.1 },
+  { id: 'greek_yogurt', name: 'Greek Yogurt', servingSize: 100, servingUnit: 'g', calories: 59, carbs: 3.3, protein: 10 },
+  { id: 'almonds', name: 'Almonds', servingSize: 100, servingUnit: 'g', calories: 579, carbs: 22, protein: 21 },
+  { id: 'oats', name: 'Oats', servingSize: 100, servingUnit: 'g', calories: 389, carbs: 66, protein: 17 },
+  { id: 'apple', name: 'Apple', servingSize: 100, servingUnit: 'g', calories: 52, carbs: 14, protein: 0.3 },
+  { id: 'tuna', name: 'Canned Tuna', servingSize: 100, servingUnit: 'g', calories: 98, carbs: 0, protein: 22 },
 ];
 
 let state = {
   currentDate: new Date(), activityLevel: 'medium', dailyLogs: {},
   foods: [...DEFAULT_FOODS], recentSearches: [],
   currentFoodForLog: null, editingFoodId: null, logUnit: 'g',
-  editingLogItem: null, defaultCategory: null
+  editingLogItem: null, defaultCategory: null, logMeal: 'breakfast'
 };
 
 function getDateKey(date) { const d = new Date(date); d.setHours(0, 0, 0, 0); return d.toISOString().split('T')[0]; }
+
+function formatNumber(value) { return Number(value).toLocaleString('en-US'); }
+
+function normalizeFood(food) {
+  const servingSize = Number(food.servingSize ?? 100) > 0 ? Number(food.servingSize ?? 100) : 100;
+  const servingUnit = food.servingUnit || food.unit || 'g';
+  return { ...food, servingSize, servingUnit };
+}
 
 function loadState() {
   const saved = localStorage.getItem('macroTrackerState');
   if (saved) {
     const loaded = JSON.parse(saved);
     state.dailyLogs = loaded.dailyLogs || {};
-    state.foods = loaded.foods || state.foods;
+    state.foods = (loaded.foods || state.foods).map(normalizeFood);
     state.recentSearches = loaded.recentSearches || [];
     state.activityLevel = loaded.activityLevel || 'medium';
   }
@@ -371,9 +475,10 @@ function saveState() {
   }));
 }
 
+const UNIT_CONVERSIONS = { g: 1, ml: 1, oz: 28.35, cup: 240, tbsp: 15, tsp: 5, piece: 100 };
+
 function getMacrosForFood(food, quantity, unit) {
-  const unitConversions = { g: 1, ml: 1, oz: 28.35, cup: 240, tbsp: 15 };
-  const conversion = unitConversions[unit] || 1;
+  const conversion = UNIT_CONVERSIONS[unit] || 1;
   const grams = quantity * conversion;
   const multiplier = grams / 100;
   return {
@@ -423,9 +528,9 @@ function updateMacroDisplay() {
   function updateMacro(id, current, target) {
     const remaining = Math.max(0, target - current);
     const remainingPercentage = Math.max(0, Math.min((remaining / target) * 100, 100));
-    document.getElementById(id).textContent = Math.round(remaining);
+    document.getElementById(id).textContent = formatNumber(Math.round(remaining));
     document.getElementById(id.replace('Value', 'Bar')).style.width = remainingPercentage + '%';
-    document.getElementById(id.replace('Value', 'Remaining')).textContent = `${Math.round(current)} used`;
+    document.getElementById(id.replace('Value', 'Remaining')).textContent = `${formatNumber(Math.round(current))} used`;
   }
   updateMacro('calorieValue', totals.calories, targets.calories);
   updateMacro('carbValue', totals.carbs, targets.carbs);
@@ -434,7 +539,13 @@ function updateMacroDisplay() {
 
 function renderMacroLine(calories, carbs, protein, muted = false) {
   const cls = muted ? 'macro-line muted' : 'macro-line';
-  return `<span class="${cls}"><span class="cal">${Math.round(calories)} cal</span><span class="sep">•</span><span class="carb">${Math.round(carbs)}g carbs</span><span class="sep">•</span><span class="prot">${Math.round(protein)}g protein</span></span>`;
+  return `<span class="${cls}"><span class="cal">${formatNumber(Math.round(calories))} cal</span><span class="sep">•</span><span class="carb">${formatNumber(Math.round(carbs))}g carbs</span><span class="sep">•</span><span class="prot">${formatNumber(Math.round(protein))}g protein</span></span>`;
+}
+
+function refreshIcons() {
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
 }
 
 function renderFoodLog() {
@@ -444,34 +555,39 @@ function renderFoodLog() {
   ['breakfast', 'lunch', 'dinner', 'snack'].forEach(category => {
     const catTotals = getCategoryTotals(category);
     html += `<div class="food-category">
-      <div class="food-category-header">
-        <div class="food-category-title">
-          <h3>${category}</h3>
-          <div class="category-total">${renderMacroLine(catTotals.calories, catTotals.carbs, catTotals.protein, true)}</div>
+      <div class="food-category-shell">
+        <div class="food-category-header">
+          <div class="food-category-title">
+            <h3>${category}</h3>
+            <div class="category-total">${renderMacroLine(catTotals.calories, catTotals.carbs, catTotals.protein, true)}</div>
+          </div>
+          <button class="add-food-header btn-secondary" onclick="openAddFoodModal('${category}')">+ Add</button>
         </div>
-        <button class="add-food-header btn-secondary" onclick="openAddFoodModal('${category}')">+ Add</button>
-      </div>`;
+        <div class="food-list">`;
     if (log[category].length > 0) {
       log[category].forEach((item, idx) => {
         html += `
           <div class="food-item">
             <div class="food-info">
               <div class="food-name-row">
-                <p class="food-name">${item.food.name}${item.food.brand ? ' - ' + item.food.brand : ''}</p>
-                <p class="food-weight">${item.quantity}${item.unit}</p>
+                <p class="food-name">${item.food.name}</p>
+                <p class="food-weight">${formatNumber(item.quantity)}${item.unit}</p>
               </div>
               <p class="food-macros">${renderMacroLine(item.macros.calories, item.macros.carbs, item.macros.protein)}</p>
             </div>
             <div class="food-actions">
-              <button onclick="editFoodLog('${category}', ${idx})" title="Edit">✎</button>
-              <button onclick="deleteFoodLog('${category}', ${idx})" title="Delete">🗑</button>
+              <button onclick="editFoodLog('${category}', ${idx})" title="Edit" aria-label="Edit"><i data-lucide="pencil"></i></button>
+              <button onclick="deleteFoodLog('${category}', ${idx})" title="Delete" aria-label="Delete"><i data-lucide="trash-2"></i></button>
             </div>
           </div>`;
       });
+    } else {
+      html += `<div class="food-item"><div class="food-info"><p class="food-macros">No foods logged.</p></div></div>`;
     }
-    html += '</div>';
+    html += '</div></div></div>';
   });
   content.innerHTML = html;
+  refreshIcons();
 }
 
 function openAddFoodModal(defaultCategory = null) {
@@ -485,8 +601,7 @@ function closeAddFoodModal() { document.getElementById('addFoodModal').classList
 
 function searchFoods(query) {
   const results = state.foods.filter(f => 
-    f.name.toLowerCase().includes(query.toLowerCase()) || 
-    (f.brand && f.brand.toLowerCase().includes(query.toLowerCase()))
+    f.name.toLowerCase().includes(query.toLowerCase())
   );
   const sorted = results.sort((a, b) => {
     const aRecent = state.recentSearches.indexOf(a.id);
@@ -497,18 +612,24 @@ function searchFoods(query) {
   });
   let html = '';
   sorted.forEach(food => {
+    const measure = `${formatNumber(food.servingSize || 100)}${food.servingUnit || 'g'}`;
+    const servingMacros = getMacrosForFood(food, food.servingSize || 100, food.servingUnit || 'g');
     html += `<div class="food-option" onclick="selectFoodForLog('${food.id}')">
       <div class="info">
-        <div class="name">${food.name}${food.brand ? ' - ' + food.brand : ''}</div>
-        <div class="macros">${renderMacroLine(food.calories, food.carbs, food.protein)} <span style="color: var(--color-text-tertiary)">per 100g</span></div>
+        <div class="name-row">
+          <p class="name">${food.name}</p>
+          <p class="measure">${measure}</p>
+        </div>
+        <div class="macros">${renderMacroLine(servingMacros.calories, servingMacros.carbs, servingMacros.protein)}</div>
       </div>
       <div class="actions">
-        <button class="btn-primary btn-icon" onclick="event.stopPropagation(); selectFoodForLog('${food.id}')" title="Add">+</button>
-        <button class="btn-secondary btn-icon" onclick="event.stopPropagation(); editFoodInDB('${food.id}')" title="Edit">✎</button>
+        <button class="btn-primary btn-icon" onclick="event.stopPropagation(); selectFoodForLog('${food.id}')" title="Add" aria-label="Add"><i data-lucide="plus"></i></button>
+        <button class="btn-secondary btn-icon" onclick="event.stopPropagation(); editFoodInDB('${food.id}')" title="Edit" aria-label="Edit"><i data-lucide="pencil"></i></button>
       </div>
     </div>`;
   });
-  document.getElementById('searchResults').innerHTML = html || '<p style="text-align: center; color: var(--color-text-secondary); padding: 2rem 0;">No foods found</p>';
+  document.getElementById('searchResults').innerHTML = html || '<p class="search-empty">No foods found</p>';
+  refreshIcons();
 }
 
 function selectFoodForLog(foodId) {
@@ -531,10 +652,12 @@ function editFoodInDB(foodId) {
   if (food) {
     state.editingFoodId = foodId;
     document.getElementById('editFoodName').value = food.name;
-    document.getElementById('editFoodBrand').value = food.brand;
-    document.getElementById('editFoodCalories').value = food.calories;
-    document.getElementById('editFoodCarbs').value = food.carbs;
-    document.getElementById('editFoodProtein').value = food.protein;
+    document.getElementById('editFoodServingSize').value = food.servingSize || 100;
+    setDropdownValue('editFoodServingUnitDropdown', food.servingUnit || 'g');
+    const servingMacros = getMacrosForFood(food, food.servingSize || 100, food.servingUnit || 'g');
+    document.getElementById('editFoodCalories').value = servingMacros.calories;
+    document.getElementById('editFoodCarbs').value = servingMacros.carbs;
+    document.getElementById('editFoodProtein').value = servingMacros.protein;
     document.getElementById('editFoodModal').classList.add('active');
   }
 }
@@ -543,14 +666,25 @@ function closeEditFoodModal() { document.getElementById('editFoodModal').classLi
 
 function saveEditedFood() {
   const name = document.getElementById('editFoodName').value.trim();
-  const brand = document.getElementById('editFoodBrand').value.trim();
-  const calories = parseFloat(document.getElementById('editFoodCalories').value);
-  const carbs = parseFloat(document.getElementById('editFoodCarbs').value);
-  const protein = parseFloat(document.getElementById('editFoodProtein').value);
-  if (!name || isNaN(calories) || isNaN(carbs) || isNaN(protein)) { alert('Please fill in all required fields'); return; }
+  const servingSize = parseFloat(document.getElementById('editFoodServingSize').value);
+  const servingUnit = getDropdownValue('editFoodServingUnitDropdown');
+  const caloriesPerServing = parseFloat(document.getElementById('editFoodCalories').value);
+  const carbsPerServing = parseFloat(document.getElementById('editFoodCarbs').value);
+  const proteinPerServing = parseFloat(document.getElementById('editFoodProtein').value);
+  if (!name || isNaN(servingSize) || servingSize <= 0 || !servingUnit || isNaN(caloriesPerServing) || isNaN(carbsPerServing) || isNaN(proteinPerServing)) { alert('Please fill in all required fields. Serving size must be greater than 0.'); return; }
+  const servingBase = servingSize * (UNIT_CONVERSIONS[servingUnit] || 1);
+  const toPer100 = 100 / servingBase;
   const foodIdx = state.foods.findIndex(f => f.id === state.editingFoodId);
   if (foodIdx !== -1) {
-    state.foods[foodIdx] = { ...state.foods[foodIdx], name, brand, calories, carbs, protein };
+    state.foods[foodIdx] = {
+      ...state.foods[foodIdx],
+      name,
+      servingSize,
+      servingUnit,
+      calories: Math.round((caloriesPerServing * toPer100) * 10) / 10,
+      carbs: Math.round((carbsPerServing * toPer100) * 10) / 10,
+      protein: Math.round((proteinPerServing * toPer100) * 10) / 10
+    };
     saveState();
     closeEditFoodModal();
     if (document.getElementById('addFoodModal').classList.contains('active')) {
@@ -559,10 +693,23 @@ function saveEditedFood() {
   }
 }
 
-function openCreateFoodModal() {
+function deleteFoodFromDatabase() {
+  if (!state.editingFoodId) return;
+  const food = state.foods.find(f => f.id === state.editingFoodId);
+  if (!food) return;
+  if (!confirm(`Delete "${food.name}" from food database? Existing foods already logged will stay in your daily logs.`)) return;
+  state.foods = state.foods.filter(f => f.id !== state.editingFoodId);
+  saveState();
+  closeEditFoodModal();
+  updateMacroDisplay();
+  renderFoodLog();
+}
+
+function openCreateFoodModal(prefillName = '') {
   closeAddFoodModal();
-  document.getElementById('createFoodName').value = '';
-  document.getElementById('createFoodBrand').value = '';
+  document.getElementById('createFoodName').value = prefillName.trim();
+  document.getElementById('createFoodServingSize').value = '100';
+  setDropdownValue('createFoodServingUnitDropdown', 'g');
   document.getElementById('createFoodCalories').value = '';
   document.getElementById('createFoodCarbs').value = '';
   document.getElementById('createFoodProtein').value = '';
@@ -572,24 +719,50 @@ function closeCreateFoodModal() { document.getElementById('createFoodModal').cla
 
 function saveCreatedFood() {
   const name = document.getElementById('createFoodName').value.trim();
-  const brand = document.getElementById('createFoodBrand').value.trim();
-  const calories = parseFloat(document.getElementById('createFoodCalories').value);
-  const carbs = parseFloat(document.getElementById('createFoodCarbs').value);
-  const protein = parseFloat(document.getElementById('createFoodProtein').value);
-  if (!name || isNaN(calories) || isNaN(carbs) || isNaN(protein)) { alert('Please fill in all required fields'); return; }
-  const newFood = { id: 'custom_' + Date.now(), name, brand, calories, carbs, protein };
+  const servingSize = parseFloat(document.getElementById('createFoodServingSize').value);
+  const servingUnit = getDropdownValue('createFoodServingUnitDropdown');
+  const caloriesPerServing = parseFloat(document.getElementById('createFoodCalories').value);
+  const carbsPerServing = parseFloat(document.getElementById('createFoodCarbs').value);
+  const proteinPerServing = parseFloat(document.getElementById('createFoodProtein').value);
+  if (!name || isNaN(servingSize) || servingSize <= 0 || !servingUnit || isNaN(caloriesPerServing) || isNaN(carbsPerServing) || isNaN(proteinPerServing)) { alert('Please fill in all required fields. Serving size must be greater than 0.'); return; }
+  const servingBase = servingSize * (UNIT_CONVERSIONS[servingUnit] || 1);
+  const toPer100 = 100 / servingBase;
+  const newFood = {
+    id: 'custom_' + Date.now(),
+    name,
+    servingSize,
+    servingUnit,
+    calories: Math.round((caloriesPerServing * toPer100) * 10) / 10,
+    carbs: Math.round((carbsPerServing * toPer100) * 10) / 10,
+    protein: Math.round((proteinPerServing * toPer100) * 10) / 10
+  };
   state.foods.push(newFood);
-  saveState();
+
+  // Save flow should also log the newly created food immediately.
+  state.currentFoodForLog = newFood;
+  state.editingLogItem = null;
+  state.logMeal = state.defaultCategory || 'breakfast';
+  state.logUnit = newFood.servingUnit || 'g';
+  document.getElementById('foodQuantity').value = String(newFood.servingSize || 100);
+  setDropdownValue('logUnitDropdown', state.logUnit);
+  if (!state.recentSearches.includes(newFood.id)) {
+    state.recentSearches.unshift(newFood.id);
+    state.recentSearches = state.recentSearches.slice(0, 3);
+  }
+
   closeCreateFoodModal();
+  addFoodToLog();
 }
 
 function openAddToLogModal() {
   if (!state.currentFoodForLog) return;
   document.getElementById('addToLogModal').classList.add('active');
+  state.logMeal = state.editingLogItem?.category || state.defaultCategory || state.logMeal || 'breakfast';
+  setDropdownValue('logMealDropdown', state.logMeal);
   if (!state.editingLogItem) {
-    document.getElementById('foodQuantity').value = '100';
-    state.logUnit = 'g';
-    setDropdownValue('logUnitDropdown', 'g');
+    document.getElementById('foodQuantity').value = String(state.currentFoodForLog.servingSize || 100);
+    state.logUnit = state.currentFoodForLog.servingUnit || 'g';
+    setDropdownValue('logUnitDropdown', state.logUnit);
   }
   updateLogFoodPreview();
 }
@@ -601,13 +774,13 @@ function updateLogFoodPreview() {
   const quantity = parseFloat(document.getElementById('foodQuantity').value) || 0;
   const unit = state.logUnit;
   const macros = getMacrosForFood(food, quantity, unit);
-  document.getElementById('logFoodPreview').innerHTML = `<strong>${food.name}${food.brand ? ' - ' + food.brand : ''}</strong>${renderMacroLine(macros.calories, macros.carbs, macros.protein)}`;
+  document.getElementById('logFoodPreview').innerHTML = `<strong>${food.name}</strong>${renderMacroLine(macros.calories, macros.carbs, macros.protein)}`;
 }
 
 function addFoodToLog() {
   if (!state.currentFoodForLog) return;
   const food = state.currentFoodForLog;
-  const category = state.defaultCategory || 'breakfast';
+  const category = state.logMeal || state.defaultCategory || 'breakfast';
   const quantity = parseFloat(document.getElementById('foodQuantity').value) || 100;
   const unit = state.logUnit;
   const macros = getMacrosForFood(food, quantity, unit);
@@ -630,6 +803,7 @@ function deleteFoodLog(category, idx) {
 function editFoodLog(category, idx) {
   const log = getCurrentDayLog();
   const item = log[category][idx];
+  if (!item?.food) return;
   state.currentFoodForLog = item.food;
   state.defaultCategory = category;
   state.logUnit = item.unit;
@@ -650,6 +824,13 @@ function setDropdownValue(dropdownId, value) {
       if (labelEl) labelEl.textContent = item.textContent;
     } else { item.classList.remove('selected'); }
   });
+}
+
+function getDropdownValue(dropdownId) {
+  const dropdown = document.getElementById(dropdownId);
+  if (!dropdown) return '';
+  const selected = dropdown.querySelector('.dropdown-item.selected');
+  return selected ? selected.dataset.value : '';
 }
 
 function initDropdown(dropdownId, onChange) {
@@ -678,29 +859,56 @@ function initDropdown(dropdownId, onChange) {
 
 initDropdown('activityDropdown', (value) => { state.activityLevel = value; saveState(); updateMacroDisplay(); });
 initDropdown('logUnitDropdown', (value) => { state.logUnit = value; updateLogFoodPreview(); });
+initDropdown('logMealDropdown', (value) => { state.logMeal = value; });
+initDropdown('createFoodServingUnitDropdown');
+initDropdown('editFoodServingUnitDropdown');
 
 document.addEventListener('click', () => { document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open')); });
 
 document.getElementById('addFoodClose').addEventListener('click', closeAddFoodModal);
-document.getElementById('addNewFoodBtn').addEventListener('click', openCreateFoodModal);
+document.getElementById('addNewFoodBtn').addEventListener('click', () => openCreateFoodModal(document.getElementById('searchInput').value || ''));
 document.getElementById('searchInput').addEventListener('input', (e) => searchFoods(e.target.value));
 document.getElementById('editFoodClose').addEventListener('click', closeEditFoodModal);
 document.getElementById('cancelEditFood').addEventListener('click', closeEditFoodModal);
 document.getElementById('editFoodForm').addEventListener('submit', (e) => { e.preventDefault(); saveEditedFood(); });
+document.getElementById('deleteFoodFromDbBtn').addEventListener('click', deleteFoodFromDatabase);
 document.getElementById('createFoodClose').addEventListener('click', closeCreateFoodModal);
 document.getElementById('cancelCreateFood').addEventListener('click', closeCreateFoodModal);
 document.getElementById('createFoodForm').addEventListener('submit', (e) => { e.preventDefault(); saveCreatedFood(); });
+document.getElementById('createFoodServingSize').addEventListener('focus', (e) => {
+  e.target.value = '';
+});
+document.getElementById('createFoodServingSize').addEventListener('blur', (e) => {
+  if (e.target.value === '' || e.target.value === '-') {
+    e.target.value = '100';
+  }
+});
 document.getElementById('addToLogClose').addEventListener('click', closeAddToLogModal);
 document.getElementById('cancelAddToLog').addEventListener('click', closeAddToLogModal);
 document.getElementById('foodQuantity').addEventListener('input', updateLogFoodPreview);
+document.getElementById('foodQuantity').addEventListener('focus', (e) => {
+  e.target.value = '';
+});
+document.getElementById('foodQuantity').addEventListener('blur', (e) => {
+  if (e.target.value === '' || e.target.value === '-') {
+    e.target.value = '100';
+    updateLogFoodPreview();
+  }
+});
 document.getElementById('confirmAddToLog').addEventListener('click', () => {
   if (state.editingLogItem) {
     const log = getCurrentDayLog();
-    const item = log[state.editingLogItem.category][state.editingLogItem.idx];
+    const sourceCategory = state.editingLogItem.category;
+    const item = log[sourceCategory][state.editingLogItem.idx];
     const quantity = parseFloat(document.getElementById('foodQuantity').value) || 100;
     const unit = state.logUnit;
+    const targetCategory = state.logMeal || sourceCategory;
     item.quantity = quantity; item.unit = unit;
     item.macros = getMacrosForFood(item.food, quantity, unit);
+    if (targetCategory !== sourceCategory) {
+      log[sourceCategory].splice(state.editingLogItem.idx, 1);
+      log[targetCategory].push(item);
+    }
     saveState(); updateMacroDisplay(); renderFoodLog(); closeAddToLogModal();
   } else { addFoodToLog(); }
 });
@@ -769,6 +977,7 @@ setDropdownValue('activityDropdown', state.activityLevel);
 updateDateDisplay();
 updateMacroDisplay();
 renderFoodLog();
+refreshIcons();
 </script>
 </body>
 </html>

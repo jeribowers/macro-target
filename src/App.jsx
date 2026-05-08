@@ -19,6 +19,15 @@ const MACROS = [
 ];
 const MACRO_NAMES = { calories: "Calories", protein: "Protein", carbs: "Carbs", fat: "Fat" };
 const ACCENT = "#3b82f6";
+const SIZE = {
+  textSm: 15,
+  textMd: 17,
+  textLg: 19,
+  textXl: 22,
+  buttonSm: { fontSize: 15, py: "8px", px: "12px" },
+  buttonMd: { fontSize: 17, py: "11px", px: "18px" },
+  inputMd: { fontSize: 17, py: "10px", px: "12px" },
+};
 
 function fmt(n) { return Number(n || 0).toLocaleString(); }
 function todayKey() { return new Date().toISOString().split("T")[0]; }
@@ -90,14 +99,14 @@ function LoginScreen({ onLogin, error }) {
       <div style={{ textAlign: "center" }}>
         <div style={{ fontSize: 48, marginBottom: 12 }}>🥗</div>
         <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.03em", marginBottom: 6 }}>Jeri's Macro Tracker</h1>
-        <p style={{ color: "#64748b", fontSize: 15 }}>Track your nutrition, hit your goals.</p>
+        <p style={{ color: "#64748b", fontSize: SIZE.textSm }}>Track your nutrition, hit your goals.</p>
       </div>
       <button onClick={handleGoogle} disabled={loading}
-        style={{ display: "flex", alignItems: "center", gap: 12, background: "#fff", border: "none", borderRadius: 12, padding: "14px 24px", color: "#1e293b", fontSize: 16, fontWeight: 600, cursor: loading ? "wait" : "pointer", opacity: loading ? 0.7 : 1, boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
+        style={{ display: "flex", alignItems: "center", gap: 12, background: "#fff", border: "none", borderRadius: 12, padding: `${SIZE.buttonMd.py} ${SIZE.buttonMd.px}`, color: "#1e293b", fontSize: SIZE.buttonMd.fontSize, fontWeight: 600, cursor: loading ? "wait" : "pointer", opacity: loading ? 0.7 : 1, boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
         <GoogleIc />
         {loading ? "Signing in…" : "Sign in with Google"}
       </button>
-      {error && <p style={{ color: "#ef4444", fontSize: 14, textAlign: "center", maxWidth: 280 }}>{error}</p>}
+      {error && <p style={{ color: "#ef4444", fontSize: SIZE.textSm, textAlign: "center", maxWidth: 280 }}>{error}</p>}
     </div>
   );
 }
@@ -157,7 +166,7 @@ function NumField({ label, value, onChange, unit = "" }) {
         onFocus={e => { if (!touched) setStr(""); e.target.select(); }}
         onChange={e => { setTouched(true); setStr(e.target.value); const n = parseFloat(e.target.value); onChange(isNaN(n) ? 0 : n); }}
         onBlur={() => { if (str === "" || str === "-") { setStr("0"); onChange(0); } }}
-        style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 6, padding: "8px 10px", color: "#f1f5f9", fontSize: 15, width: "100%" }} />
+        style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 6, padding: `${SIZE.inputMd.py} ${SIZE.inputMd.px}`, color: "#f1f5f9", fontSize: SIZE.inputMd.fontSize, width: "100%" }} />
     </div>
   );
 }
@@ -212,7 +221,7 @@ function EntryModal({ foods, meal, editEntry, onSave, onClose, onSaveToLibrary }
   const effectiveGrams = selected ? (amountMode === "servings" ? Math.round(servings * (selected.defaultGrams || 100)) : grams) : grams;
   const liveMacros = selected ? scaleMacros(selected, effectiveGrams) : null;
 
-  const inputSt = { width: "100%", boxSizing: "border-box", background: "#1e293b", border: "1px solid #334155", borderRadius: 6, padding: "8px 10px", color: "#f1f5f9", fontSize: 15 };
+  const inputSt = { width: "100%", boxSizing: "border-box", background: "#1e293b", border: "1px solid #334155", borderRadius: 6, padding: `${SIZE.inputMd.py} ${SIZE.inputMd.px}`, color: "#f1f5f9", fontSize: SIZE.inputMd.fontSize };
 
   async function handleSave() {
     let entry;
@@ -240,7 +249,7 @@ function EntryModal({ foods, meal, editEntry, onSave, onClose, onSaveToLibrary }
           <div style={{ display: "flex", background: "#1e293b", borderRadius: 8, padding: 3 }}>
             {[["library", "From Library"], ["custom", "Custom"]].map(([m, lbl]) => (
               <button key={m} onClick={() => { setMode(m); setSelected(null); }}
-                style={{ flex: 1, background: mode === m ? ACCENT : "none", border: "none", borderRadius: 6, padding: "7px", color: mode === m ? "#fff" : "#64748b", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+                style={{ flex: 1, background: mode === m ? ACCENT : "none", border: "none", borderRadius: 6, padding: SIZE.buttonSm.py, color: mode === m ? "#fff" : "#64748b", fontSize: SIZE.buttonSm.fontSize, fontWeight: 600, cursor: "pointer" }}>
                 {lbl}
               </button>
             ))}
@@ -270,7 +279,7 @@ function EntryModal({ foods, meal, editEntry, onSave, onClose, onSaveToLibrary }
               <div style={{ display: "flex", background: "#1e293b", borderRadius: 8, padding: 3 }}>
                 {[["grams", `${selected.unit || "g"}`], ["servings", `Servings (1 = ${selected.defaultGrams || 100}${selected.unit || "g"})`]].map(([am, lbl]) => (
                   <button key={am} onClick={() => setAmountMode(am)}
-                    style={{ flex: 1, background: amountMode === am ? "#0f172a" : "none", border: "none", borderRadius: 6, padding: "6px 4px", color: amountMode === am ? "#f1f5f9" : "#64748b", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                    style={{ flex: 1, background: amountMode === am ? "#0f172a" : "none", border: "none", borderRadius: 6, padding: "8px 6px", color: amountMode === am ? "#f1f5f9" : "#64748b", fontSize: SIZE.textSm, fontWeight: 600, cursor: "pointer" }}>
                     {lbl}
                   </button>
                 ))}
@@ -324,7 +333,7 @@ function EntryModal({ foods, meal, editEntry, onSave, onClose, onSaveToLibrary }
                   setSavedToLib(true);
                   setTimeout(() => setSavedToLib(false), 2000);
                 }}
-                style={{ background: savedToLib ? "#134e3a" : "none", border: `1px dashed ${savedToLib ? "#10b981" : "#475569"}`, borderRadius: 7, padding: "8px 12px", color: savedToLib ? "#10b981" : "#94a3b8", fontSize: 13, cursor: "pointer", textAlign: "center", transition: "all 0.2s" }}>
+                style={{ background: savedToLib ? "#134e3a" : "none", border: `1px dashed ${savedToLib ? "#10b981" : "#475569"}`, borderRadius: 7, padding: `${SIZE.buttonSm.py} ${SIZE.buttonSm.px}`, color: savedToLib ? "#10b981" : "#94a3b8", fontSize: SIZE.buttonSm.fontSize, cursor: "pointer", textAlign: "center", transition: "all 0.2s" }}>
                 {savedToLib ? "✓ Saved to Library" : "+ Also save to Library"}
               </button>
             )}
@@ -333,10 +342,10 @@ function EntryModal({ foods, meal, editEntry, onSave, onClose, onSaveToLibrary }
 
         <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
           <button onClick={handleSave} disabled={saving}
-            style={{ flex: 1, background: ACCENT, border: "none", borderRadius: 8, padding: 12, color: "#fff", fontSize: 15, fontWeight: 700, cursor: saving ? "wait" : "pointer", opacity: saving ? 0.7 : 1 }}>
+            style={{ flex: 1, background: ACCENT, border: "none", borderRadius: 8, padding: `${SIZE.buttonMd.py} ${SIZE.buttonMd.px}`, color: "#fff", fontSize: SIZE.buttonMd.fontSize, fontWeight: 700, cursor: saving ? "wait" : "pointer", opacity: saving ? 0.7 : 1 }}>
             {saving ? "Saving…" : isEdit ? "Save Changes" : "Add Entry"}
           </button>
-          <button onClick={onClose} style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, padding: "12px 16px", color: "#94a3b8", fontSize: 15, cursor: "pointer" }}>Cancel</button>
+          <button onClick={onClose} style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, padding: `${SIZE.buttonMd.py} 16px`, color: "#94a3b8", fontSize: SIZE.buttonMd.fontSize, cursor: "pointer" }}>Cancel</button>
         </div>
       </div>
     </div>
@@ -444,7 +453,7 @@ function DailyLog({ userId, foods, setFoods }) {
         <div style={{ width: 1, alignSelf: "stretch", background: "#1e293b" }} />
         <div style={{ position: "relative", flexShrink: 0 }}>
           <select value={activity} onChange={e => setActivity(e.target.value)}
-            style={{ background: "transparent", border: "none", outline: "none", padding: "10px 32px 10px 12px", color: "#cbd5e1", fontSize: 13, fontWeight: 600, cursor: "pointer", appearance: "none", WebkitAppearance: "none", minWidth: 110 }}>
+            style={{ background: "transparent", border: "none", outline: "none", padding: "12px 32px 12px 14px", color: "#cbd5e1", fontSize: SIZE.textSm, fontWeight: 600, cursor: "pointer", appearance: "none", WebkitAppearance: "none", minWidth: 120 }}>
             {ACTIVITY.map(a => <option key={a.label} value={a.label}>{a.label} (×{a.mult})</option>)}
           </select>
           <span style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", color: "#64748b", pointerEvents: "none" }}><ChevDownIc /></span>
@@ -468,7 +477,7 @@ function DailyLog({ userId, foods, setFoods }) {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
               <span style={{ fontSize: 13, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em" }}>{meal}</span>
               <button onClick={() => setModal({ meal })}
-                style={{ display: "flex", alignItems: "center", gap: 4, background: "none", border: "1px solid #293548", borderRadius: 6, padding: "4px 10px", color: "#94a3b8", fontSize: 13, cursor: "pointer" }}>
+                style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "1px solid #293548", borderRadius: 6, padding: "7px 12px", color: "#94a3b8", fontSize: SIZE.textSm, cursor: "pointer" }}>
                 <Plus /> Add
               </button>
             </div>
@@ -544,10 +553,10 @@ function FoodLibrary({ userId, foods, setFoods }) {
         <div style={{ flex: 1, position: "relative" }}>
           <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }}><SearchIc /></span>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search foods…"
-            style={{ width: "100%", boxSizing: "border-box", background: "#0f172a", border: "1px solid #334155", borderRadius: 8, padding: "9px 12px 9px 36px", color: "#f1f5f9", fontSize: 15 }} />
+            style={{ width: "100%", boxSizing: "border-box", background: "#0f172a", border: "1px solid #334155", borderRadius: 8, padding: `11px 12px 11px 36px`, color: "#f1f5f9", fontSize: SIZE.textSm }} />
         </div>
         <button onClick={() => { setAdding(a => !a); setEditingId(null); }}
-          style={{ display: "flex", alignItems: "center", gap: 5, background: ACCENT, border: "none", borderRadius: 8, padding: "9px 14px", color: "#fff", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+          style={{ display: "flex", alignItems: "center", gap: 6, background: ACCENT, border: "none", borderRadius: 8, padding: `${SIZE.buttonSm.py} 16px`, color: "#fff", fontSize: SIZE.textSm, fontWeight: 600, cursor: "pointer" }}>
           <Plus /> Add
         </button>
       </div>
@@ -591,7 +600,7 @@ function FoodLibrary({ userId, foods, setFoods }) {
 function FoodForm({ initial, onSave, onCancel, title }) {
   const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
-  const inputSt = { width: "100%", boxSizing: "border-box", marginTop: 4, background: "#1e293b", border: "1px solid #334155", borderRadius: 6, padding: "8px 10px", color: "#f1f5f9", fontSize: 15 };
+  const inputSt = { width: "100%", boxSizing: "border-box", marginTop: 4, background: "#1e293b", border: "1px solid #334155", borderRadius: 6, padding: `${SIZE.inputMd.py} ${SIZE.inputMd.px}`, color: "#f1f5f9", fontSize: SIZE.inputMd.fontSize };
   const serving = Number(form.defaultGrams) || 100;
 
   async function handleSave() {
@@ -638,10 +647,10 @@ function FoodForm({ initial, onSave, onCancel, title }) {
         </div>
       )}
       <div style={{ display: "flex", gap: 8 }}>
-        <button onClick={handleSave} disabled={saving} style={{ flex: 1, background: ACCENT, border: "none", borderRadius: 7, padding: 10, color: "#fff", fontSize: 15, fontWeight: 600, cursor: saving ? "wait" : "pointer", opacity: saving ? 0.7 : 1 }}>
+        <button onClick={handleSave} disabled={saving} style={{ flex: 1, background: ACCENT, border: "none", borderRadius: 7, padding: `${SIZE.buttonMd.py} ${SIZE.buttonMd.px}`, color: "#fff", fontSize: SIZE.buttonMd.fontSize, fontWeight: 600, cursor: saving ? "wait" : "pointer", opacity: saving ? 0.7 : 1 }}>
           {saving ? "Saving…" : "Save Food"}
         </button>
-        <button onClick={onCancel} style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 7, padding: "10px 14px", color: "#94a3b8", fontSize: 15, cursor: "pointer" }}>Cancel</button>
+        <button onClick={onCancel} style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 7, padding: `${SIZE.buttonMd.py} 16px`, color: "#94a3b8", fontSize: SIZE.buttonMd.fontSize, cursor: "pointer" }}>Cancel</button>
       </div>
     </div>
   );
@@ -685,7 +694,7 @@ function GoalsPanel({ userId }) {
           {ACTIVITY.map(p => (
             <button key={p.label}
               onClick={() => saveGoals({ calories: Math.round(base.calories * p.mult), protein: Math.round(base.protein * p.mult), carbs: Math.round(base.carbs * p.mult), fat: Math.round(base.fat * p.mult) })}
-              style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 10, padding: "10px 6px", color: "#94a3b8", fontSize: 13, fontWeight: 600, cursor: "pointer", textAlign: "center" }}
+              style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 10, padding: "12px 8px", color: "#94a3b8", fontSize: SIZE.textSm, fontWeight: 600, cursor: "pointer", textAlign: "center" }}
               onMouseEnter={e => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = ACCENT; }}
               onMouseLeave={e => { e.currentTarget.style.background = "#1e293b"; e.currentTarget.style.color = "#94a3b8"; e.currentTarget.style.borderColor = "#334155"; }}>
               {p.label}<div style={{ fontSize: 10, marginTop: 2, opacity: 0.6 }}>×{p.mult}</div>
@@ -697,8 +706,8 @@ function GoalsPanel({ userId }) {
         <div style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>Current Targets</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
           {MACROS.map(([key, , color, unit]) => (
-            <div key={key} style={{ background: "#1e293b", borderRadius: 8, padding: "10px 12px" }}>
-              <div style={{ fontSize: 20, fontWeight: 700, color, fontFamily: "monospace" }}>
+            <div key={key} style={{ background: "#1e293b", borderRadius: 8, padding: "12px 14px" }}>
+              <div style={{ fontSize: SIZE.textXl, fontWeight: 700, color, fontFamily: "monospace" }}>
                 {fmt(goals[key])}<span style={{ fontSize: 12, color: "#64748b", fontWeight: 400 }}>{unit}</span>
               </div>
               <div style={{ fontSize: 13, color: "#94a3b8" }}>{MACRO_NAMES[key]}</div>
@@ -855,14 +864,14 @@ export default function App() {
   return (
     <div style={{ minHeight: "100vh", background: "#020617", color: "#f1f5f9", fontFamily: "'DM Sans', system-ui, sans-serif", display: "flex", flexDirection: "column", alignItems: "center", paddingBottom: 60 }}>
       <div style={{ width: "100%", maxWidth: 540, padding: "24px 20px 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.03em" }}>Jeri's Macro Tracker</h1>
-        <button onClick={handleLogout} style={{ background: "none", border: "1px solid #1e293b", borderRadius: 7, padding: "5px 10px", color: "#475569", fontSize: 12, cursor: "pointer" }}>Sign out</button>
+        <h1 style={{ fontSize: SIZE.textXl, fontWeight: 800, letterSpacing: "-0.03em" }}>Jeri's Macro Tracker</h1>
+        <button onClick={handleLogout} style={{ background: "none", border: "1px solid #1e293b", borderRadius: 7, padding: "8px 12px", color: "#475569", fontSize: SIZE.textSm, cursor: "pointer" }}>Sign out</button>
       </div>
       <div style={{ width: "100%", maxWidth: 540, padding: "16px 20px 0" }}>
         <div style={{ display: "flex", background: "#0f172a", borderRadius: 12, padding: 4, border: "1px solid #1e293b" }}>
           {tabs.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
-              style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, background: tab===t.id ? "#1e293b" : "none", border: "none", borderRadius: 9, padding: "9px 4px", color: tab===t.id ? "#f1f5f9" : "#94a3b8", fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "all 0.15s" }}>
+              style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: tab===t.id ? "#1e293b" : "none", border: "none", borderRadius: 9, padding: "11px 6px", color: tab===t.id ? "#f1f5f9" : "#94a3b8", fontSize: SIZE.textSm, fontWeight: 600, cursor: "pointer", transition: "all 0.15s" }}>
               {t.icon} {t.label}
             </button>
           ))}
