@@ -40,18 +40,6 @@
   --icon-size: 18px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background-primary: #1C1C1E;
-    --color-background-secondary: #2C2C2E;
-    --color-background-tertiary: #000000;
-    --color-text-primary: #FFFFFF;
-    --color-text-secondary: #A0A0A0;
-    --color-text-tertiary: #6B6B6B;
-    --color-border-tertiary: rgba(255,255,255,0.15);
-    --color-border-secondary: rgba(255,255,255,0.3);
-  }
-}
 
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: var(--color-background-tertiary); -webkit-tap-highlight-color: transparent; font-size: var(--text-md); }
@@ -96,15 +84,6 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
 .macro-card.protein .progress { border: 1px solid #166534; }
 .macro-card .progress-bar { height: 100%; transition: width 0.2s; }
 .macro-card .remaining { font-size: 11px; color: var(--color-text-secondary); }
-@media (prefers-color-scheme: dark) {
-  .macro-card.calories { border-color: #EF4444; background: #2A1112; }
-  .macro-card.carbs { border-color: #3B82F6; background: #101B2E; }
-  .macro-card.protein { border-color: #22C55E; background: #0F2317; }
-  .macro-card .label { color: #D1D5DB; }
-  .macro-card .value { color: #F9FAFB; }
-  .macro-card .remaining { color: #D1D5DB; }
-  .macro-card .progress { background: rgba(255,255,255,0.08); }
-}
 
 .content { flex: 1; overflow-y: auto; padding: 0.625rem; }
 .food-category { margin-bottom: 0.5rem; }
