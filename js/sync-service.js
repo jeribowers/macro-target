@@ -211,11 +211,16 @@ export function rowToFood(row) {
   };
 }
 
+function toMacroNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
+}
+
 export function foodToRow(food, userId) {
-  const calories = Number(food.calories ?? 0);
-  const carbs = Number(food.carbs ?? 0);
-  const protein = Number(food.protein ?? 0);
-  const fat = Number(food.fat ?? 0);
+  const calories = toMacroNumber(food.calories);
+  const carbs = toMacroNumber(food.carbs);
+  const protein = toMacroNumber(food.protein);
+  const fat = toMacroNumber(food.fat);
   return {
     user_id: userId,
     external_id: String(food.id).startsWith('custom_') ? food.id : null,
@@ -276,10 +281,10 @@ export function logItemToRow(item, userId, logDate, meal) {
     quantity,
     unit,
     grams: gramsForQuantity(quantity, unit),
-    calories: item.macros?.calories ?? 0,
-    protein: item.macros?.protein ?? 0,
-    carbs: item.macros?.carbs ?? 0,
-    fat: item.macros?.fat ?? 0,
+    calories: toMacroNumber(item.macros?.calories),
+    protein: toMacroNumber(item.macros?.protein),
+    carbs: toMacroNumber(item.macros?.carbs),
+    fat: toMacroNumber(item.macros?.fat),
     updated_at: new Date().toISOString(),
   };
 }

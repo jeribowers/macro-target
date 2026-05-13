@@ -517,6 +517,10 @@ async function saveCreatedFood() {
   const fatPerServing = parseMacroInputNumber(document.getElementById('createFoodFat').value);
   if (!name || isNaN(servingSize) || servingSize <= 0 || !servingUnit || isNaN(defaultServingSize) || defaultServingSize <= 0) { alert('Please fill in all required fields. Reference size and serving size must be greater than 0.'); return; }
   const servingBase = servingSize * (UNIT_CONVERSIONS[servingUnit] || 1);
+  if (!Number.isFinite(servingBase) || servingBase <= 0) {
+    alert('Reference size must be greater than 0.');
+    return;
+  }
   const toPer100 = 100 / servingBase;
   const newFood = normalizeFood({
     id: 'custom_' + Date.now(),
