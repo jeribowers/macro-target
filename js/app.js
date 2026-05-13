@@ -914,7 +914,7 @@ async function initializeSignedInUser(userId) {
 
 async function handleSession(session) {
   if (!session) {
-    setAuthVisible(true);
+    if (!sync.hasAuthCallbackInUrl()) setAuthVisible(true);
     return;
   }
   try {
@@ -928,7 +928,7 @@ async function handleSession(session) {
     setAuthVisible(false);
     await initializeSignedInUser(session.user.id);
   } catch (error) {
-    reportError(error);
+    reportAuthError(error);
     setAuthVisible(true);
   }
 }
@@ -936,7 +936,6 @@ async function handleSession(session) {
 async function boot() {
   try {
     sync.initSupabase();
-    setAuthVisible(true);
     document.getElementById('googleSignInBtn')?.addEventListener('click', async () => {
       try {
         reportAuthError({ message: '' });
@@ -953,8 +952,33 @@ async function boot() {
       }
     });
     sync.onAuthStateChange((session) => {
-      void handleSession(session);
+      if (session) void handleSession(session);
     });
+
+    const callbackError = sync.getAuthCallbackError();
+    if (callbackError) {
+      sync.clearAuthCallbackFromUrl();
+      reportAuthError(new Error(callbackError));
+      setAuthVisible(true);
+      return;
+    }
+
+    if (sync.hasAuthCallbackInUrl()) {
+      setLoadingVisible(true);
+      try {
+        await sync.finishAuthFromUrl();
+      } catch (error) {
+        reportAuthError(error);
+        setAuthVisible(true);
+        return;
+      } finally {
+        setLoadingVisible(false);
+      }
+    }
+
+    const session = await sync.getSession();
+    if (session) await handleSession(session);
+    else setAuthVisible(true);
   } catch (error) {
     reportAuthError(error);
     setAuthVisible(true);

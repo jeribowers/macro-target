@@ -9,8 +9,46 @@ let client = null;
 let currentUserId = null;
 
 function getRedirectUrl() {
-  const path = window.location.pathname.replace(/\/$/, '');
-  return `${window.location.origin}${path || ''}`;
+  const url = new URL(window.location.href);
+  url.search = '';
+  url.hash = '';
+  return url.toString();
+}
+
+export function hasAuthCallbackInUrl() {
+  const url = new URL(window.location.href);
+  if (url.searchParams.has('code')) return true;
+  if (url.searchParams.has('error')) return true;
+  if (url.hash.includes('access_token=')) return true;
+  return false;
+}
+
+export function getAuthCallbackError() {
+  const url = new URL(window.location.href);
+  const error = url.searchParams.get('error_description') || url.searchParams.get('error');
+  return error ? decodeURIComponent(error.replace(/\+/g, ' ')) : '';
+}
+
+export function clearAuthCallbackFromUrl() {
+  const url = new URL(window.location.href);
+  url.search = '';
+  url.hash = '';
+  window.history.replaceState({}, '', url.toString());
+}
+
+export async function finishAuthFromUrl() {
+  const url = new URL(window.location.href);
+  const code = url.searchParams.get('code');
+  if (code) {
+    const { data, error } = await client.auth.exchangeCodeForSession(code);
+    if (error) throw new Error(toErrorMessage(error, 'Google sign-in could not be completed.'));
+    clearAuthCallbackFromUrl();
+    return data.session;
+  }
+  const { data, error } = await client.auth.getSession();
+  if (error) throw new Error(toErrorMessage(error, 'Could not read your sign-in session.'));
+  if (data.session) clearAuthCallbackFromUrl();
+  return data.session;
 }
 
 function toErrorMessage(error, fallback) {
@@ -35,6 +73,7 @@ export function initSupabase() {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
+        flowType: 'pkce',
       },
     });
   }
@@ -84,7 +123,7 @@ export async function isAllowedUser(email) {
   const { data, error } = await client
     .from('allowed_users')
     .select('email')
-    .eq('email', email)
+    .ilike('email', email.trim())
     .maybeSingle();
   if (error) throw new Error(toErrorMessage(error, 'Could not verify account access.'));
   return Boolean(data);
