@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -55,8 +55,7 @@ input:focus,
 .editable-macro input:focus,
 .form-select:focus,
 button:focus,
-.dropdown-trigger:focus,
-.delete-food-link:focus {
+.dropdown-trigger:focus {
   outline: none;
 }
 
@@ -74,12 +73,6 @@ button:focus-visible,
 .dropdown-trigger:focus-visible {
   border-color: var(--focus-ring);
   box-shadow: var(--focus-ring-shadow);
-}
-
-.delete-food-link:focus-visible {
-  box-shadow: none;
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
 }
 
 .app-container { width: 100%; max-width: 480px; margin: 0 auto; background: var(--color-background-tertiary); min-height: 100dvh; display: flex; flex-direction: column; padding-bottom: var(--safe-bottom); }
@@ -187,6 +180,12 @@ button:focus-visible,
 #addFoodModal .modal-body { display: flex; flex-direction: column; flex: 1; min-height: 0; padding-bottom: calc(0.625rem + var(--safe-bottom)); }
 #addFoodModal .search-controls { flex-shrink: 0; margin-bottom: 0; }
 #addFoodModal .search-results { flex: 1; min-height: 0; max-height: none; margin-top: 6px; -webkit-overflow-scrolling: touch; }
+#searchResults > * + * { border-top: 0.5px solid var(--color-border-tertiary); }
+.swipe-row { position: relative; overflow: hidden; }
+.swipe-row + .swipe-row { border-top: 0.5px solid var(--color-border-tertiary); }
+.swipe-delete { position: absolute; top: 0; right: 0; bottom: 0; width: 88px; border: none; padding: 0; background: #B42318; color: #FFFFFF; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; cursor: pointer; }
+.swipe-row .swipe-content { position: relative; z-index: 1; transition: transform 0.2s ease; background: var(--color-background-primary); touch-action: pan-y; }
+.swipe-row.is-open .swipe-content { transform: translateX(-88px); }
 .food-option { padding: 8px 0; background: transparent; display: flex; justify-content: space-between; align-items: center; gap: 8px; cursor: pointer; }
 .food-option + .food-option { border-top: 0.5px solid var(--color-border-tertiary); }
 .food-option .info { flex: 1; min-width: 0; }
@@ -207,7 +206,6 @@ button:focus-visible,
 #editFoodForm > .form-actions,
 #createFoodForm > .form-actions,
 #addToLogModal .modal-body > .form-actions { margin-top: 0; }
-#editFoodForm > .delete-food-link { margin-top: 0; }
 .serving-input-group { display: flex; gap: 6px; margin-bottom: 0; align-items: stretch; }
 .serving-input-group .form-group { margin-bottom: 0; }
 .serving-input-group .reference-size,
@@ -221,7 +219,6 @@ button:focus-visible,
 
 .form-actions { display: flex; gap: 6px; margin-top: 0; }
 .form-actions button { flex: 1; min-height: var(--button-md-height); padding: 0 var(--button-md-px); font-size: var(--text-md); }
-.delete-food-link { margin-top: 0; background: none; border: none; padding: 0; color: #B42318; font-size: var(--text-sm); text-decoration: underline; cursor: pointer; text-align: left; }
 
 .quantity-input-group { display: flex; gap: 6px; margin-bottom: 0; }
 .quantity-input-group .form-group { margin-bottom: 0; flex: 1 1 50%; min-width: 0; }
@@ -289,6 +286,14 @@ button:focus-visible,
         <span class="target"><span id="calorieTarget">0</span><span class="target-suffix"> total</span></span>
       </div>
     </div>
+    <div class="macro-card fat">
+      <div class="label">Fat</div>
+      <div class="value" id="fatValue">0</div>
+      <div class="progress"><div class="progress-bar" id="fatBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
+      <div class="meta">
+        <span class="target"><span id="fatTarget">0</span><span class="target-suffix"> total</span></span>
+      </div>
+    </div>
     <div class="macro-card carbs">
       <div class="label">Carbs</div>
       <div class="value" id="carbValue">0</div>
@@ -303,14 +308,6 @@ button:focus-visible,
       <div class="progress"><div class="progress-bar" id="proteinBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
       <div class="meta">
         <span class="target"><span id="proteinTarget">0</span><span class="target-suffix"> total</span></span>
-      </div>
-    </div>
-    <div class="macro-card fat">
-      <div class="label">Fat</div>
-      <div class="value" id="fatValue">0</div>
-      <div class="progress"><div class="progress-bar" id="fatBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
-      <div class="meta">
-        <span class="target"><span id="fatTarget">0</span><span class="target-suffix"> total</span></span>
       </div>
     </div>
   </div>
@@ -344,7 +341,7 @@ button:focus-visible,
       <form id="editFoodForm">
         <div class="form-group"><label>Food Name</label><input type="text" id="editFoodName" required></div>
         <div class="serving-input-group">
-          <div class="form-group reference-size"><label>Reference Size</label><input type="number" id="editFoodServingSize" required min="0.1" step="0.1"></div>
+          <div class="form-group reference-size"><label>Reference Size</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="editFoodServingSize" required></div>
           <div class="form-group serving-unit">
             <label>Unit</label>
             <div class="dropdown" id="editFoodServingUnitDropdown">
@@ -364,19 +361,18 @@ button:focus-visible,
             </div>
           </div>
           <div class="field-separator" aria-hidden="true"></div>
-          <div class="form-group default-serving-size"><label>Serving Size</label><input type="number" id="editFoodDefaultServingSize" required min="0.1" step="0.1"></div>
+          <div class="form-group default-serving-size"><label>Serving Size</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="editFoodDefaultServingSize" required></div>
         </div>
         <div class="macro-input-group">
-          <div class="form-group"><label>Calories</label><input type="number" id="editFoodCalories" required step="0.1"></div>
-          <div class="form-group"><label>Carbs (g)</label><input type="number" id="editFoodCarbs" required step="0.1"></div>
-          <div class="form-group"><label>Protein (g)</label><input type="number" id="editFoodProtein" required step="0.1"></div>
-          <div class="form-group"><label>Fat (g)</label><input type="number" id="editFoodFat" required step="0.1"></div>
+          <div class="form-group"><label>Calories</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="editFoodCalories" required></div>
+          <div class="form-group"><label>Fat (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="editFoodFat" required></div>
+          <div class="form-group"><label>Carbs (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="editFoodCarbs" required></div>
+          <div class="form-group"><label>Protein (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="editFoodProtein" required></div>
         </div>
         <div class="form-actions">
           <button type="button" class="btn-secondary" id="cancelEditFood">Cancel</button>
           <button type="submit" class="btn-primary">Save Food</button>
         </div>
-        <button type="button" class="delete-food-link" id="deleteFoodFromDbBtn">Delete from food database</button>
       </form>
     </div>
   </div>
@@ -392,7 +388,7 @@ button:focus-visible,
       <form id="createFoodForm">
         <div class="form-group"><label>Food Name</label><input type="text" id="createFoodName" required></div>
         <div class="serving-input-group">
-          <div class="form-group reference-size"><label>Reference Size</label><input type="number" id="createFoodServingSize" required min="0.1" step="0.1" value="100"></div>
+          <div class="form-group reference-size"><label>Reference Size</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="createFoodServingSize" required value="100"></div>
           <div class="form-group serving-unit">
             <label>Unit</label>
             <div class="dropdown" id="createFoodServingUnitDropdown">
@@ -412,13 +408,13 @@ button:focus-visible,
             </div>
           </div>
           <div class="field-separator" aria-hidden="true"></div>
-          <div class="form-group default-serving-size"><label>Serving Size</label><input type="number" id="createFoodDefaultServingSize" required min="0.1" step="0.1" value="100"></div>
+          <div class="form-group default-serving-size"><label>Serving Size</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="createFoodDefaultServingSize" required value="100"></div>
         </div>
         <div class="macro-input-group">
-          <div class="form-group"><label>Calories</label><input type="number" id="createFoodCalories" required step="0.1"></div>
-          <div class="form-group"><label>Carbs (g)</label><input type="number" id="createFoodCarbs" required step="0.1"></div>
-          <div class="form-group"><label>Protein (g)</label><input type="number" id="createFoodProtein" required step="0.1"></div>
-          <div class="form-group"><label>Fat (g)</label><input type="number" id="createFoodFat" required step="0.1"></div>
+          <div class="form-group"><label>Calories</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="createFoodCalories" required></div>
+          <div class="form-group"><label>Fat (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="createFoodFat" required></div>
+          <div class="form-group"><label>Carbs (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="createFoodCarbs" required></div>
+          <div class="form-group"><label>Protein (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="createFoodProtein" required></div>
         </div>
         <div class="form-actions">
           <button type="button" class="btn-secondary" id="cancelCreateFood">Cancel</button>
@@ -441,7 +437,7 @@ button:focus-visible,
         <div class="form-group">
           <label>Serving Size</label>
           <div class="serving-size-input">
-            <input type="number" id="foodServingSize" value="100" step="0.1">
+            <input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="foodServingSize" value="100">
             <span class="serving-size-unit" id="foodServingUnit">g</span>
           </div>
         </div>
@@ -519,14 +515,39 @@ const DEFAULT_FOODS = [
 
 let state = {
   currentDate: new Date(), activityLevel: 'medium', dailyLogs: {},
-  foods: [...DEFAULT_FOODS], recentSearches: [],
+  foods: DEFAULT_FOODS.map(normalizeFood), recentSearches: [],
   currentFoodForLog: null, editingFoodId: null,
   editingLogItem: null, defaultCategory: null, logMeal: 'breakfast'
 };
 
 function getDateKey(date) { const d = new Date(date); d.setHours(0, 0, 0, 0); return d.toISOString().split('T')[0]; }
 
-function formatNumber(value) { return Number(value).toLocaleString('en-US'); }
+function formatNumber(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return '0';
+  const integerDigits = Math.trunc(Math.abs(number)).toString().length;
+  return number.toLocaleString('en-US', {
+    useGrouping: integerDigits >= 4,
+    maximumFractionDigits: 10
+  });
+}
+
+function formatInputNumber(value) {
+  return formatNumber(value);
+}
+
+function parseInputNumber(value) {
+  if (value == null || value === '') return NaN;
+  const normalized = String(value).trim().replace(/,/g, '');
+  if (normalized === '' || normalized === '-') return NaN;
+  return Number.parseFloat(normalized);
+}
+
+function parseMacroInputNumber(value) {
+  if (value == null || String(value).trim() === '' || String(value).trim() === '-') return 0;
+  const parsed = parseInputNumber(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
 function normalizeFood(food) {
   const servingSize = Number(food.servingSize ?? 100) > 0 ? Number(food.servingSize ?? 100) : 100;
@@ -542,8 +563,7 @@ function getFoodServingUnit(food) {
 }
 
 function getDefaultServingSize(food) {
-  const defaultServingSize = Number(food?.defaultServingSize ?? food?.servingSize ?? 100);
-  return defaultServingSize > 0 ? defaultServingSize : 100;
+  return normalizeFood(food).defaultServingSize;
 }
 
 function getServingUnitLabel(unit) {
@@ -637,17 +657,17 @@ function updateMacroDisplay() {
 
 function renderMacroLine(calories, carbs, protein, fat, muted = false) {
   const cls = muted ? 'macro-line muted' : 'macro-line';
-  return `<span class="${cls}"><span class="cal">${formatNumber(Math.round(calories))} cal</span><span class="sep">•</span><span class="carb">${formatNumber(Math.round(carbs))}g carbs</span><span class="sep">•</span><span class="prot">${formatNumber(Math.round(protein))}g protein</span><span class="sep">•</span><span class="fat">${formatNumber(Math.round(fat))}g fat</span></span>`;
+  return `<span class="${cls}"><span class="cal">${formatNumber(Math.round(calories))} cal</span><span class="sep">•</span><span class="fat">${formatNumber(Math.round(fat))}g fat</span><span class="sep">•</span><span class="carb">${formatNumber(Math.round(carbs))}g carbs</span><span class="sep">•</span><span class="prot">${formatNumber(Math.round(protein))}g protein</span></span>`;
 }
 
 function renderMacroBadges(calories, carbs, protein, fat, shortLabels = false) {
   const carbLabel = shortLabels ? 'carb' : 'carbs';
   const protLabel = shortLabels ? 'pro' : 'protein';
-  return `<span class="macro-line macro-badge-row"><span class="macro-badge cal">${formatNumber(Math.round(calories))} cal</span><span class="macro-badge carb">${formatNumber(Math.round(carbs))}g ${carbLabel}</span><span class="macro-badge prot">${formatNumber(Math.round(protein))}g ${protLabel}</span><span class="macro-badge fat">${formatNumber(Math.round(fat))}g fat</span></span>`;
+  return `<span class="macro-line macro-badge-row"><span class="macro-badge cal">${formatNumber(Math.round(calories))} cal</span><span class="macro-badge fat">${formatNumber(Math.round(fat))}g fat</span><span class="macro-badge carb">${formatNumber(Math.round(carbs))}g ${carbLabel}</span><span class="macro-badge prot">${formatNumber(Math.round(protein))}g ${protLabel}</span></span>`;
 }
 
 function renderFoodLogMacroLine(calories, carbs, protein, fat) {
-  return `<span class="macro-line"><span class="cal">${formatNumber(Math.round(calories))} cal</span><span class="sep">•</span><span class="carb">${formatNumber(Math.round(carbs))}g carb</span><span class="sep">•</span><span class="prot">${formatNumber(Math.round(protein))}g pro</span><span class="sep">•</span><span class="fat">${formatNumber(Math.round(fat))}g fat</span></span>`;
+  return `<span class="macro-line"><span class="cal">${formatNumber(Math.round(calories))} cal</span><span class="sep">•</span><span class="fat">${formatNumber(Math.round(fat))}g fat</span><span class="sep">•</span><span class="carb">${formatNumber(Math.round(carbs))}g carb</span><span class="sep">•</span><span class="prot">${formatNumber(Math.round(protein))}g pro</span></span>`;
 }
 
 function refreshIcons() {
@@ -667,7 +687,7 @@ function renderFoodLog() {
         <div class="food-category-header">
           <div class="food-category-title">
             <h3>${category}</h3>
-            <div class="category-total">${renderMacroBadges(catTotals.calories, catTotals.carbs, catTotals.protein, catTotals.fat)}</div>
+            <div class="category-total">${renderMacroBadges(catTotals.calories, catTotals.carbs, catTotals.protein, catTotals.fat, true)}</div>
           </div>
           <button class="add-food-header btn-secondary" onclick="openAddFoodModal('${category}')">+ Add</button>
         </div>
@@ -675,17 +695,19 @@ function renderFoodLog() {
     if (log[category].length > 0) {
       log[category].forEach((item, idx) => {
         html += `
-          <div class="food-item">
-            <div class="food-info">
-              <div class="food-name-row">
-                <p class="food-name">${item.food.name}</p>
-                <p class="food-weight">${formatNumber(item.quantity)}${item.unit}</p>
+          <div class="swipe-row" data-deletable="true" data-log-category="${category}" data-log-index="${idx}">
+            <button type="button" class="swipe-delete" data-log-category="${category}" data-log-index="${idx}" aria-label="Delete ${item.food.name}">Delete</button>
+            <div class="food-item swipe-content">
+              <div class="food-info">
+                <div class="food-name-row">
+                  <p class="food-name">${item.food.name}</p>
+                  <p class="food-weight">${formatNumber(item.quantity)}${item.unit}</p>
+                </div>
+                <p class="food-macros">${renderFoodLogMacroLine(item.macros.calories, item.macros.carbs, item.macros.protein, item.macros.fat || 0)}</p>
               </div>
-              <p class="food-macros">${renderFoodLogMacroLine(item.macros.calories, item.macros.carbs, item.macros.protein, item.macros.fat || 0)}</p>
-            </div>
-            <div class="food-actions">
-              <button onclick="editFoodLog('${category}', ${idx})" title="Edit" aria-label="Edit"><i data-lucide="pencil"></i></button>
-              <button onclick="deleteFoodLog('${category}', ${idx})" title="Delete" aria-label="Delete"><i data-lucide="trash-2"></i></button>
+              <div class="food-actions">
+                <button onclick="editFoodLog('${category}', ${idx})" title="Edit" aria-label="Edit"><i data-lucide="pencil"></i></button>
+              </div>
             </div>
           </div>`;
       });
@@ -707,34 +729,63 @@ function openAddFoodModal(defaultCategory = null) {
 }
 function closeAddFoodModal() { document.getElementById('addFoodModal').classList.remove('active'); }
 
+function isBuiltInFood(foodId) {
+  return DEFAULT_FOODS.some(f => f.id === foodId);
+}
+
+function deleteFoodById(foodId) {
+  if (!foodId) return;
+  if (isBuiltInFood(foodId)) {
+    alert('Built-in foods cannot be deleted.');
+    return;
+  }
+  const food = state.foods.find(f => f.id === foodId);
+  if (!food) return;
+  if (!confirm(`Delete "${food.name}" from food database? Existing foods already logged will stay in your daily logs.`)) return;
+  state.foods = state.foods.filter(f => f.id !== foodId);
+  state.recentSearches = state.recentSearches.filter(id => id !== foodId);
+  if (state.editingFoodId === foodId) closeEditFoodModal();
+  saveState();
+  if (document.getElementById('addFoodModal').classList.contains('active')) {
+    searchFoods(document.getElementById('searchInput').value);
+  }
+  updateMacroDisplay();
+  renderFoodLog();
+}
+
 function searchFoods(query) {
   const results = state.foods.filter(f => 
     f.name.toLowerCase().includes(query.toLowerCase())
   );
-  const sorted = results.sort((a, b) => {
-    const aRecent = state.recentSearches.indexOf(a.id);
-    const bRecent = state.recentSearches.indexOf(b.id);
-    if (aRecent !== -1 && bRecent === -1) return -1;
-    if (aRecent === -1 && bRecent !== -1) return 1;
-    return a.name.localeCompare(b.name);
-  });
+  const sorted = results.sort((a, b) => a.name.localeCompare(b.name));
   let html = '';
   sorted.forEach(food => {
-    const measure = `${formatNumber(food.servingSize || 100)}${food.servingUnit || 'g'}`;
-    const servingMacros = getMacrosForFood(food, food.servingSize || 100, food.servingUnit || 'g');
-    html += `<div class="food-option" onclick="selectFoodForLog('${food.id}')">
+    const displayFood = normalizeFood(food);
+    const unit = getFoodServingUnit(displayFood);
+    const servingSize = displayFood.defaultServingSize;
+    const measure = `${formatNumber(servingSize)}${unit}`;
+    const servingMacros = getMacrosForFood(displayFood, servingSize, unit);
+    const optionBody = `<div class="food-option swipe-content" onclick="selectFoodForLog('${food.id}')">
       <div class="info">
         <div class="name-row">
           <p class="name">${food.name}</p>
           <p class="measure">${measure}</p>
         </div>
-        <div class="macros">${renderMacroLine(servingMacros.calories, servingMacros.carbs, servingMacros.protein, servingMacros.fat)}</div>
+        <div class="macros">${renderFoodLogMacroLine(servingMacros.calories, servingMacros.carbs, servingMacros.protein, servingMacros.fat)}</div>
       </div>
       <div class="actions">
         <button class="btn-primary btn-icon" onclick="event.stopPropagation(); selectFoodForLog('${food.id}')" title="Add" aria-label="Add"><i data-lucide="plus"></i></button>
         <button class="btn-secondary btn-icon" onclick="event.stopPropagation(); editFoodInDB('${food.id}')" title="Edit" aria-label="Edit"><i data-lucide="pencil"></i></button>
       </div>
     </div>`;
+    if (isBuiltInFood(food.id)) {
+      html += optionBody;
+    } else {
+      html += `<div class="swipe-row" data-food-id="${food.id}" data-deletable="true">
+        <button type="button" class="swipe-delete" data-food-id="${food.id}" aria-label="Delete ${food.name}">Delete</button>
+        ${optionBody}
+      </div>`;
+    }
   });
   document.getElementById('searchResults').innerHTML = html || '<p class="search-empty">No foods found</p>';
   refreshIcons();
@@ -760,35 +811,38 @@ function editFoodInDB(foodId) {
   if (food) {
     state.editingFoodId = foodId;
     document.getElementById('editFoodName').value = food.name;
-    document.getElementById('editFoodServingSize').value = food.servingSize || 100;
+    document.getElementById('editFoodServingSize').value = formatInputNumber(food.servingSize || 100);
     setDropdownValue('editFoodServingUnitDropdown', food.servingUnit || 'g');
-    document.getElementById('editFoodDefaultServingSize').value = getDefaultServingSize(food);
+    document.getElementById('editFoodDefaultServingSize').value = formatInputNumber(getDefaultServingSize(food));
     const servingMacros = getMacrosForFood(food, food.servingSize || 100, food.servingUnit || 'g');
-    document.getElementById('editFoodCalories').value = servingMacros.calories;
-    document.getElementById('editFoodCarbs').value = servingMacros.carbs;
-    document.getElementById('editFoodProtein').value = servingMacros.protein;
-    document.getElementById('editFoodFat').value = servingMacros.fat;
+    document.getElementById('editFoodCalories').value = formatInputNumber(servingMacros.calories);
+    document.getElementById('editFoodCarbs').value = formatInputNumber(servingMacros.carbs);
+    document.getElementById('editFoodProtein').value = formatInputNumber(servingMacros.protein);
+    document.getElementById('editFoodFat').value = formatInputNumber(servingMacros.fat);
     document.getElementById('editFoodModal').classList.add('active');
   }
 }
 
-function closeEditFoodModal() { document.getElementById('editFoodModal').classList.remove('active'); state.editingFoodId = null; }
+function closeEditFoodModal() {
+  document.getElementById('editFoodModal').classList.remove('active');
+  state.editingFoodId = null;
+}
 
 function saveEditedFood() {
   const name = document.getElementById('editFoodName').value.trim();
-  const servingSize = parseFloat(document.getElementById('editFoodServingSize').value);
+  const servingSize = parseInputNumber(document.getElementById('editFoodServingSize').value);
   const servingUnit = getDropdownValue('editFoodServingUnitDropdown');
-  const defaultServingSize = parseFloat(document.getElementById('editFoodDefaultServingSize').value);
-  const caloriesPerServing = parseFloat(document.getElementById('editFoodCalories').value);
-  const carbsPerServing = parseFloat(document.getElementById('editFoodCarbs').value);
-  const proteinPerServing = parseFloat(document.getElementById('editFoodProtein').value);
-  const fatPerServing = parseFloat(document.getElementById('editFoodFat').value);
-  if (!name || isNaN(servingSize) || servingSize <= 0 || !servingUnit || isNaN(defaultServingSize) || defaultServingSize <= 0 || isNaN(caloriesPerServing) || isNaN(carbsPerServing) || isNaN(proteinPerServing) || isNaN(fatPerServing)) { alert('Please fill in all required fields. Reference size and serving size must be greater than 0.'); return; }
+  const defaultServingSize = parseInputNumber(document.getElementById('editFoodDefaultServingSize').value);
+  const caloriesPerServing = parseMacroInputNumber(document.getElementById('editFoodCalories').value);
+  const carbsPerServing = parseMacroInputNumber(document.getElementById('editFoodCarbs').value);
+  const proteinPerServing = parseMacroInputNumber(document.getElementById('editFoodProtein').value);
+  const fatPerServing = parseMacroInputNumber(document.getElementById('editFoodFat').value);
+  if (!name || isNaN(servingSize) || servingSize <= 0 || !servingUnit || isNaN(defaultServingSize) || defaultServingSize <= 0) { alert('Please fill in all required fields. Reference size and serving size must be greater than 0.'); return; }
   const servingBase = servingSize * (UNIT_CONVERSIONS[servingUnit] || 1);
   const toPer100 = 100 / servingBase;
   const foodIdx = state.foods.findIndex(f => f.id === state.editingFoodId);
   if (foodIdx !== -1) {
-    state.foods[foodIdx] = {
+    state.foods[foodIdx] = normalizeFood({
       ...state.foods[foodIdx],
       name,
       servingSize,
@@ -798,7 +852,7 @@ function saveEditedFood() {
       carbs: Math.round((carbsPerServing * toPer100) * 10) / 10,
       protein: Math.round((proteinPerServing * toPer100) * 10) / 10,
       fat: Math.round((fatPerServing * toPer100) * 10) / 10
-    };
+    });
     saveState();
     closeEditFoodModal();
     if (document.getElementById('addFoodModal').classList.contains('active')) {
@@ -807,16 +861,86 @@ function saveEditedFood() {
   }
 }
 
-function deleteFoodFromDatabase() {
-  if (!state.editingFoodId) return;
-  const food = state.foods.find(f => f.id === state.editingFoodId);
-  if (!food) return;
-  if (!confirm(`Delete "${food.name}" from food database? Existing foods already logged will stay in your daily logs.`)) return;
-  state.foods = state.foods.filter(f => f.id !== state.editingFoodId);
-  saveState();
-  closeEditFoodModal();
-  updateMacroDisplay();
-  renderFoodLog();
+function initSwipeToDelete(container, onDelete) {
+  if (!container || container.dataset.swipeBound === 'true') return;
+  container.dataset.swipeBound = 'true';
+
+  const SWIPE_WIDTH = 88;
+  const SWIPE_THRESHOLD = 44;
+  let activeSwipe = null;
+
+  function closeOpenRows(except) {
+    container.querySelectorAll('.swipe-row.is-open').forEach((row) => {
+      if (row !== except) row.classList.remove('is-open');
+    });
+  }
+
+  container.addEventListener('click', (e) => {
+    const deleteBtn = e.target.closest('.swipe-delete');
+    if (deleteBtn) {
+      e.preventDefault();
+      onDelete(deleteBtn);
+      return;
+    }
+    const row = e.target.closest('.swipe-row[data-deletable="true"]');
+    if (row && row.dataset.swipeMoved === 'true') {
+      e.preventDefault();
+      e.stopPropagation();
+      delete row.dataset.swipeMoved;
+    }
+  });
+
+  container.addEventListener('pointerdown', (e) => {
+    const content = e.target.closest('.swipe-row[data-deletable="true"] .swipe-content');
+    if (!content || e.target.closest('button')) return;
+    const row = content.closest('.swipe-row');
+    activeSwipe = {
+      row,
+      content,
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      offset: row.classList.contains('is-open') ? -SWIPE_WIDTH : 0,
+      moved: false,
+      dragAxis: null
+    };
+    content.setPointerCapture(e.pointerId);
+  });
+
+  container.addEventListener('pointermove', (e) => {
+    if (!activeSwipe || e.pointerId !== activeSwipe.pointerId) return;
+    const deltaX = e.clientX - activeSwipe.startX;
+    const deltaY = e.clientY - activeSwipe.startY;
+    if (!activeSwipe.dragAxis && (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8)) {
+      activeSwipe.dragAxis = Math.abs(deltaX) > Math.abs(deltaY) ? 'x' : 'y';
+    }
+    if (activeSwipe.dragAxis !== 'x') return;
+    activeSwipe.moved = true;
+    const offset = Math.max(-SWIPE_WIDTH, Math.min(0, activeSwipe.offset + deltaX));
+    activeSwipe.content.style.transform = `translateX(${offset}px)`;
+  });
+
+  function finishSwipe(e) {
+    if (!activeSwipe || e.pointerId !== activeSwipe.pointerId) return;
+    const { row, content, moved, offset, startX, dragAxis } = activeSwipe;
+    content.style.transform = '';
+    if (content.hasPointerCapture(e.pointerId)) content.releasePointerCapture(e.pointerId);
+    if (moved && dragAxis === 'x') {
+      row.dataset.swipeMoved = 'true';
+      const deltaX = e.clientX - startX;
+      const endOffset = Math.max(-SWIPE_WIDTH, Math.min(0, offset + deltaX));
+      if (endOffset <= -SWIPE_THRESHOLD) {
+        closeOpenRows(row);
+        row.classList.add('is-open');
+      } else {
+        row.classList.remove('is-open');
+      }
+    }
+    activeSwipe = null;
+  }
+
+  container.addEventListener('pointerup', finishSwipe);
+  container.addEventListener('pointercancel', finishSwipe);
 }
 
 function openCreateFoodModal(prefillName = '') {
@@ -835,17 +959,17 @@ function closeCreateFoodModal() { document.getElementById('createFoodModal').cla
 
 function saveCreatedFood() {
   const name = document.getElementById('createFoodName').value.trim();
-  const servingSize = parseFloat(document.getElementById('createFoodServingSize').value);
+  const servingSize = parseInputNumber(document.getElementById('createFoodServingSize').value);
   const servingUnit = getDropdownValue('createFoodServingUnitDropdown');
-  const defaultServingSize = parseFloat(document.getElementById('createFoodDefaultServingSize').value);
-  const caloriesPerServing = parseFloat(document.getElementById('createFoodCalories').value);
-  const carbsPerServing = parseFloat(document.getElementById('createFoodCarbs').value);
-  const proteinPerServing = parseFloat(document.getElementById('createFoodProtein').value);
-  const fatPerServing = parseFloat(document.getElementById('createFoodFat').value);
-  if (!name || isNaN(servingSize) || servingSize <= 0 || !servingUnit || isNaN(defaultServingSize) || defaultServingSize <= 0 || isNaN(caloriesPerServing) || isNaN(carbsPerServing) || isNaN(proteinPerServing) || isNaN(fatPerServing)) { alert('Please fill in all required fields. Reference size and serving size must be greater than 0.'); return; }
+  const defaultServingSize = parseInputNumber(document.getElementById('createFoodDefaultServingSize').value);
+  const caloriesPerServing = parseMacroInputNumber(document.getElementById('createFoodCalories').value);
+  const carbsPerServing = parseMacroInputNumber(document.getElementById('createFoodCarbs').value);
+  const proteinPerServing = parseMacroInputNumber(document.getElementById('createFoodProtein').value);
+  const fatPerServing = parseMacroInputNumber(document.getElementById('createFoodFat').value);
+  if (!name || isNaN(servingSize) || servingSize <= 0 || !servingUnit || isNaN(defaultServingSize) || defaultServingSize <= 0) { alert('Please fill in all required fields. Reference size and serving size must be greater than 0.'); return; }
   const servingBase = servingSize * (UNIT_CONVERSIONS[servingUnit] || 1);
   const toPer100 = 100 / servingBase;
-  const newFood = {
+  const newFood = normalizeFood({
     id: 'custom_' + Date.now(),
     name,
     servingSize,
@@ -855,14 +979,14 @@ function saveCreatedFood() {
     carbs: Math.round((carbsPerServing * toPer100) * 10) / 10,
     protein: Math.round((proteinPerServing * toPer100) * 10) / 10,
     fat: Math.round((fatPerServing * toPer100) * 10) / 10
-  };
+  });
   state.foods.push(newFood);
 
   // Save flow should also log the newly created food immediately.
   state.currentFoodForLog = newFood;
   state.editingLogItem = null;
   state.logMeal = state.defaultCategory || 'breakfast';
-  document.getElementById('foodServingSize').value = String(getDefaultServingSize(newFood));
+  document.getElementById('foodServingSize').value = formatInputNumber(getDefaultServingSize(newFood));
   document.getElementById('foodServingUnit').textContent = getServingUnitLabel(getFoodServingUnit(newFood));
   if (!state.recentSearches.includes(newFood.id)) {
     state.recentSearches.unshift(newFood.id);
@@ -875,7 +999,7 @@ function saveCreatedFood() {
 
 function setLogServingFields(food, quantity) {
   const unit = getFoodServingUnit(food);
-  document.getElementById('foodServingSize').value = String(quantity ?? getDefaultServingSize(food));
+  document.getElementById('foodServingSize').value = formatInputNumber(quantity ?? getDefaultServingSize(food));
   document.getElementById('foodServingUnit').textContent = getServingUnitLabel(unit);
 }
 
@@ -897,7 +1021,7 @@ function closeAddToLogModal() { document.getElementById('addToLogModal').classLi
 function updateLogFoodPreview() {
   if (!state.currentFoodForLog) return;
   const food = state.currentFoodForLog;
-  const quantity = parseFloat(document.getElementById('foodServingSize').value) || 0;
+  const quantity = parseInputNumber(document.getElementById('foodServingSize').value) || 0;
   const unit = getFoodServingUnit(food);
   const macros = getMacrosForFood(food, quantity, unit);
   document.getElementById('logFoodPreview').innerHTML = `
@@ -912,7 +1036,7 @@ function addFoodToLog() {
   if (!state.currentFoodForLog) return;
   const food = state.currentFoodForLog;
   const category = state.logMeal || state.defaultCategory || 'breakfast';
-  const quantity = parseFloat(document.getElementById('foodServingSize').value) || getDefaultServingSize(food);
+  const quantity = parseInputNumber(document.getElementById('foodServingSize').value) || getDefaultServingSize(food);
   const unit = getFoodServingUnit(food);
   const macros = getMacrosForFood(food, quantity, unit);
   const log = getCurrentDayLog();
@@ -989,6 +1113,8 @@ initDropdown('activityDropdown', (value) => { state.activityLevel = value; saveS
 initDropdown('logMealDropdown', (value) => { state.logMeal = value; });
 initDropdown('createFoodServingUnitDropdown');
 initDropdown('editFoodServingUnitDropdown');
+initSwipeToDelete(document.getElementById('searchResults'), (btn) => deleteFoodById(btn.dataset.foodId));
+initSwipeToDelete(document.getElementById('content'), (btn) => deleteFoodLog(btn.dataset.logCategory, Number(btn.dataset.logIndex)));
 
 document.addEventListener('click', () => { document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open')); });
 
@@ -998,10 +1124,17 @@ document.getElementById('searchInput').addEventListener('input', (e) => searchFo
 document.getElementById('editFoodClose').addEventListener('click', closeEditFoodModal);
 document.getElementById('cancelEditFood').addEventListener('click', closeEditFoodModal);
 document.getElementById('editFoodForm').addEventListener('submit', (e) => { e.preventDefault(); saveEditedFood(); });
-document.getElementById('deleteFoodFromDbBtn').addEventListener('click', deleteFoodFromDatabase);
 document.getElementById('createFoodClose').addEventListener('click', closeCreateFoodModal);
 document.getElementById('cancelCreateFood').addEventListener('click', closeCreateFoodModal);
 document.getElementById('createFoodForm').addEventListener('submit', (e) => { e.preventDefault(); saveCreatedFood(); });
+['editFoodServingSize', 'editFoodDefaultServingSize', 'editFoodCalories', 'editFoodCarbs', 'editFoodProtein', 'editFoodFat', 'createFoodServingSize', 'createFoodDefaultServingSize', 'createFoodCalories', 'createFoodCarbs', 'createFoodProtein', 'createFoodFat', 'foodServingSize'].forEach((id) => {
+  const input = document.getElementById(id);
+  if (!input) return;
+  input.addEventListener('input', (e) => {
+    const next = e.target.value.replace(/,/g, '.');
+    if (next !== e.target.value) e.target.value = next;
+  });
+});
 document.getElementById('createFoodServingSize').addEventListener('focus', (e) => {
   e.target.value = '';
 });
@@ -1018,6 +1151,15 @@ document.getElementById('createFoodDefaultServingSize').addEventListener('blur',
     e.target.value = '100';
   }
 });
+['editFoodCalories', 'editFoodCarbs', 'editFoodProtein', 'editFoodFat', 'createFoodCalories', 'createFoodCarbs', 'createFoodProtein', 'createFoodFat'].forEach((id) => {
+  const input = document.getElementById(id);
+  if (!input) return;
+  input.addEventListener('blur', (e) => {
+    if (e.target.value === '' || e.target.value === '-') {
+      e.target.value = '0';
+    }
+  });
+});
 document.getElementById('addToLogClose').addEventListener('click', closeAddToLogModal);
 document.getElementById('cancelAddToLog').addEventListener('click', closeAddToLogModal);
 document.getElementById('foodServingSize').addEventListener('input', updateLogFoodPreview);
@@ -1027,7 +1169,7 @@ document.getElementById('foodServingSize').addEventListener('focus', (e) => {
 document.getElementById('foodServingSize').addEventListener('blur', (e) => {
   if (e.target.value === '' || e.target.value === '-') {
     const fallback = state.currentFoodForLog ? getDefaultServingSize(state.currentFoodForLog) : 100;
-    e.target.value = String(fallback);
+    e.target.value = formatInputNumber(fallback);
     updateLogFoodPreview();
   }
 });
@@ -1036,7 +1178,7 @@ document.getElementById('confirmAddToLog').addEventListener('click', () => {
     const log = getCurrentDayLog();
     const sourceCategory = state.editingLogItem.category;
     const item = log[sourceCategory][state.editingLogItem.idx];
-    const quantity = parseFloat(document.getElementById('foodServingSize').value) || getDefaultServingSize(item.food);
+    const quantity = parseInputNumber(document.getElementById('foodServingSize').value) || getDefaultServingSize(item.food);
     const unit = getFoodServingUnit(item.food);
     const targetCategory = state.logMeal || sourceCategory;
     item.quantity = quantity; item.unit = unit;
