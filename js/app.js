@@ -953,7 +953,7 @@ async function boot() {
       }
     });
     sync.onAuthStateChange((session) => {
-      handleSession(session);
+      void handleSession(session);
     });
   } catch (error) {
     reportAuthError(error);
