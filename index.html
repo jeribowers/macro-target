@@ -110,9 +110,11 @@ button:focus-visible,
 .macro-card.carbs { border: 0.5px solid rgba(30, 64, 175, 0.35); background: #EFF4FF; }
 .macro-card.protein { border: 0.5px solid rgba(22, 101, 52, 0.35); background: #EDF7EF; }
 .macro-card.fat { border: 0.5px solid rgba(124, 58, 237, 0.35); background: #F3E8FF; }
-.macro-card .label { font-size: 12px; line-height: 1.2; color: var(--color-text-secondary); margin-bottom: 2px; text-align: center; }
-.macro-card .value { font-size: 12px; line-height: 1.2; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; text-align: center; }
-.macro-card .progress { height: 5px; background: var(--color-background-tertiary); border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
+.macro-card .label { font-size: 12px; line-height: 1.2; margin-bottom: 2px; text-align: center; }
+.macro-card .label-name { color: var(--color-text-primary); font-weight: 600; }
+.macro-card .label-suffix { color: var(--color-text-secondary); font-weight: 400; }
+.macro-card .value { font-size: var(--text-sm); line-height: 1.2; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; text-align: center; }
+.macro-card .progress { position: relative; height: 5px; background: var(--color-background-tertiary); border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
 .macro-card.calories .progress-bar { background: #C41E1E; }
 .macro-card.carbs .progress-bar { background: #1E40AF; }
 .macro-card.protein .progress-bar { background: #166534; }
@@ -121,10 +123,12 @@ button:focus-visible,
 .macro-card.carbs .progress { border: 0.5px solid rgba(30, 64, 175, 0.35); }
 .macro-card.protein .progress { border: 0.5px solid rgba(22, 101, 52, 0.35); }
 .macro-card.fat .progress { border: 0.5px solid rgba(124, 58, 237, 0.35); }
-.macro-card .progress-bar { height: 100%; transition: width 0.2s; }
-.macro-card .meta { display: flex; justify-content: space-between; align-items: baseline; gap: 4px; font-size: 12px; line-height: 1.2; color: var(--color-text-secondary); }
-.macro-card .used { text-align: left; }
-.macro-card .target { text-align: right; }
+.macro-card .progress-bar { position: relative; z-index: 0; height: 100%; transition: width 0.2s; }
+.macro-card .progress-ticks { position: absolute; inset: 0; display: flex; justify-content: space-between; box-sizing: border-box; padding: 0 25%; pointer-events: none; z-index: 1; }
+.macro-card .progress-ticks span { width: 1px; height: 100%; background: rgba(0, 0, 0, 0.18); }
+.macro-card .meta { display: flex; justify-content: center; align-items: baseline; gap: 4px; font-size: 12px; line-height: 1.2; color: var(--color-text-secondary); }
+.macro-card .target { text-align: center; }
+.macro-card .target-suffix { font-weight: 400; }
 
 .content { flex: 1; overflow-y: auto; padding: 0.625rem; }
 .food-category { margin-bottom: 0.5rem; }
@@ -224,6 +228,10 @@ button:focus-visible,
 .quantity-input-group input { width: 100%; min-width: 0; padding: 0 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-md); background: var(--color-background-primary); color: var(--color-text-primary); height: var(--input-md-height); }
 .quantity-input-group .dropdown { width: 100%; min-width: 0; }
 .quantity-input-group .dropdown-trigger { height: var(--input-md-height); }
+.add-to-log-fields { display: flex; gap: 6px; margin-bottom: 0; }
+.add-to-log-fields .form-group { flex: 1 1 50%; min-width: 0; }
+.add-to-log-fields .dropdown { width: 100%; min-width: 0; }
+.add-to-log-fields .dropdown-trigger { height: var(--input-md-height); }
 .serving-size-input { display: flex; align-items: stretch; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); min-height: var(--input-md-height); overflow: hidden; }
 .serving-size-input input { flex: 1; min-width: 0; border: none; border-radius: 0; height: var(--input-md-height); padding: 0 12px; font-size: var(--text-md); font-family: var(--font-sans); background: transparent; color: var(--color-text-primary); }
 .serving-size-input input:focus { border-color: transparent; box-shadow: none; }
@@ -274,39 +282,35 @@ button:focus-visible,
 
   <div class="macros-summary">
     <div class="macro-card calories">
-      <div class="label">Calories left</div>
+      <div class="label"><span class="label-name">Calories</span><span class="label-suffix"> left</span></div>
       <div class="value" id="calorieValue">0</div>
-      <div class="progress"><div class="progress-bar" id="calorieBar" style="width: 100%"></div></div>
+      <div class="progress"><div class="progress-bar" id="calorieBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
       <div class="meta">
-        <span class="used" id="calorieUsed">0 used</span>
-        <span class="target" id="calorieTarget">0</span>
+        <span class="target"><span id="calorieTarget">0</span><span class="target-suffix"> total</span></span>
       </div>
     </div>
     <div class="macro-card carbs">
-      <div class="label">Carbs (g) left</div>
+      <div class="label"><span class="label-name">Carbs</span><span class="label-suffix"> left</span></div>
       <div class="value" id="carbValue">0</div>
-      <div class="progress"><div class="progress-bar" id="carbBar" style="width: 100%"></div></div>
+      <div class="progress"><div class="progress-bar" id="carbBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
       <div class="meta">
-        <span class="used" id="carbUsed">0 used</span>
-        <span class="target" id="carbTarget">0</span>
+        <span class="target"><span id="carbTarget">0</span><span class="target-suffix"> total</span></span>
       </div>
     </div>
     <div class="macro-card protein">
-      <div class="label">Protein (g) left</div>
+      <div class="label"><span class="label-name">Protein</span><span class="label-suffix"> left</span></div>
       <div class="value" id="proteinValue">0</div>
-      <div class="progress"><div class="progress-bar" id="proteinBar" style="width: 100%"></div></div>
+      <div class="progress"><div class="progress-bar" id="proteinBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
       <div class="meta">
-        <span class="used" id="proteinUsed">0 used</span>
-        <span class="target" id="proteinTarget">0</span>
+        <span class="target"><span id="proteinTarget">0</span><span class="target-suffix"> total</span></span>
       </div>
     </div>
     <div class="macro-card fat">
-      <div class="label">Fat (g) left</div>
+      <div class="label"><span class="label-name">Fat</span><span class="label-suffix"> left</span></div>
       <div class="value" id="fatValue">0</div>
-      <div class="progress"><div class="progress-bar" id="fatBar" style="width: 100%"></div></div>
+      <div class="progress"><div class="progress-bar" id="fatBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
       <div class="meta">
-        <span class="used" id="fatUsed">0 used</span>
-        <span class="target" id="fatTarget">0</span>
+        <span class="target"><span id="fatTarget">0</span><span class="target-suffix"> total</span></span>
       </div>
     </div>
   </div>
@@ -432,29 +436,31 @@ button:focus-visible,
       <button class="modal-close" id="addToLogClose" aria-label="Close"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body">
-      <div class="form-group">
-        <label>Meal</label>
-        <div class="dropdown" id="logMealDropdown">
-          <button type="button" class="dropdown-trigger">
-            <span class="dropdown-trigger-label">Breakfast</span>
-            <span class="caret"></span>
-          </button>
-          <div class="dropdown-menu right-aligned">
-            <div class="dropdown-item selected" data-value="breakfast">Breakfast</div>
-            <div class="dropdown-item" data-value="lunch">Lunch</div>
-            <div class="dropdown-item" data-value="dinner">Dinner</div>
-            <div class="dropdown-item" data-value="snack">Snack</div>
+      <div class="log-food-preview" id="logFoodPreview"></div>
+      <div class="add-to-log-fields">
+        <div class="form-group">
+          <label>Serving Size</label>
+          <div class="serving-size-input">
+            <input type="number" id="foodServingSize" value="100" step="0.1">
+            <span class="serving-size-unit" id="foodServingUnit">g</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Meal</label>
+          <div class="dropdown" id="logMealDropdown">
+            <button type="button" class="dropdown-trigger">
+              <span class="dropdown-trigger-label">Breakfast</span>
+              <span class="caret"></span>
+            </button>
+            <div class="dropdown-menu right-aligned">
+              <div class="dropdown-item selected" data-value="breakfast">Breakfast</div>
+              <div class="dropdown-item" data-value="lunch">Lunch</div>
+              <div class="dropdown-item" data-value="dinner">Dinner</div>
+              <div class="dropdown-item" data-value="snack">Snack</div>
+            </div>
           </div>
         </div>
       </div>
-      <div class="form-group">
-        <label>Serving Size</label>
-        <div class="serving-size-input">
-          <input type="number" id="foodServingSize" value="100" step="0.1">
-          <span class="serving-size-unit" id="foodServingUnit">g</span>
-        </div>
-      </div>
-      <div class="log-food-preview" id="logFoodPreview"></div>
       <div class="form-actions">
         <button type="button" class="btn-secondary" id="cancelAddToLog">Cancel</button>
         <button type="button" class="btn-primary" id="confirmAddToLog">Add to Log</button>
@@ -621,7 +627,6 @@ function updateMacroDisplay() {
     const remainingPercentage = Math.max(0, Math.min((remaining / target) * 100, 100));
     document.getElementById(id).textContent = formatNumber(Math.round(remaining));
     document.getElementById(id.replace('Value', 'Bar')).style.width = remainingPercentage + '%';
-    document.getElementById(id.replace('Value', 'Used')).textContent = `${formatNumber(Math.round(current))} used`;
     document.getElementById(id.replace('Value', 'Target')).textContent = formatNumber(Math.round(target));
   }
   updateMacro('calorieValue', totals.calories, targets.calories);
