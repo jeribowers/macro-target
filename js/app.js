@@ -808,8 +808,30 @@ document.getElementById('todayBtn').addEventListener('click', async () => {
 });
 
 // Settings
-document.getElementById('settingsBtn').addEventListener('click', () => document.getElementById('settingsModal').classList.add('active'));
+document.getElementById('settingsBtn').addEventListener('click', () => {
+  updateDeviceUploadSection();
+  document.getElementById('settingsModal').classList.add('active');
+});
 document.getElementById('settingsClose').addEventListener('click', () => document.getElementById('settingsModal').classList.remove('active'));
+
+document.getElementById('uploadDeviceBtn')?.addEventListener('click', async () => {
+  const userId = sync.getCurrentUserId();
+  const legacy = sync.readLegacyLocalState();
+  if (!userId || !sync.legacyHasUploadableData(legacy, DEFAULT_FOODS)) return;
+  if (!confirm('Upload foods and logs saved on this device to your account?')) return;
+  try {
+    setLoadingVisible(true);
+    await sync.uploadLocalState(userId, legacy, DEFAULT_FOODS, normalizeFood);
+    sync.markMigrated(userId);
+    await reloadSignedInUserState(userId);
+    updateDeviceUploadSection();
+    document.getElementById('settingsModal').classList.remove('active');
+  } catch (error) {
+    reportError(error, 'Could not upload data from this device.');
+  } finally {
+    setLoadingVisible(false);
+  }
+});
 
 document.getElementById('exportBtn').addEventListener('click', async () => {
   try {
@@ -888,27 +910,39 @@ function updateDateDisplay() {
   }
 }
 
+async function reloadSignedInUserState(userId) {
+  const customFoods = await sync.fetchCustomFoods(userId);
+  state.foods = [...DEFAULT_FOODS.map(normalizeFood), ...customFoods.map(normalizeFood)];
+  state.activityLevel = await sync.fetchActivityLevel(userId);
+  const prefs = sync.readLocalPreferences();
+  state.recentSearches = prefs.recentSearches || [];
+  await loadDayLog(getDateKey(state.currentDate));
+  setDropdownValue('activityDropdown', state.activityLevel);
+  updateDateDisplay();
+  updateMacroDisplay();
+  renderFoodLog();
+  refreshIcons();
+}
+
+function updateDeviceUploadSection() {
+  const section = document.getElementById('deviceUploadSection');
+  if (!section) return;
+  const legacy = sync.readLegacyLocalState();
+  section.hidden = !sync.legacyHasUploadableData(legacy, DEFAULT_FOODS);
+}
+
 async function initializeSignedInUser(userId) {
   setLoadingVisible(true);
   try {
     const legacy = sync.readLegacyLocalState();
-    if (legacy && !sync.hasMigrated(userId)) {
+    if (await sync.shouldUploadLocalState(userId, legacy, DEFAULT_FOODS)) {
       await sync.uploadLocalState(userId, legacy, DEFAULT_FOODS, normalizeFood);
       sync.markMigrated(userId);
     }
-    const customFoods = await sync.fetchCustomFoods(userId);
-    state.foods = [...DEFAULT_FOODS.map(normalizeFood), ...customFoods.map(normalizeFood)];
-    state.activityLevel = await sync.fetchActivityLevel(userId);
-    const prefs = sync.readLocalPreferences();
-    state.recentSearches = prefs.recentSearches || [];
-    await loadDayLog(getDateKey(state.currentDate));
-    setDropdownValue('activityDropdown', state.activityLevel);
-    updateDateDisplay();
-    updateMacroDisplay();
-    renderFoodLog();
-    refreshIcons();
+    await reloadSignedInUserState(userId);
   } finally {
     setLoadingVisible(false);
+    updateDeviceUploadSection();
   }
 }
 
