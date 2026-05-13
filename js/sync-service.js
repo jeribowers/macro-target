@@ -235,9 +235,6 @@ export function foodToRow(food, userId) {
     prot100: protein,
     fat100: fat,
     calories,
-    carbs,
-    protein,
-    fat,
     updated_at: new Date().toISOString(),
   };
 }

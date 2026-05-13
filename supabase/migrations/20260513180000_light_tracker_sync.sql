@@ -22,9 +22,6 @@ alter table public.foods add column if not exists prot100 numeric default 0;
 alter table public.foods add column if not exists carb100 numeric default 0;
 alter table public.foods add column if not exists fat100 numeric default 0;
 alter table public.foods add column if not exists calories numeric default 0;
-alter table public.foods add column if not exists carbs numeric default 0;
-alter table public.foods add column if not exists protein numeric default 0;
-alter table public.foods add column if not exists fat numeric default 0;
 alter table public.foods add column if not exists created_at timestamptz default now();
 alter table public.foods add column if not exists updated_at timestamptz default now();
 
@@ -37,9 +34,6 @@ update public.foods set fat100 = 0 where fat100 is null;
 update public.foods set created_at = now() where created_at is null;
 update public.foods set updated_at = now() where updated_at is null;
 update public.foods set calories = coalesce(calories, cal100, 0) where calories is null;
-update public.foods set carbs = coalesce(carbs, carb100, 0) where carbs is null;
-update public.foods set protein = coalesce(protein, prot100, 0) where protein is null;
-update public.foods set fat = coalesce(fat, fat100, 0) where fat is null;
 
 create unique index if not exists foods_user_external_id_idx
   on public.foods (user_id, external_id)
