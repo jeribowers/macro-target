@@ -2,8 +2,8 @@ import * as sync from './sync-service.js';
 
 const ACTIVITY_LEVELS = {
   low: { calories: 1200, protein: 120, carbs: 115, fat: 45, label: 'Low (1,200)' },
-  medium: { calories: 1750, protein: 125, carbs: 190, fat: 55, label: 'Med (1,750)' },
-  high: { calories: 2050, protein: 130, carbs: 240, fat: 63, label: 'High (2,050)' }
+  medium: { calories: 1700, protein: 121, carbs: 184, fat: 53, label: 'Med (1,700)' },
+  high: { calories: 2000, protein: 127, carbs: 234, fat: 61, label: 'High (2,000)' }
 };
 
 const DEFAULT_FOODS = [
