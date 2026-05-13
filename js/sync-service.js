@@ -175,14 +175,18 @@ export function rowToFood(row) {
     servingSize,
     servingUnit,
     defaultServingSize,
-    calories: Number(row.cal100 ?? 0),
-    carbs: Number(row.carb100 ?? 0),
-    protein: Number(row.prot100 ?? 0),
-    fat: Number(row.fat100 ?? 0),
+    calories: Number(row.cal100 ?? row.calories ?? 0),
+    carbs: Number(row.carb100 ?? row.carbs ?? 0),
+    protein: Number(row.prot100 ?? row.protein ?? 0),
+    fat: Number(row.fat100 ?? row.fat ?? 0),
   };
 }
 
 export function foodToRow(food, userId) {
+  const calories = Number(food.calories ?? 0);
+  const carbs = Number(food.carbs ?? 0);
+  const protein = Number(food.protein ?? 0);
+  const fat = Number(food.fat ?? 0);
   return {
     user_id: userId,
     external_id: String(food.id).startsWith('custom_') ? food.id : null,
@@ -192,10 +196,14 @@ export function foodToRow(food, userId) {
     serving_size: food.servingSize ?? 100,
     serving_unit: food.servingUnit || 'g',
     default_serving_size: food.defaultServingSize ?? food.servingSize ?? 100,
-    cal100: food.calories ?? 0,
-    carb100: food.carbs ?? 0,
-    prot100: food.protein ?? 0,
-    fat100: food.fat ?? 0,
+    cal100: calories,
+    carb100: carbs,
+    prot100: protein,
+    fat100: fat,
+    calories,
+    carbs,
+    protein,
+    fat,
     updated_at: new Date().toISOString(),
   };
 }

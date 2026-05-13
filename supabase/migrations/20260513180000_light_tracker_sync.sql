@@ -1,4 +1,5 @@
 -- Light tracker cloud sync: tables, columns, and RLS for personal Google sign-in.
+-- Safe to re-run when tables already exist from an older schema.
 
 create table if not exists public.allowed_users (
   email text primary key
@@ -7,20 +8,38 @@ create table if not exists public.allowed_users (
 create table if not exists public.foods (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
-  external_id text,
-  name text not null,
-  unit text not null default 'g',
-  default_grams numeric not null default 100,
-  serving_size numeric,
-  serving_unit text,
-  default_serving_size numeric,
-  cal100 numeric not null default 0,
-  prot100 numeric not null default 0,
-  carb100 numeric not null default 0,
-  fat100 numeric not null default 0,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  name text not null
 );
+
+alter table public.foods add column if not exists external_id text;
+alter table public.foods add column if not exists unit text default 'g';
+alter table public.foods add column if not exists default_grams numeric default 100;
+alter table public.foods add column if not exists serving_size numeric;
+alter table public.foods add column if not exists serving_unit text;
+alter table public.foods add column if not exists default_serving_size numeric;
+alter table public.foods add column if not exists cal100 numeric default 0;
+alter table public.foods add column if not exists prot100 numeric default 0;
+alter table public.foods add column if not exists carb100 numeric default 0;
+alter table public.foods add column if not exists fat100 numeric default 0;
+alter table public.foods add column if not exists calories numeric default 0;
+alter table public.foods add column if not exists carbs numeric default 0;
+alter table public.foods add column if not exists protein numeric default 0;
+alter table public.foods add column if not exists fat numeric default 0;
+alter table public.foods add column if not exists created_at timestamptz default now();
+alter table public.foods add column if not exists updated_at timestamptz default now();
+
+update public.foods set unit = 'g' where unit is null;
+update public.foods set default_grams = 100 where default_grams is null;
+update public.foods set cal100 = 0 where cal100 is null;
+update public.foods set prot100 = 0 where prot100 is null;
+update public.foods set carb100 = 0 where carb100 is null;
+update public.foods set fat100 = 0 where fat100 is null;
+update public.foods set created_at = now() where created_at is null;
+update public.foods set updated_at = now() where updated_at is null;
+update public.foods set calories = coalesce(calories, cal100, 0) where calories is null;
+update public.foods set carbs = coalesce(carbs, carb100, 0) where carbs is null;
+update public.foods set protein = coalesce(protein, prot100, 0) where protein is null;
+update public.foods set fat = coalesce(fat, fat100, 0) where fat is null;
 
 create unique index if not exists foods_user_external_id_idx
   on public.foods (user_id, external_id)
@@ -31,18 +50,26 @@ create table if not exists public.log_entries (
   user_id uuid not null references auth.users (id) on delete cascade,
   log_date date not null,
   meal text not null,
-  name text not null,
-  food_external_id text,
-  quantity numeric,
-  unit text,
-  grams numeric,
-  calories numeric not null default 0,
-  protein numeric not null default 0,
-  carbs numeric not null default 0,
-  fat numeric not null default 0,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  name text not null
 );
+
+alter table public.log_entries add column if not exists food_external_id text;
+alter table public.log_entries add column if not exists quantity numeric;
+alter table public.log_entries add column if not exists unit text;
+alter table public.log_entries add column if not exists grams numeric;
+alter table public.log_entries add column if not exists calories numeric default 0;
+alter table public.log_entries add column if not exists protein numeric default 0;
+alter table public.log_entries add column if not exists carbs numeric default 0;
+alter table public.log_entries add column if not exists fat numeric default 0;
+alter table public.log_entries add column if not exists created_at timestamptz default now();
+alter table public.log_entries add column if not exists updated_at timestamptz default now();
+
+update public.log_entries set calories = 0 where calories is null;
+update public.log_entries set protein = 0 where protein is null;
+update public.log_entries set carbs = 0 where carbs is null;
+update public.log_entries set fat = 0 where fat is null;
+update public.log_entries set created_at = now() where created_at is null;
+update public.log_entries set updated_at = now() where updated_at is null;
 
 create index if not exists log_entries_user_date_idx
   on public.log_entries (user_id, log_date);
