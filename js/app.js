@@ -93,16 +93,23 @@ function reportAuthError(error) {
   message.textContent = error?.message || '';
 }
 
-function setAuthVisible(visible) {
+function setAuthVisible(showAuth) {
   const authGate = document.getElementById('authGate');
   const appContainer = document.querySelector('.app-container');
-  if (authGate) authGate.hidden = !visible;
-  if (appContainer) appContainer.hidden = visible;
+  if (authGate) authGate.hidden = !showAuth;
+  if (appContainer) appContainer.hidden = showAuth;
+  if (showAuth) setLoadingVisible(false);
 }
 
 function setLoadingVisible(visible) {
   const loading = document.getElementById('appLoading');
+  const authGate = document.getElementById('authGate');
+  const appContainer = document.querySelector('.app-container');
   if (loading) loading.hidden = !visible;
+  if (visible) {
+    if (authGate) authGate.hidden = true;
+    if (appContainer) appContainer.hidden = false;
+  }
 }
 
 async function loadDayLog(dateKey) {
@@ -929,6 +936,7 @@ async function handleSession(session) {
 async function boot() {
   try {
     sync.initSupabase();
+    setAuthVisible(true);
     document.getElementById('googleSignInBtn')?.addEventListener('click', async () => {
       try {
         reportAuthError({ message: '' });
