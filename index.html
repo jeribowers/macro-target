@@ -38,15 +38,51 @@
   --input-md-height: 40px;
   --icon-button-size: var(--button-sm-height);
   --icon-size: 18px;
+  --focus-ring: var(--color-border-info);
+  --focus-ring-shadow: 0 0 0 2px var(--color-background-primary), 0 0 0 4px var(--focus-ring);
 }
 
 
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: var(--color-background-tertiary); -webkit-tap-highlight-color: transparent; font-size: var(--text-md); }
+html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: var(--color-background-tertiary); -webkit-tap-highlight-color: transparent; font-size: var(--text-md); min-height: 100%; }
 
-.app-container { width: 100%; max-width: 480px; margin: 0 auto; background: var(--color-background-tertiary); min-height: 100vh; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+input:focus,
+.search-input:focus,
+.form-group input:focus,
+.quantity-input-group input:focus,
+.editable-macro input:focus,
+.form-select:focus,
+button:focus,
+.dropdown-trigger:focus,
+.delete-food-link:focus {
+  outline: none;
+}
 
-.header { background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary); padding: 0.5rem 0.625rem; position: sticky; top: 0; z-index: 100; }
+input:focus,
+.search-input:focus,
+.form-group input:focus,
+.quantity-input-group input:focus,
+.editable-macro input:focus,
+.form-select:focus {
+  border-color: var(--focus-ring);
+  box-shadow: var(--focus-ring-shadow);
+}
+
+button:focus-visible,
+.dropdown-trigger:focus-visible {
+  border-color: var(--focus-ring);
+  box-shadow: var(--focus-ring-shadow);
+}
+
+.delete-food-link:focus-visible {
+  box-shadow: none;
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.app-container { width: 100%; max-width: 480px; margin: 0 auto; background: var(--color-background-tertiary); min-height: 100dvh; display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom); }
+
+.header { background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary); padding: 0.5rem 0.625rem; padding-top: calc(0.5rem + env(safe-area-inset-top)); position: sticky; top: 0; z-index: 100; }
 .header-controls { display: flex; gap: 8px; justify-content: space-between; align-items: center; }
 .date-nav { display: flex; gap: 6px; align-items: center; }
 .header-actions { display: flex; gap: 6px; align-items: center; }
@@ -68,30 +104,35 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
 .dropdown-item { padding: 11px 14px; font-size: var(--text-sm); color: var(--color-text-primary); cursor: pointer; white-space: nowrap; }
 .dropdown-item.selected { background: var(--color-background-info); color: var(--color-text-info); }
 
-.macros-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 0.625rem; background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary); }
-.macro-card { background: var(--color-background-secondary); padding: 7px; border-radius: var(--border-radius-md); text-align: center; }
-.macro-card.calories { border: 1px solid #C41E1E; background: #F8E7E7; }
-.macro-card.carbs { border: 1px solid #1E40AF; background: #EFF4FF; }
-.macro-card.protein { border: 1px solid #166534; background: #EDF7EF; }
-.macro-card .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 2px; }
-.macro-card .value { font-size: var(--text-lg); font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
-.macro-card .progress { height: 5px; background: var(--color-background-tertiary); border-radius: 2px; overflow: hidden; margin-bottom: 4px; }
+.macros-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 0.5rem; background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary); }
+.macro-card { background: var(--color-background-secondary); padding: 6px 5px; border-radius: var(--border-radius-md); min-width: 0; }
+.macro-card.calories { border: 0.5px solid rgba(196, 30, 30, 0.35); background: #F8E7E7; }
+.macro-card.carbs { border: 0.5px solid rgba(30, 64, 175, 0.35); background: #EFF4FF; }
+.macro-card.protein { border: 0.5px solid rgba(22, 101, 52, 0.35); background: #EDF7EF; }
+.macro-card.fat { border: 0.5px solid rgba(124, 58, 237, 0.35); background: #F3E8FF; }
+.macro-card .label { font-size: 12px; line-height: 1.2; color: var(--color-text-secondary); margin-bottom: 2px; text-align: center; }
+.macro-card .value { font-size: 12px; line-height: 1.2; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; text-align: center; }
+.macro-card .progress { height: 5px; background: var(--color-background-tertiary); border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
 .macro-card.calories .progress-bar { background: #C41E1E; }
 .macro-card.carbs .progress-bar { background: #1E40AF; }
 .macro-card.protein .progress-bar { background: #166534; }
-.macro-card.calories .progress { border: 1px solid #C41E1E; }
-.macro-card.carbs .progress { border: 1px solid #1E40AF; }
-.macro-card.protein .progress { border: 1px solid #166534; }
+.macro-card.fat .progress-bar { background: #7C3AED; }
+.macro-card.calories .progress { border: 0.5px solid rgba(196, 30, 30, 0.35); }
+.macro-card.carbs .progress { border: 0.5px solid rgba(30, 64, 175, 0.35); }
+.macro-card.protein .progress { border: 0.5px solid rgba(22, 101, 52, 0.35); }
+.macro-card.fat .progress { border: 0.5px solid rgba(124, 58, 237, 0.35); }
 .macro-card .progress-bar { height: 100%; transition: width 0.2s; }
-.macro-card .remaining { font-size: 11px; color: var(--color-text-secondary); }
+.macro-card .meta { display: flex; justify-content: space-between; align-items: baseline; gap: 4px; font-size: 12px; line-height: 1.2; color: var(--color-text-secondary); }
+.macro-card .used { text-align: left; }
+.macro-card .target { text-align: right; }
 
 .content { flex: 1; overflow-y: auto; padding: 0.625rem; }
 .food-category { margin-bottom: 0.5rem; }
 .food-category-shell { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); overflow: hidden; }
-.food-category-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; gap: 8px; }
-.food-category-title { display: flex; align-items: baseline; gap: 8px; flex: 1; min-width: 0; }
-.food-category h3 { margin: 0; font-size: var(--text-sm); font-weight: 500; color: var(--color-text-primary); text-transform: capitalize; flex-shrink: 0; }
-.category-total { font-size: 12px; color: var(--color-text-secondary); min-width: 0; overflow: hidden; }
+.food-category-header { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 10px; gap: 8px; }
+.food-category-title { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; flex: 1; min-width: 0; }
+.food-category h3 { margin: 0; font-size: var(--text-sm); font-weight: 500; color: var(--color-text-primary); text-transform: capitalize; }
+.category-total { font-size: 12px; color: var(--color-text-secondary); min-width: 0; }
 .add-food-header { padding: 0 var(--button-sm-px); min-height: var(--button-sm-height); font-size: var(--text-sm); white-space: nowrap; flex-shrink: 0; }
 
 .food-list { padding: 0 10px; border-top: 0.5px solid var(--color-border-tertiary); }
@@ -106,27 +147,42 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
 .macro-line .cal { color: #C41E1E; font-weight: 500; }
 .macro-line .carb { color: #1E40AF; font-weight: 500; }
 .macro-line .prot { color: #166534; font-weight: 500; }
+.macro-line .fat { color: #7C3AED; font-weight: 500; }
 .macro-line .sep { color: var(--color-text-tertiary); display: inline-block; padding: 0 6px; font-weight: 400; }
-.macro-line.muted .cal, .macro-line.muted .carb, .macro-line.muted .prot { color: var(--color-text-secondary); font-weight: 400; }
+.macro-badge-row { display: flex; flex-wrap: wrap; gap: 4px; }
+.macro-badge-row .macro-badge { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 999px; border: 0.5px solid; font-size: 11px; font-weight: 500; line-height: 1.2; white-space: nowrap; background: transparent; }
+.macro-badge-row .macro-badge.cal { color: #C41E1E; border-color: rgba(196, 30, 30, 0.35); }
+.macro-badge-row .macro-badge.carb { color: #1E40AF; border-color: rgba(30, 64, 175, 0.35); }
+.macro-badge-row .macro-badge.prot { color: #166534; border-color: rgba(22, 101, 52, 0.35); }
+.macro-badge-row .macro-badge.fat { color: #7C3AED; border-color: rgba(124, 58, 237, 0.35); }
+.category-total .macro-badge-row .macro-badge.cal { background: #F8E7E7; }
+.category-total .macro-badge-row .macro-badge.carb { background: #EFF4FF; }
+.category-total .macro-badge-row .macro-badge.prot { background: #EDF7EF; }
+.category-total .macro-badge-row .macro-badge.fat { background: #F3E8FF; }
+.macro-line.muted .cal, .macro-line.muted .carb, .macro-line.muted .prot, .macro-line.muted .fat { color: var(--color-text-secondary); font-weight: 400; }
 
 .food-actions { display: flex; gap: 3px; flex-shrink: 0; }
 .food-actions button { padding: 0; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); cursor: pointer; border-radius: var(--border-radius-md); font-size: var(--text-sm); min-width: var(--icon-button-size); min-height: var(--icon-button-size); display: inline-flex; align-items: center; justify-content: center; }
 
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: stretch; justify-content: center; }
 .modal-overlay.active { display: flex; }
-.modal { background: var(--color-background-primary); width: 100%; height: 100vh; border-radius: 0; overflow-y: auto; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
-.modal-header { padding: 0.625rem 0.875rem; border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--color-background-primary); z-index: 10; }
+.modal { background: var(--color-background-tertiary); width: 100%; min-height: 100dvh; border-radius: 0; overflow-y: auto; padding-bottom: env(safe-area-inset-bottom); }
+.modal-header { padding: 0.625rem 0.875rem; padding-top: calc(0.625rem + env(safe-area-inset-top)); border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--color-background-primary); z-index: 10; }
 .modal-header h2 { margin: 0; font-size: var(--text-md); font-weight: 500; color: var(--color-text-primary); }
 .modal-header-left { display: flex; gap: 8px; align-items: center; }
 .modal-add-new { padding: 0 var(--button-sm-px); min-height: var(--button-sm-height); font-size: var(--text-sm); white-space: nowrap; }
 .modal-close { background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); width: var(--icon-button-size); height: var(--icon-button-size); min-width: var(--icon-button-size); min-height: var(--icon-button-size); border-radius: var(--border-radius-md); cursor: pointer; color: var(--color-text-primary); padding: 0; display: inline-flex; align-items: center; justify-content: center; }
-.modal-body { padding: 0.625rem; }
+.modal-body { padding: 0.625rem; background: var(--color-background-tertiary); }
 
 .search-input { width: 100%; padding: 0 12px; height: var(--input-md-height); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-md); margin-bottom: 6px; background: var(--color-background-primary); color: var(--color-text-primary); }
 .search-controls { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
 .search-controls .search-input { margin-bottom: 0; flex: 1; }
 
 .search-results { max-height: 60vh; overflow-y: auto; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 0 10px; }
+#addFoodModal .modal { display: flex; flex-direction: column; height: 100dvh; min-height: 100dvh; overflow: hidden; padding-bottom: 0; }
+#addFoodModal .modal-body { display: flex; flex-direction: column; flex: 1; min-height: 0; padding-bottom: calc(0.625rem + env(safe-area-inset-bottom)); }
+#addFoodModal .search-controls { flex-shrink: 0; margin-bottom: 0; }
+#addFoodModal .search-results { flex: 1; min-height: 0; max-height: none; margin-top: 6px; -webkit-overflow-scrolling: touch; }
 .food-option { padding: 8px 0; background: transparent; display: flex; justify-content: space-between; align-items: center; gap: 8px; cursor: pointer; }
 .food-option + .food-option { border-top: 0.5px solid var(--color-border-tertiary); }
 .food-option .info { flex: 1; min-width: 0; }
@@ -137,36 +193,52 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
 .food-option .actions { display: flex; gap: 6px; flex-shrink: 0; }
 .search-empty { text-align: center; color: var(--color-text-secondary); padding: 1rem 0; margin: 0; }
 
-.form-group { margin-bottom: 0.375rem; }
-.form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
+.form-group { margin-bottom: 0; }
+.form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
 .form-group input { width: 100%; padding: 0 12px; height: var(--input-md-height); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-md); font-family: var(--font-sans); background: var(--color-background-primary); color: var(--color-text-primary); }
-.serving-input-group { display: flex; gap: 6px; margin-bottom: 0.375rem; }
+#editFoodForm,
+#createFoodForm,
+#addToLogModal .modal-body,
+#settingsModal .modal-body { display: flex; flex-direction: column; row-gap: 1rem; }
+#editFoodForm > .form-actions,
+#createFoodForm > .form-actions,
+#addToLogModal .modal-body > .form-actions { margin-top: 0; }
+#editFoodForm > .delete-food-link { margin-top: 0; }
+.serving-input-group { display: flex; gap: 6px; margin-bottom: 0; align-items: stretch; }
 .serving-input-group .form-group { margin-bottom: 0; }
-.serving-input-group .serving-size { flex: 1 1 50%; min-width: 0; }
-.serving-input-group .serving-unit { flex: 1 1 50%; min-width: 0; }
+.serving-input-group .reference-size,
+.serving-input-group .serving-unit,
+.serving-input-group .default-serving-size { flex: 1 1 0; min-width: 0; }
 .serving-input-group .serving-unit .dropdown { display: block; width: 100%; }
+.serving-input-group .field-separator { width: 1px; background: var(--color-border-tertiary); margin-top: 1.75rem; flex-shrink: 0; }
+.macro-input-group { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 0; }
+.macro-input-group .form-group { margin-bottom: 0; min-width: 0; }
 .form-select { width: 100%; height: var(--input-md-height); padding: 0 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-md); font-family: var(--font-sans); background: var(--color-background-primary); color: var(--color-text-primary); }
 
-.form-actions { display: flex; gap: 6px; margin-top: 0.5rem; }
+.form-actions { display: flex; gap: 6px; margin-top: 0; }
 .form-actions button { flex: 1; min-height: var(--button-md-height); padding: 0 var(--button-md-px); font-size: var(--text-md); }
-.delete-food-link { margin-top: 0.5rem; background: none; border: none; padding: 0; color: #B42318; font-size: var(--text-sm); text-decoration: underline; cursor: pointer; text-align: left; }
+.delete-food-link { margin-top: 0; background: none; border: none; padding: 0; color: #B42318; font-size: var(--text-sm); text-decoration: underline; cursor: pointer; text-align: left; }
 
-.quantity-input-group { display: flex; gap: 6px; margin-bottom: 0.5rem; }
+.quantity-input-group { display: flex; gap: 6px; margin-bottom: 0; }
 .quantity-input-group .form-group { margin-bottom: 0; flex: 1 1 50%; min-width: 0; }
 .quantity-input-group input { width: 100%; min-width: 0; padding: 0 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-md); background: var(--color-background-primary); color: var(--color-text-primary); height: var(--input-md-height); }
 .quantity-input-group .dropdown { width: 100%; min-width: 0; }
 .quantity-input-group .dropdown-trigger { height: var(--input-md-height); }
+.serving-size-input { display: flex; align-items: stretch; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); min-height: var(--input-md-height); overflow: hidden; }
+.serving-size-input input { flex: 1; min-width: 0; border: none; border-radius: 0; height: var(--input-md-height); padding: 0 12px; font-size: var(--text-md); font-family: var(--font-sans); background: transparent; color: var(--color-text-primary); }
+.serving-size-input input:focus { border-color: transparent; box-shadow: none; }
+.serving-size-input:focus-within { border-color: var(--focus-ring); box-shadow: var(--focus-ring-shadow); }
+.serving-size-unit { display: flex; align-items: center; padding: 0 12px; color: var(--color-text-secondary); font-size: var(--text-md); border-left: 0.5px solid var(--color-border-tertiary); white-space: nowrap; }
 .modal-body .form-group > .dropdown { width: 100%; }
 
-.log-food-preview { background: var(--color-background-secondary); padding: 8px; border-radius: var(--border-radius-md); margin-bottom: 0.5rem; font-size: var(--text-sm); }
-.log-food-preview strong { color: var(--color-text-primary); display: block; margin-bottom: 2px; font-size: var(--text-sm); }
+.log-food-preview { margin-bottom: 0; }
 
 .editable-macros { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 0.5rem; }
 .editable-macro { display: flex; flex-direction: column; }
 .editable-macro label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 3px; font-weight: 500; }
 .editable-macro input { padding: 0 10px; height: 40px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-sm); background: var(--color-background-primary); color: var(--color-text-primary); }
 
-.settings-section { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 0.5px solid var(--color-border-tertiary); }
+.settings-section { margin-top: 0; padding-top: 0.75rem; border-top: 0.5px solid var(--color-border-tertiary); }
 .settings-section h4 { margin: 0 0 8px 0; font-size: var(--text-sm); font-weight: 500; color: var(--color-text-primary); }
 .settings-actions { display: flex; gap: 6px; }
 .settings-actions button { flex: 1; min-height: var(--button-sm-height); padding: 0 var(--button-sm-px); font-size: var(--text-sm); }
@@ -186,13 +258,13 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
       <div class="header-actions">
         <div class="dropdown" id="activityDropdown">
           <button type="button" class="dropdown-trigger" id="activityTrigger">
-            <span id="activityLabel">Med (2,000)</span>
+            <span id="activityLabel">Med (1,750)</span>
             <span class="caret"></span>
           </button>
           <div class="dropdown-menu right-aligned" id="activityMenu">
             <div class="dropdown-item" data-value="low">Low (1,200)</div>
-            <div class="dropdown-item selected" data-value="medium">Med (1,700)</div>
-            <div class="dropdown-item" data-value="high">High (2,200)</div>
+            <div class="dropdown-item selected" data-value="medium">Med (1,750)</div>
+            <div class="dropdown-item" data-value="high">High (2,050)</div>
           </div>
         </div>
         <button id="settingsBtn" class="btn-icon" aria-label="Settings"><i data-lucide="settings"></i></button>
@@ -205,19 +277,37 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
       <div class="label">Calories left</div>
       <div class="value" id="calorieValue">0</div>
       <div class="progress"><div class="progress-bar" id="calorieBar" style="width: 100%"></div></div>
-      <div class="remaining" id="calorieRemaining">0 used</div>
+      <div class="meta">
+        <span class="used" id="calorieUsed">0 used</span>
+        <span class="target" id="calorieTarget">0</span>
+      </div>
     </div>
     <div class="macro-card carbs">
       <div class="label">Carbs (g) left</div>
       <div class="value" id="carbValue">0</div>
       <div class="progress"><div class="progress-bar" id="carbBar" style="width: 100%"></div></div>
-      <div class="remaining" id="carbRemaining">0 used</div>
+      <div class="meta">
+        <span class="used" id="carbUsed">0 used</span>
+        <span class="target" id="carbTarget">0</span>
+      </div>
     </div>
     <div class="macro-card protein">
       <div class="label">Protein (g) left</div>
       <div class="value" id="proteinValue">0</div>
       <div class="progress"><div class="progress-bar" id="proteinBar" style="width: 100%"></div></div>
-      <div class="remaining" id="proteinRemaining">0 used</div>
+      <div class="meta">
+        <span class="used" id="proteinUsed">0 used</span>
+        <span class="target" id="proteinTarget">0</span>
+      </div>
+    </div>
+    <div class="macro-card fat">
+      <div class="label">Fat (g) left</div>
+      <div class="value" id="fatValue">0</div>
+      <div class="progress"><div class="progress-bar" id="fatBar" style="width: 100%"></div></div>
+      <div class="meta">
+        <span class="used" id="fatUsed">0 used</span>
+        <span class="target" id="fatTarget">0</span>
+      </div>
     </div>
   </div>
 
@@ -250,7 +340,7 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
       <form id="editFoodForm">
         <div class="form-group"><label>Food Name</label><input type="text" id="editFoodName" required></div>
         <div class="serving-input-group">
-          <div class="form-group serving-size"><label>Serving Size</label><input type="number" id="editFoodServingSize" required min="0.1" step="0.1"></div>
+          <div class="form-group reference-size"><label>Reference Size</label><input type="number" id="editFoodServingSize" required min="0.1" step="0.1"></div>
           <div class="form-group serving-unit">
             <label>Unit</label>
             <div class="dropdown" id="editFoodServingUnitDropdown">
@@ -269,10 +359,15 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
               </div>
             </div>
           </div>
+          <div class="field-separator" aria-hidden="true"></div>
+          <div class="form-group default-serving-size"><label>Serving Size</label><input type="number" id="editFoodDefaultServingSize" required min="0.1" step="0.1"></div>
         </div>
-        <div class="form-group"><label>Calories</label><input type="number" id="editFoodCalories" required step="0.1"></div>
-        <div class="form-group"><label>Carbs (g)</label><input type="number" id="editFoodCarbs" required step="0.1"></div>
-        <div class="form-group"><label>Protein (g)</label><input type="number" id="editFoodProtein" required step="0.1"></div>
+        <div class="macro-input-group">
+          <div class="form-group"><label>Calories</label><input type="number" id="editFoodCalories" required step="0.1"></div>
+          <div class="form-group"><label>Carbs (g)</label><input type="number" id="editFoodCarbs" required step="0.1"></div>
+          <div class="form-group"><label>Protein (g)</label><input type="number" id="editFoodProtein" required step="0.1"></div>
+          <div class="form-group"><label>Fat (g)</label><input type="number" id="editFoodFat" required step="0.1"></div>
+        </div>
         <div class="form-actions">
           <button type="button" class="btn-secondary" id="cancelEditFood">Cancel</button>
           <button type="submit" class="btn-primary">Save Food</button>
@@ -293,7 +388,7 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
       <form id="createFoodForm">
         <div class="form-group"><label>Food Name</label><input type="text" id="createFoodName" required></div>
         <div class="serving-input-group">
-          <div class="form-group serving-size"><label>Serving Size</label><input type="number" id="createFoodServingSize" required min="0.1" step="0.1" value="100"></div>
+          <div class="form-group reference-size"><label>Reference Size</label><input type="number" id="createFoodServingSize" required min="0.1" step="0.1" value="100"></div>
           <div class="form-group serving-unit">
             <label>Unit</label>
             <div class="dropdown" id="createFoodServingUnitDropdown">
@@ -312,10 +407,15 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
               </div>
             </div>
           </div>
+          <div class="field-separator" aria-hidden="true"></div>
+          <div class="form-group default-serving-size"><label>Serving Size</label><input type="number" id="createFoodDefaultServingSize" required min="0.1" step="0.1" value="100"></div>
         </div>
-        <div class="form-group"><label>Calories</label><input type="number" id="createFoodCalories" required step="0.1"></div>
-        <div class="form-group"><label>Carbs (g)</label><input type="number" id="createFoodCarbs" required step="0.1"></div>
-        <div class="form-group"><label>Protein (g)</label><input type="number" id="createFoodProtein" required step="0.1"></div>
+        <div class="macro-input-group">
+          <div class="form-group"><label>Calories</label><input type="number" id="createFoodCalories" required step="0.1"></div>
+          <div class="form-group"><label>Carbs (g)</label><input type="number" id="createFoodCarbs" required step="0.1"></div>
+          <div class="form-group"><label>Protein (g)</label><input type="number" id="createFoodProtein" required step="0.1"></div>
+          <div class="form-group"><label>Fat (g)</label><input type="number" id="createFoodFat" required step="0.1"></div>
+        </div>
         <div class="form-actions">
           <button type="button" class="btn-secondary" id="cancelCreateFood">Cancel</button>
           <button type="submit" class="btn-primary">Save Food</button>
@@ -347,28 +447,11 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
           </div>
         </div>
       </div>
-      <div class="quantity-input-group">
-        <div class="form-group">
-          <label>Quantity</label>
-          <input type="number" id="foodQuantity" value="100" step="0.1">
-        </div>
-        <div class="form-group">
-          <label>Unit</label>
-          <div class="dropdown" id="logUnitDropdown">
-            <button type="button" class="dropdown-trigger">
-              <span class="dropdown-trigger-label">g</span>
-              <span class="caret"></span>
-            </button>
-            <div class="dropdown-menu right-aligned">
-              <div class="dropdown-item selected" data-value="g">g</div>
-              <div class="dropdown-item" data-value="ml">ml</div>
-              <div class="dropdown-item" data-value="oz">oz</div>
-              <div class="dropdown-item" data-value="cup">cup</div>
-              <div class="dropdown-item" data-value="tbsp">tbsp</div>
-              <div class="dropdown-item" data-value="tsp">teaspoon</div>
-              <div class="dropdown-item" data-value="piece">piece</div>
-            </div>
-          </div>
+      <div class="form-group">
+        <label>Serving Size</label>
+        <div class="serving-size-input">
+          <input type="number" id="foodServingSize" value="100" step="0.1">
+          <span class="serving-size-unit" id="foodServingUnit">g</span>
         </div>
       </div>
       <div class="log-food-preview" id="logFoodPreview"></div>
@@ -408,30 +491,30 @@ html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: v
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
 const ACTIVITY_LEVELS = {
-  low: { calories: 1200, protein: 90, carbs: 150, fat: 40, label: 'Low (1,200)' },
-  medium: { calories: 1700, protein: 128, carbs: 213, fat: 57, label: 'Med (1,700)' },
-  high: { calories: 2200, protein: 165, carbs: 275, fat: 73, label: 'High (2,200)' }
+  low: { calories: 1200, protein: 120, carbs: 115, fat: 45, label: 'Low (1,200)' },
+  medium: { calories: 1750, protein: 125, carbs: 190, fat: 55, label: 'Med (1,750)' },
+  high: { calories: 2050, protein: 130, carbs: 240, fat: 63, label: 'High (2,050)' }
 };
 
 const DEFAULT_FOODS = [
-  { id: 'chicken_breast', name: 'Chicken Breast', servingSize: 100, servingUnit: 'g', calories: 165, carbs: 0, protein: 31 },
-  { id: 'brown_rice', name: 'Brown Rice', servingSize: 100, servingUnit: 'g', calories: 111, carbs: 23, protein: 2.6 },
-  { id: 'broccoli', name: 'Broccoli', servingSize: 100, servingUnit: 'g', calories: 34, carbs: 7, protein: 2.8 },
-  { id: 'egg', name: 'Egg', servingSize: 100, servingUnit: 'g', calories: 155, carbs: 1.1, protein: 13 },
-  { id: 'salmon', name: 'Salmon', servingSize: 100, servingUnit: 'g', calories: 206, carbs: 0, protein: 22 },
-  { id: 'sweet_potato', name: 'Sweet Potato', servingSize: 100, servingUnit: 'g', calories: 86, carbs: 20, protein: 1.6 },
-  { id: 'banana', name: 'Banana', servingSize: 100, servingUnit: 'g', calories: 89, carbs: 23, protein: 1.1 },
-  { id: 'greek_yogurt', name: 'Greek Yogurt', servingSize: 100, servingUnit: 'g', calories: 59, carbs: 3.3, protein: 10 },
-  { id: 'almonds', name: 'Almonds', servingSize: 100, servingUnit: 'g', calories: 579, carbs: 22, protein: 21 },
-  { id: 'oats', name: 'Oats', servingSize: 100, servingUnit: 'g', calories: 389, carbs: 66, protein: 17 },
-  { id: 'apple', name: 'Apple', servingSize: 100, servingUnit: 'g', calories: 52, carbs: 14, protein: 0.3 },
-  { id: 'tuna', name: 'Canned Tuna', servingSize: 100, servingUnit: 'g', calories: 98, carbs: 0, protein: 22 },
+  { id: 'chicken_breast', name: 'Chicken Breast', servingSize: 100, servingUnit: 'g', calories: 165, carbs: 0, protein: 31, fat: 3.6 },
+  { id: 'brown_rice', name: 'Brown Rice', servingSize: 100, servingUnit: 'g', calories: 111, carbs: 23, protein: 2.6, fat: 0.9 },
+  { id: 'broccoli', name: 'Broccoli', servingSize: 100, servingUnit: 'g', calories: 34, carbs: 7, protein: 2.8, fat: 0.4 },
+  { id: 'egg', name: 'Egg', servingSize: 100, servingUnit: 'g', calories: 155, carbs: 1.1, protein: 13, fat: 11 },
+  { id: 'salmon', name: 'Salmon', servingSize: 100, servingUnit: 'g', calories: 206, carbs: 0, protein: 22, fat: 13 },
+  { id: 'sweet_potato', name: 'Sweet Potato', servingSize: 100, servingUnit: 'g', calories: 86, carbs: 20, protein: 1.6, fat: 0.1 },
+  { id: 'banana', name: 'Banana', servingSize: 100, servingUnit: 'g', calories: 89, carbs: 23, protein: 1.1, fat: 0.3 },
+  { id: 'greek_yogurt', name: 'Greek Yogurt', servingSize: 100, servingUnit: 'g', calories: 59, carbs: 3.3, protein: 10, fat: 0.4 },
+  { id: 'almonds', name: 'Almonds', servingSize: 100, servingUnit: 'g', calories: 579, carbs: 22, protein: 21, fat: 50 },
+  { id: 'oats', name: 'Oats', servingSize: 100, servingUnit: 'g', calories: 389, carbs: 66, protein: 17, fat: 7 },
+  { id: 'apple', name: 'Apple', servingSize: 100, servingUnit: 'g', calories: 52, carbs: 14, protein: 0.3, fat: 0.2 },
+  { id: 'tuna', name: 'Canned Tuna', servingSize: 100, servingUnit: 'g', calories: 98, carbs: 0, protein: 22, fat: 1 },
 ];
 
 let state = {
   currentDate: new Date(), activityLevel: 'medium', dailyLogs: {},
   foods: [...DEFAULT_FOODS], recentSearches: [],
-  currentFoodForLog: null, editingFoodId: null, logUnit: 'g',
+  currentFoodForLog: null, editingFoodId: null,
   editingLogItem: null, defaultCategory: null, logMeal: 'breakfast'
 };
 
@@ -442,7 +525,24 @@ function formatNumber(value) { return Number(value).toLocaleString('en-US'); }
 function normalizeFood(food) {
   const servingSize = Number(food.servingSize ?? 100) > 0 ? Number(food.servingSize ?? 100) : 100;
   const servingUnit = food.servingUnit || food.unit || 'g';
-  return { ...food, servingSize, servingUnit };
+  const defaultServingSize = Number(food.defaultServingSize ?? food.servingSize ?? 100) > 0
+    ? Number(food.defaultServingSize ?? food.servingSize ?? 100)
+    : servingSize;
+  return { ...food, servingSize, servingUnit, defaultServingSize };
+}
+
+function getFoodServingUnit(food) {
+  return food?.servingUnit || food?.unit || 'g';
+}
+
+function getDefaultServingSize(food) {
+  const defaultServingSize = Number(food?.defaultServingSize ?? food?.servingSize ?? 100);
+  return defaultServingSize > 0 ? defaultServingSize : 100;
+}
+
+function getServingUnitLabel(unit) {
+  const labels = { g: 'g', ml: 'ml', oz: 'oz', cup: 'cup', tbsp: 'tbsp', tsp: 'teaspoon', piece: 'piece' };
+  return labels[unit] || unit;
 }
 
 function loadState() {
@@ -472,7 +572,8 @@ function getMacrosForFood(food, quantity, unit) {
   return {
     calories: Math.round(food.calories * multiplier * 10) / 10,
     carbs: Math.round(food.carbs * multiplier * 10) / 10,
-    protein: Math.round(food.protein * multiplier * 10) / 10
+    protein: Math.round(food.protein * multiplier * 10) / 10,
+    fat: Math.round((food.fat || 0) * multiplier * 10) / 10
   };
 }
 
@@ -486,12 +587,13 @@ function getCurrentDayLog() {
 
 function getTodayTotals() {
   const log = getCurrentDayLog();
-  let totals = { calories: 0, carbs: 0, protein: 0 };
+  let totals = { calories: 0, carbs: 0, protein: 0, fat: 0 };
   Object.values(log).forEach(items => {
     items.forEach(item => {
       totals.calories += item.macros.calories;
       totals.carbs += item.macros.carbs;
       totals.protein += item.macros.protein;
+      totals.fat += item.macros.fat || 0;
     });
   });
   return totals;
@@ -499,12 +601,13 @@ function getTodayTotals() {
 
 function getCategoryTotals(category) {
   const log = getCurrentDayLog();
-  let totals = { calories: 0, carbs: 0, protein: 0 };
+  let totals = { calories: 0, carbs: 0, protein: 0, fat: 0 };
   if (log[category]) {
     log[category].forEach(item => {
       totals.calories += item.macros.calories;
       totals.carbs += item.macros.carbs;
       totals.protein += item.macros.protein;
+      totals.fat += item.macros.fat || 0;
     });
   }
   return totals;
@@ -518,16 +621,28 @@ function updateMacroDisplay() {
     const remainingPercentage = Math.max(0, Math.min((remaining / target) * 100, 100));
     document.getElementById(id).textContent = formatNumber(Math.round(remaining));
     document.getElementById(id.replace('Value', 'Bar')).style.width = remainingPercentage + '%';
-    document.getElementById(id.replace('Value', 'Remaining')).textContent = `${formatNumber(Math.round(current))} used`;
+    document.getElementById(id.replace('Value', 'Used')).textContent = `${formatNumber(Math.round(current))} used`;
+    document.getElementById(id.replace('Value', 'Target')).textContent = formatNumber(Math.round(target));
   }
   updateMacro('calorieValue', totals.calories, targets.calories);
   updateMacro('carbValue', totals.carbs, targets.carbs);
   updateMacro('proteinValue', totals.protein, targets.protein);
+  updateMacro('fatValue', totals.fat, targets.fat);
 }
 
-function renderMacroLine(calories, carbs, protein, muted = false) {
+function renderMacroLine(calories, carbs, protein, fat, muted = false) {
   const cls = muted ? 'macro-line muted' : 'macro-line';
-  return `<span class="${cls}"><span class="cal">${formatNumber(Math.round(calories))} cal</span><span class="sep">•</span><span class="carb">${formatNumber(Math.round(carbs))}g carbs</span><span class="sep">•</span><span class="prot">${formatNumber(Math.round(protein))}g protein</span></span>`;
+  return `<span class="${cls}"><span class="cal">${formatNumber(Math.round(calories))} cal</span><span class="sep">•</span><span class="carb">${formatNumber(Math.round(carbs))}g carbs</span><span class="sep">•</span><span class="prot">${formatNumber(Math.round(protein))}g protein</span><span class="sep">•</span><span class="fat">${formatNumber(Math.round(fat))}g fat</span></span>`;
+}
+
+function renderMacroBadges(calories, carbs, protein, fat, shortLabels = false) {
+  const carbLabel = shortLabels ? 'carb' : 'carbs';
+  const protLabel = shortLabels ? 'pro' : 'protein';
+  return `<span class="macro-line macro-badge-row"><span class="macro-badge cal">${formatNumber(Math.round(calories))} cal</span><span class="macro-badge carb">${formatNumber(Math.round(carbs))}g ${carbLabel}</span><span class="macro-badge prot">${formatNumber(Math.round(protein))}g ${protLabel}</span><span class="macro-badge fat">${formatNumber(Math.round(fat))}g fat</span></span>`;
+}
+
+function renderFoodLogMacroLine(calories, carbs, protein, fat) {
+  return `<span class="macro-line"><span class="cal">${formatNumber(Math.round(calories))} cal</span><span class="sep">•</span><span class="carb">${formatNumber(Math.round(carbs))}g carb</span><span class="sep">•</span><span class="prot">${formatNumber(Math.round(protein))}g pro</span><span class="sep">•</span><span class="fat">${formatNumber(Math.round(fat))}g fat</span></span>`;
 }
 
 function refreshIcons() {
@@ -547,7 +662,7 @@ function renderFoodLog() {
         <div class="food-category-header">
           <div class="food-category-title">
             <h3>${category}</h3>
-            <div class="category-total">${renderMacroLine(catTotals.calories, catTotals.carbs, catTotals.protein, true)}</div>
+            <div class="category-total">${renderMacroBadges(catTotals.calories, catTotals.carbs, catTotals.protein, catTotals.fat)}</div>
           </div>
           <button class="add-food-header btn-secondary" onclick="openAddFoodModal('${category}')">+ Add</button>
         </div>
@@ -561,7 +676,7 @@ function renderFoodLog() {
                 <p class="food-name">${item.food.name}</p>
                 <p class="food-weight">${formatNumber(item.quantity)}${item.unit}</p>
               </div>
-              <p class="food-macros">${renderMacroLine(item.macros.calories, item.macros.carbs, item.macros.protein)}</p>
+              <p class="food-macros">${renderFoodLogMacroLine(item.macros.calories, item.macros.carbs, item.macros.protein, item.macros.fat || 0)}</p>
             </div>
             <div class="food-actions">
               <button onclick="editFoodLog('${category}', ${idx})" title="Edit" aria-label="Edit"><i data-lucide="pencil"></i></button>
@@ -608,7 +723,7 @@ function searchFoods(query) {
           <p class="name">${food.name}</p>
           <p class="measure">${measure}</p>
         </div>
-        <div class="macros">${renderMacroLine(servingMacros.calories, servingMacros.carbs, servingMacros.protein)}</div>
+        <div class="macros">${renderMacroLine(servingMacros.calories, servingMacros.carbs, servingMacros.protein, servingMacros.fat)}</div>
       </div>
       <div class="actions">
         <button class="btn-primary btn-icon" onclick="event.stopPropagation(); selectFoodForLog('${food.id}')" title="Add" aria-label="Add"><i data-lucide="plus"></i></button>
@@ -642,10 +757,12 @@ function editFoodInDB(foodId) {
     document.getElementById('editFoodName').value = food.name;
     document.getElementById('editFoodServingSize').value = food.servingSize || 100;
     setDropdownValue('editFoodServingUnitDropdown', food.servingUnit || 'g');
+    document.getElementById('editFoodDefaultServingSize').value = getDefaultServingSize(food);
     const servingMacros = getMacrosForFood(food, food.servingSize || 100, food.servingUnit || 'g');
     document.getElementById('editFoodCalories').value = servingMacros.calories;
     document.getElementById('editFoodCarbs').value = servingMacros.carbs;
     document.getElementById('editFoodProtein').value = servingMacros.protein;
+    document.getElementById('editFoodFat').value = servingMacros.fat;
     document.getElementById('editFoodModal').classList.add('active');
   }
 }
@@ -656,10 +773,12 @@ function saveEditedFood() {
   const name = document.getElementById('editFoodName').value.trim();
   const servingSize = parseFloat(document.getElementById('editFoodServingSize').value);
   const servingUnit = getDropdownValue('editFoodServingUnitDropdown');
+  const defaultServingSize = parseFloat(document.getElementById('editFoodDefaultServingSize').value);
   const caloriesPerServing = parseFloat(document.getElementById('editFoodCalories').value);
   const carbsPerServing = parseFloat(document.getElementById('editFoodCarbs').value);
   const proteinPerServing = parseFloat(document.getElementById('editFoodProtein').value);
-  if (!name || isNaN(servingSize) || servingSize <= 0 || !servingUnit || isNaN(caloriesPerServing) || isNaN(carbsPerServing) || isNaN(proteinPerServing)) { alert('Please fill in all required fields. Serving size must be greater than 0.'); return; }
+  const fatPerServing = parseFloat(document.getElementById('editFoodFat').value);
+  if (!name || isNaN(servingSize) || servingSize <= 0 || !servingUnit || isNaN(defaultServingSize) || defaultServingSize <= 0 || isNaN(caloriesPerServing) || isNaN(carbsPerServing) || isNaN(proteinPerServing) || isNaN(fatPerServing)) { alert('Please fill in all required fields. Reference size and serving size must be greater than 0.'); return; }
   const servingBase = servingSize * (UNIT_CONVERSIONS[servingUnit] || 1);
   const toPer100 = 100 / servingBase;
   const foodIdx = state.foods.findIndex(f => f.id === state.editingFoodId);
@@ -669,9 +788,11 @@ function saveEditedFood() {
       name,
       servingSize,
       servingUnit,
+      defaultServingSize,
       calories: Math.round((caloriesPerServing * toPer100) * 10) / 10,
       carbs: Math.round((carbsPerServing * toPer100) * 10) / 10,
-      protein: Math.round((proteinPerServing * toPer100) * 10) / 10
+      protein: Math.round((proteinPerServing * toPer100) * 10) / 10,
+      fat: Math.round((fatPerServing * toPer100) * 10) / 10
     };
     saveState();
     closeEditFoodModal();
@@ -698,9 +819,11 @@ function openCreateFoodModal(prefillName = '') {
   document.getElementById('createFoodName').value = prefillName.trim();
   document.getElementById('createFoodServingSize').value = '100';
   setDropdownValue('createFoodServingUnitDropdown', 'g');
+  document.getElementById('createFoodDefaultServingSize').value = '100';
   document.getElementById('createFoodCalories').value = '';
   document.getElementById('createFoodCarbs').value = '';
   document.getElementById('createFoodProtein').value = '';
+  document.getElementById('createFoodFat').value = '';
   document.getElementById('createFoodModal').classList.add('active');
 }
 function closeCreateFoodModal() { document.getElementById('createFoodModal').classList.remove('active'); }
@@ -709,10 +832,12 @@ function saveCreatedFood() {
   const name = document.getElementById('createFoodName').value.trim();
   const servingSize = parseFloat(document.getElementById('createFoodServingSize').value);
   const servingUnit = getDropdownValue('createFoodServingUnitDropdown');
+  const defaultServingSize = parseFloat(document.getElementById('createFoodDefaultServingSize').value);
   const caloriesPerServing = parseFloat(document.getElementById('createFoodCalories').value);
   const carbsPerServing = parseFloat(document.getElementById('createFoodCarbs').value);
   const proteinPerServing = parseFloat(document.getElementById('createFoodProtein').value);
-  if (!name || isNaN(servingSize) || servingSize <= 0 || !servingUnit || isNaN(caloriesPerServing) || isNaN(carbsPerServing) || isNaN(proteinPerServing)) { alert('Please fill in all required fields. Serving size must be greater than 0.'); return; }
+  const fatPerServing = parseFloat(document.getElementById('createFoodFat').value);
+  if (!name || isNaN(servingSize) || servingSize <= 0 || !servingUnit || isNaN(defaultServingSize) || defaultServingSize <= 0 || isNaN(caloriesPerServing) || isNaN(carbsPerServing) || isNaN(proteinPerServing) || isNaN(fatPerServing)) { alert('Please fill in all required fields. Reference size and serving size must be greater than 0.'); return; }
   const servingBase = servingSize * (UNIT_CONVERSIONS[servingUnit] || 1);
   const toPer100 = 100 / servingBase;
   const newFood = {
@@ -720,9 +845,11 @@ function saveCreatedFood() {
     name,
     servingSize,
     servingUnit,
+    defaultServingSize,
     calories: Math.round((caloriesPerServing * toPer100) * 10) / 10,
     carbs: Math.round((carbsPerServing * toPer100) * 10) / 10,
-    protein: Math.round((proteinPerServing * toPer100) * 10) / 10
+    protein: Math.round((proteinPerServing * toPer100) * 10) / 10,
+    fat: Math.round((fatPerServing * toPer100) * 10) / 10
   };
   state.foods.push(newFood);
 
@@ -730,9 +857,8 @@ function saveCreatedFood() {
   state.currentFoodForLog = newFood;
   state.editingLogItem = null;
   state.logMeal = state.defaultCategory || 'breakfast';
-  state.logUnit = newFood.servingUnit || 'g';
-  document.getElementById('foodQuantity').value = String(newFood.servingSize || 100);
-  setDropdownValue('logUnitDropdown', state.logUnit);
+  document.getElementById('foodServingSize').value = String(getDefaultServingSize(newFood));
+  document.getElementById('foodServingUnit').textContent = getServingUnitLabel(getFoodServingUnit(newFood));
   if (!state.recentSearches.includes(newFood.id)) {
     state.recentSearches.unshift(newFood.id);
     state.recentSearches = state.recentSearches.slice(0, 3);
@@ -742,15 +868,22 @@ function saveCreatedFood() {
   addFoodToLog();
 }
 
+function setLogServingFields(food, quantity) {
+  const unit = getFoodServingUnit(food);
+  document.getElementById('foodServingSize').value = String(quantity ?? getDefaultServingSize(food));
+  document.getElementById('foodServingUnit').textContent = getServingUnitLabel(unit);
+}
+
 function openAddToLogModal() {
   if (!state.currentFoodForLog) return;
   document.getElementById('addToLogModal').classList.add('active');
   state.logMeal = state.editingLogItem?.category || state.defaultCategory || state.logMeal || 'breakfast';
   setDropdownValue('logMealDropdown', state.logMeal);
-  if (!state.editingLogItem) {
-    document.getElementById('foodQuantity').value = String(state.currentFoodForLog.servingSize || 100);
-    state.logUnit = state.currentFoodForLog.servingUnit || 'g';
-    setDropdownValue('logUnitDropdown', state.logUnit);
+  if (state.editingLogItem) {
+    const item = getCurrentDayLog()[state.editingLogItem.category][state.editingLogItem.idx];
+    setLogServingFields(state.currentFoodForLog, item.quantity);
+  } else {
+    setLogServingFields(state.currentFoodForLog);
   }
   updateLogFoodPreview();
 }
@@ -759,18 +892,23 @@ function closeAddToLogModal() { document.getElementById('addToLogModal').classLi
 function updateLogFoodPreview() {
   if (!state.currentFoodForLog) return;
   const food = state.currentFoodForLog;
-  const quantity = parseFloat(document.getElementById('foodQuantity').value) || 0;
-  const unit = state.logUnit;
+  const quantity = parseFloat(document.getElementById('foodServingSize').value) || 0;
+  const unit = getFoodServingUnit(food);
   const macros = getMacrosForFood(food, quantity, unit);
-  document.getElementById('logFoodPreview').innerHTML = `<strong>${food.name}</strong>${renderMacroLine(macros.calories, macros.carbs, macros.protein)}`;
+  document.getElementById('logFoodPreview').innerHTML = `
+    <div class="food-name-row">
+      <p class="food-name">${food.name}</p>
+      <p class="food-weight">${formatNumber(quantity)}${unit}</p>
+    </div>
+    <p class="food-macros">${renderFoodLogMacroLine(macros.calories, macros.carbs, macros.protein, macros.fat)}</p>`;
 }
 
 function addFoodToLog() {
   if (!state.currentFoodForLog) return;
   const food = state.currentFoodForLog;
   const category = state.logMeal || state.defaultCategory || 'breakfast';
-  const quantity = parseFloat(document.getElementById('foodQuantity').value) || 100;
-  const unit = state.logUnit;
+  const quantity = parseFloat(document.getElementById('foodServingSize').value) || getDefaultServingSize(food);
+  const unit = getFoodServingUnit(food);
   const macros = getMacrosForFood(food, quantity, unit);
   const log = getCurrentDayLog();
   log[category].push({ food, quantity, unit, macros });
@@ -794,10 +932,7 @@ function editFoodLog(category, idx) {
   if (!item?.food) return;
   state.currentFoodForLog = item.food;
   state.defaultCategory = category;
-  state.logUnit = item.unit;
   state.editingLogItem = { category, idx };
-  document.getElementById('foodQuantity').value = item.quantity;
-  setDropdownValue('logUnitDropdown', item.unit);
   openAddToLogModal();
 }
 
@@ -846,7 +981,6 @@ function initDropdown(dropdownId, onChange) {
 }
 
 initDropdown('activityDropdown', (value) => { state.activityLevel = value; saveState(); updateMacroDisplay(); });
-initDropdown('logUnitDropdown', (value) => { state.logUnit = value; updateLogFoodPreview(); });
 initDropdown('logMealDropdown', (value) => { state.logMeal = value; });
 initDropdown('createFoodServingUnitDropdown');
 initDropdown('editFoodServingUnitDropdown');
@@ -871,15 +1005,24 @@ document.getElementById('createFoodServingSize').addEventListener('blur', (e) =>
     e.target.value = '100';
   }
 });
-document.getElementById('addToLogClose').addEventListener('click', closeAddToLogModal);
-document.getElementById('cancelAddToLog').addEventListener('click', closeAddToLogModal);
-document.getElementById('foodQuantity').addEventListener('input', updateLogFoodPreview);
-document.getElementById('foodQuantity').addEventListener('focus', (e) => {
+document.getElementById('createFoodDefaultServingSize').addEventListener('focus', (e) => {
   e.target.value = '';
 });
-document.getElementById('foodQuantity').addEventListener('blur', (e) => {
+document.getElementById('createFoodDefaultServingSize').addEventListener('blur', (e) => {
   if (e.target.value === '' || e.target.value === '-') {
     e.target.value = '100';
+  }
+});
+document.getElementById('addToLogClose').addEventListener('click', closeAddToLogModal);
+document.getElementById('cancelAddToLog').addEventListener('click', closeAddToLogModal);
+document.getElementById('foodServingSize').addEventListener('input', updateLogFoodPreview);
+document.getElementById('foodServingSize').addEventListener('focus', (e) => {
+  e.target.value = '';
+});
+document.getElementById('foodServingSize').addEventListener('blur', (e) => {
+  if (e.target.value === '' || e.target.value === '-') {
+    const fallback = state.currentFoodForLog ? getDefaultServingSize(state.currentFoodForLog) : 100;
+    e.target.value = String(fallback);
     updateLogFoodPreview();
   }
 });
@@ -888,8 +1031,8 @@ document.getElementById('confirmAddToLog').addEventListener('click', () => {
     const log = getCurrentDayLog();
     const sourceCategory = state.editingLogItem.category;
     const item = log[sourceCategory][state.editingLogItem.idx];
-    const quantity = parseFloat(document.getElementById('foodQuantity').value) || 100;
-    const unit = state.logUnit;
+    const quantity = parseFloat(document.getElementById('foodServingSize').value) || getDefaultServingSize(item.food);
+    const unit = getFoodServingUnit(item.food);
     const targetCategory = state.logMeal || sourceCategory;
     item.quantity = quantity; item.unit = unit;
     item.macros = getMacrosForFood(item.food, quantity, unit);
