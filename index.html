@@ -89,6 +89,7 @@ button:focus-visible,
 
 .btn-primary { background: #1E40AF; color: #FFFFFF; border: 0.5px solid #1E40AF; cursor: pointer; font-family: var(--font-sans); font-weight: 500; border-radius: var(--border-radius-md); min-height: var(--button-md-height); padding: 0 var(--button-md-px); font-size: var(--text-md); }
 .btn-secondary { background: var(--color-background-primary); color: var(--color-text-primary); border: 0.5px solid var(--color-border-secondary); cursor: pointer; font-family: var(--font-sans); font-weight: 500; border-radius: var(--border-radius-md); min-height: var(--button-md-height); padding: 0 var(--button-md-px); font-size: var(--text-md); }
+.btn-block { width: 100%; }
 .btn-icon { width: var(--icon-button-size); height: var(--icon-button-size); min-width: var(--icon-button-size); min-height: var(--icon-button-size); padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: var(--text-md); flex-shrink: 0; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); }
 .btn-icon.btn-primary,
 .btn-icon.btn-secondary { border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); }
@@ -252,7 +253,7 @@ button:focus-visible,
 .settings-section { margin-top: 0; padding-top: 0.75rem; border-top: 0.5px solid var(--color-border-tertiary); }
 .settings-section h4 { margin: 0 0 8px 0; font-size: var(--text-sm); font-weight: 500; color: var(--color-text-primary); }
 .settings-actions { display: flex; gap: 6px; }
-.settings-actions button { flex: 1; min-height: var(--button-sm-height); padding: 0 var(--button-sm-px); font-size: var(--text-sm); }
+.settings-actions button { flex: 1; min-height: var(--button-md-height); padding: 0 var(--button-md-px); font-size: var(--text-md); }
 .auth-gate { min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; background: var(--color-background-tertiary); }
 .auth-card { width: 100%; max-width: 360px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.5rem; text-align: center; }
 .auth-card h1 { margin: 0 0 0.5rem 0; font-size: var(--text-xl); font-weight: 600; color: var(--color-text-primary); }
@@ -272,7 +273,7 @@ button:focus-visible,
     <h1>Macro Tracker</h1>
     <p>Sign in with Google to sync your food log across devices.</p>
     <p id="authError" class="auth-error" role="alert"></p>
-    <button type="button" class="btn-primary" id="googleSignInBtn" style="width: 100%;">Sign in with Google</button>
+    <button type="button" class="btn-primary btn-block" id="googleSignInBtn">Sign in with Google</button>
   </div>
 </div>
 
@@ -502,26 +503,26 @@ button:focus-visible,
       <div class="settings-section" style="margin-top: 0; padding-top: 0; border-top: 0;">
         <h4>Account</h4>
         <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0 0 8px 0;">Your food log syncs to your Google account.</p>
-        <button class="btn-secondary" id="signOutBtn" style="width: 100%;">Sign out</button>
+        <button type="button" class="btn-secondary btn-block" id="signOutBtn">Sign out</button>
       </div>
       <div class="settings-section" id="deviceUploadSection" hidden>
         <h4>Data on this device</h4>
         <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0 0 8px 0;">This device still has foods or logs that were not uploaded to your account yet.</p>
-        <button class="btn-secondary" id="uploadDeviceBtn" style="width: 100%;">Upload from this device</button>
+        <button type="button" class="btn-secondary btn-block" id="uploadDeviceBtn">Upload from this device</button>
       </div>
       <div class="settings-section">
         <h4>Backup your data</h4>
         <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0 0 8px 0;">Export your foods and logs as JSON. Import to restore from a backup file.</p>
         <div class="settings-actions">
-          <button class="btn-secondary" id="exportBtn">Export</button>
-          <button class="btn-secondary" id="importBtn">Import</button>
+          <button type="button" class="btn-secondary" id="exportBtn">Export</button>
+          <button type="button" class="btn-secondary" id="importBtn">Import</button>
         </div>
         <input type="file" id="importFile" accept=".json" style="display: none;">
       </div>
       <div class="settings-section">
         <h4>Reset</h4>
         <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0 0 8px 0;">Clear all logged foods (keeps your custom food database).</p>
-        <button class="btn-secondary" id="clearLogsBtn" style="width: 100%;">Clear all logs</button>
+        <button type="button" class="btn-secondary btn-block" id="clearLogsBtn">Clear all logs</button>
       </div>
     </div>
   </div>
