@@ -1,21 +1,24 @@
 {
   "name": "Macro Tracker",
   "short_name": "Macros",
-  "start_url": "./index.html",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#FAFAF7",
   "theme_color": "#FAFAF7",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icon-180x180.png",
+      "src": "./icon-180x180.png",
       "sizes": "180x180",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "icon-512x512.png",
+      "src": "./icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
