@@ -394,12 +394,8 @@ async function saveEditedFood() {
     fat: Math.round((fatPerServing * toPer100) * 10) / 10
   });
   try {
-    if (!isBuiltInFood(updatedFood.id)) {
-      const savedFood = await sync.updateCustomFood(sync.getCurrentUserId(), updatedFood);
-      state.foods[foodIdx] = normalizeFood(savedFood);
-    } else {
-      state.foods[foodIdx] = updatedFood;
-    }
+    const savedFood = await sync.upsertFood(sync.getCurrentUserId(), updatedFood);
+    state.foods[foodIdx] = normalizeFood(savedFood);
     saveState();
     closeEditFoodModal();
     if (document.getElementById('addFoodModal').classList.contains('active')) {
@@ -884,8 +880,7 @@ document.getElementById('importFile').addEventListener('change', (e) => {
       setLoadingVisible(true);
       await sync.importCloudState(sync.getCurrentUserId(), data, DEFAULT_FOODS, normalizeFood);
       const userId = sync.getCurrentUserId();
-      const customFoods = await sync.fetchCustomFoods(userId);
-      state.foods = [...DEFAULT_FOODS.map(normalizeFood), ...customFoods.map(normalizeFood)];
+      await reloadSignedInUserState(userId);
       state.activityLevel = await sync.fetchActivityLevel(userId);
       state.dailyLogs = {};
       await loadDayLog(getDateKey(state.currentDate));
@@ -935,8 +930,8 @@ function updateDateDisplay() {
 }
 
 async function reloadSignedInUserState(userId) {
-  const customFoods = await sync.fetchCustomFoods(userId);
-  state.foods = [...DEFAULT_FOODS.map(normalizeFood), ...customFoods.map(normalizeFood)];
+  const cloudFoods = await sync.fetchCustomFoods(userId);
+  state.foods = sync.mergeFoodLibrary(DEFAULT_FOODS, cloudFoods, normalizeFood);
   state.activityLevel = await sync.fetchActivityLevel(userId);
   const prefs = sync.readLocalPreferences();
   state.recentSearches = prefs.recentSearches || [];

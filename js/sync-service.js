@@ -236,7 +236,7 @@ function foodMacroColumns(food) {
 export function foodToRow(food, userId) {
   return {
     user_id: userId,
-    external_id: String(food.id).startsWith('custom_') ? food.id : null,
+    external_id: String(food.id),
     name: food.name,
     unit: food.servingUnit || 'g',
     default_grams: gramsForQuantity(food.defaultServingSize ?? food.servingSize ?? 100, food.servingUnit || 'g'),
@@ -305,6 +305,47 @@ function buildFoodLookup(foods) {
   return lookup;
 }
 
+export function foodDiffersFromDefault(food, defaultFood, normalizeFood) {
+  if (!defaultFood) return true;
+  const base = normalizeFood(defaultFood);
+  const candidate = normalizeFood(food);
+  return base.servingSize !== candidate.servingSize
+    || base.servingUnit !== candidate.servingUnit
+    || base.defaultServingSize !== candidate.defaultServingSize
+    || base.calories !== candidate.calories
+    || base.carbs !== candidate.carbs
+    || base.protein !== candidate.protein
+    || base.fat !== candidate.fat
+    || base.name !== candidate.name;
+}
+
+export function mergeFoodLibrary(defaultFoods, cloudFoods, normalizeFood) {
+  const builtInIds = new Set(defaultFoods.map((food) => food.id));
+  const overrides = new Map();
+  const customFoods = [];
+
+  cloudFoods.forEach((cloudFood) => {
+    const normalized = normalizeFood(cloudFood);
+    if (builtInIds.has(normalized.id)) {
+      overrides.set(normalized.id, normalized);
+      return;
+    }
+    customFoods.push(normalized);
+  });
+
+  const mergedBuiltIns = defaultFoods.map((defaultFood) => {
+    const override = overrides.get(defaultFood.id);
+    if (!override) return normalizeFood(defaultFood);
+    return normalizeFood({
+      ...defaultFood,
+      ...override,
+      id: defaultFood.id,
+    });
+  });
+
+  return [...mergedBuiltIns, ...customFoods];
+}
+
 export async function fetchCustomFoods(userId) {
   const { data, error } = await client
     .from('foods')
@@ -323,6 +364,27 @@ export async function createCustomFood(userId, food) {
     .single();
   if (error) throw new Error(toErrorMessage(error, 'Could not save the new food.'));
   return rowToFood(data);
+}
+
+export async function upsertFood(userId, food) {
+  const payload = foodToRow(food, userId);
+  if (food.cloudId) {
+    return updateCustomFood(userId, { ...food, cloudId: food.cloudId });
+  }
+
+  const { data: existing, error: existingError } = await client
+    .from('foods')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('external_id', payload.external_id)
+    .maybeSingle();
+  if (existingError) throw new Error(toErrorMessage(existingError, 'Could not save the food.'));
+
+  if (existing?.id) {
+    return updateCustomFood(userId, { ...food, cloudId: existing.id });
+  }
+
+  return createCustomFood(userId, food);
 }
 
 export async function updateCustomFood(userId, food) {
@@ -426,24 +488,16 @@ export async function clearAllLogs(userId) {
 }
 
 export async function uploadLocalState(userId, localState, defaultFoods, normalizeFood) {
-  const customFoods = (localState.foods || [])
-    .filter((food) => !defaultFoods.some((builtIn) => builtIn.id === food.id))
-    .map(normalizeFood);
+  const foodsToUpload = (localState.foods || [])
+    .map(normalizeFood)
+    .filter((food) => {
+      const builtIn = defaultFoods.find((defaultFood) => defaultFood.id === food.id);
+      if (!builtIn) return true;
+      return foodDiffersFromDefault(food, builtIn, normalizeFood);
+    });
 
-  for (const food of customFoods) {
-    const row = foodToRow(food, userId);
-    if (row.external_id) {
-      const { data: existing, error: existingError } = await client
-        .from('foods')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('external_id', row.external_id)
-        .maybeSingle();
-      if (existingError) throw new Error(toErrorMessage(existingError, 'Could not upload your custom foods.'));
-      if (existing) continue;
-    }
-    const { error } = await client.from('foods').insert(row);
-    if (error) throw new Error(toErrorMessage(error, 'Could not upload your custom foods.'));
+  for (const food of foodsToUpload) {
+    await upsertFood(userId, food);
   }
 
   const { logs: existingLogCount } = await getCloudDataCounts(userId);
@@ -481,7 +535,7 @@ export async function exportCloudState(userId, defaultFoods, normalizeFood) {
   ]);
   if (logsResult.error) throw new Error(toErrorMessage(logsResult.error, 'Could not export your logs.'));
 
-  const mergedFoods = [...defaultFoods.map(normalizeFood), ...foods.map(normalizeFood)];
+  const mergedFoods = mergeFoodLibrary(defaultFoods, foods, normalizeFood);
   const lookup = buildFoodLookup(mergedFoods);
   const dailyLogs = {};
   (logsResult.data || []).forEach((row) => {
@@ -515,13 +569,15 @@ export async function importCloudState(userId, payload, defaultFoods, normalizeF
     if (error) throw new Error(toErrorMessage(error, 'Could not replace your custom foods.'));
   }
 
-  const customFoods = (payload.foods || [])
-    .filter((food) => !defaultFoods.some((builtIn) => builtIn.id === food.id))
-    .map(normalizeFood);
-
-  for (const food of customFoods) {
-    const { error } = await client.from('foods').insert(foodToRow(food, userId));
-    if (error) throw new Error(toErrorMessage(error, 'Could not import your custom foods.'));
+  const foodsToImport = (payload.foods || []).map(normalizeFood);
+  for (const food of foodsToImport) {
+    const builtIn = defaultFoods.find((defaultFood) => defaultFood.id === food.id);
+    if (builtIn) {
+      if (!foodDiffersFromDefault(food, builtIn, normalizeFood)) continue;
+      await upsertFood(userId, food);
+      continue;
+    }
+    await upsertFood(userId, food);
   }
 
   const rows = [];
