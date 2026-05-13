@@ -205,9 +205,9 @@ export function rowToFood(row) {
     servingUnit,
     defaultServingSize,
     calories: Number(row.cal100 ?? row.calories ?? 0),
-    carbs: Number(row.carb100 ?? row.carbs ?? 0),
-    protein: Number(row.prot100 ?? row.protein ?? 0),
-    fat: Number(row.fat100 ?? row.fat ?? 0),
+    carbs: Number(row.carb100 ?? row.carbs ?? row.carbs_g ?? 0),
+    protein: Number(row.prot100 ?? row.protein ?? row.protein_g ?? 0),
+    fat: Number(row.fat100 ?? row.fat ?? row.fat_g ?? 0),
   };
 }
 
@@ -216,11 +216,24 @@ function toMacroNumber(value) {
   return Number.isFinite(number) ? number : 0;
 }
 
-export function foodToRow(food, userId) {
+function foodMacroColumns(food) {
   const calories = toMacroNumber(food.calories);
   const carbs = toMacroNumber(food.carbs);
   const protein = toMacroNumber(food.protein);
   const fat = toMacroNumber(food.fat);
+  return {
+    cal100: calories,
+    carb100: carbs,
+    prot100: protein,
+    fat100: fat,
+    calories,
+    carbs_g: carbs,
+    protein_g: protein,
+    fat_g: fat,
+  };
+}
+
+export function foodToRow(food, userId) {
   return {
     user_id: userId,
     external_id: String(food.id).startsWith('custom_') ? food.id : null,
@@ -230,11 +243,7 @@ export function foodToRow(food, userId) {
     serving_size: food.servingSize ?? 100,
     serving_unit: food.servingUnit || 'g',
     default_serving_size: food.defaultServingSize ?? food.servingSize ?? 100,
-    cal100: calories,
-    carb100: carbs,
-    prot100: protein,
-    fat100: fat,
-    calories,
+    ...foodMacroColumns(food),
     updated_at: new Date().toISOString(),
   };
 }
