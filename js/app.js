@@ -558,11 +558,20 @@ function setLogServingFields(food, quantity) {
   document.getElementById('foodServingUnit').textContent = getServingUnitLabel(unit);
 }
 
+function updateAddToLogModalActions() {
+  const deleteFromLogBtn = document.getElementById('deleteFromLog');
+  const confirmBtn = document.getElementById('confirmAddToLog');
+  const isEditing = Boolean(state.editingLogItem);
+  if (deleteFromLogBtn) deleteFromLogBtn.hidden = !isEditing;
+  if (confirmBtn) confirmBtn.textContent = isEditing ? 'Save changes' : 'Add to Log';
+}
+
 function openAddToLogModal() {
   if (!state.currentFoodForLog) return;
   document.getElementById('addToLogModal').classList.add('active');
   state.logMeal = state.editingLogItem?.category || state.defaultCategory || state.logMeal || 'breakfast';
   setDropdownValue('logMealDropdown', state.logMeal);
+  updateAddToLogModalActions();
   if (state.editingLogItem) {
     const item = getCurrentDayLog()[state.editingLogItem.category][state.editingLogItem.idx];
     setLogServingFields(state.currentFoodForLog, item.quantity);
@@ -612,15 +621,17 @@ async function addFoodToLog() {
 async function deleteFoodLog(category, idx) {
   const log = getCurrentDayLog();
   const entry = log[category][idx];
-  if (!entry) return;
+  if (!entry) return false;
   try {
     await sync.deleteLogEntry(sync.getCurrentUserId(), entry.cloudId);
     log[category].splice(idx, 1);
     saveState();
     updateMacroDisplay();
     renderFoodLog();
+    return true;
   } catch (error) {
     reportError(error);
+    return false;
   }
 }
 
@@ -736,6 +747,15 @@ document.getElementById('createFoodDefaultServingSize').addEventListener('blur',
 });
 document.getElementById('addToLogClose').addEventListener('click', closeAddToLogModal);
 document.getElementById('cancelAddToLog').addEventListener('click', closeAddToLogModal);
+const deleteFromLogBtn = document.getElementById('deleteFromLog');
+if (deleteFromLogBtn) {
+  deleteFromLogBtn.addEventListener('click', async () => {
+    if (!state.editingLogItem) return;
+    const { category, idx } = state.editingLogItem;
+    const deleted = await deleteFoodLog(category, idx);
+    if (deleted) closeAddToLogModal();
+  });
+}
 document.getElementById('foodServingSize').addEventListener('input', updateLogFoodPreview);
 document.getElementById('foodServingSize').addEventListener('focus', (e) => {
   e.target.value = '';

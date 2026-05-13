@@ -222,6 +222,9 @@ button:focus-visible,
 
 .form-actions { display: flex; gap: 6px; margin-top: 0; }
 .form-actions button { flex: 1; min-height: var(--button-md-height); padding: 0 var(--button-md-px); font-size: var(--text-md); }
+.add-to-log-delete { margin: 0.5rem 0 0; padding: 0; border: none; background: none; color: #B42318; font-family: var(--font-sans); font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; align-self: center; }
+.add-to-log-delete[hidden] { display: none; }
+.add-to-log-delete:focus-visible { outline: none; box-shadow: var(--focus-ring-shadow); border-radius: 4px; }
 
 .quantity-input-group { display: flex; gap: 6px; margin-bottom: 0; }
 .quantity-input-group .form-group { margin-bottom: 0; flex: 1 1 50%; min-width: 0; }
@@ -484,6 +487,7 @@ button:focus-visible,
         <button type="button" class="btn-secondary" id="cancelAddToLog">Cancel</button>
         <button type="button" class="btn-primary" id="confirmAddToLog">Add to Log</button>
       </div>
+      <button type="button" class="add-to-log-delete" id="deleteFromLog" hidden>Delete from food log</button>
     </div>
   </div>
 </div>
