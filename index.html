@@ -40,11 +40,23 @@
   --icon-size: 18px;
   --focus-ring: var(--color-border-info);
   --focus-ring-shadow: 0 0 0 2px var(--color-background-primary), 0 0 0 4px var(--focus-ring);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+}
+
+@supports (padding: max(0px)) {
+  @media (hover: none) and (pointer: coarse) {
+    :root {
+      --safe-top: max(env(safe-area-inset-top, 0px), 2.75rem);
+    }
+  }
 }
 
 
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: var(--color-background-tertiary); -webkit-tap-highlight-color: transparent; font-size: var(--text-md); min-height: 100%; }
+html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: var(--color-background-tertiary); -webkit-tap-highlight-color: transparent; font-size: var(--text-md); min-height: 100%; min-height: 100dvh; }
 
 input:focus,
 .search-input:focus,
@@ -80,9 +92,9 @@ button:focus-visible,
   outline-offset: 2px;
 }
 
-.app-container { width: 100%; max-width: 480px; margin: 0 auto; background: var(--color-background-tertiary); min-height: 100dvh; display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom); }
+.app-container { width: 100%; max-width: 480px; margin: 0 auto; background: var(--color-background-tertiary); min-height: 100dvh; display: flex; flex-direction: column; padding-bottom: var(--safe-bottom); }
 
-.header { background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary); padding: 0.5rem 0.625rem; padding-top: calc(0.5rem + env(safe-area-inset-top)); position: sticky; top: 0; z-index: 100; }
+.header { background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary); padding: 0.5rem 0.625rem; padding-top: calc(0.5rem + var(--safe-top)); position: sticky; top: var(--safe-top); z-index: 100; }
 .header-controls { display: flex; gap: 8px; justify-content: space-between; align-items: center; }
 .date-nav { display: flex; gap: 6px; align-items: center; }
 .header-actions { display: flex; gap: 6px; align-items: center; }
@@ -110,9 +122,7 @@ button:focus-visible,
 .macro-card.carbs { border: 0.5px solid rgba(30, 64, 175, 0.35); background: #EFF4FF; }
 .macro-card.protein { border: 0.5px solid rgba(22, 101, 52, 0.35); background: #EDF7EF; }
 .macro-card.fat { border: 0.5px solid rgba(124, 58, 237, 0.35); background: #F3E8FF; }
-.macro-card .label { font-size: 12px; line-height: 1.2; margin-bottom: 2px; text-align: center; }
-.macro-card .label-name { color: var(--color-text-primary); font-weight: 600; }
-.macro-card .label-suffix { color: var(--color-text-secondary); font-weight: 400; }
+.macro-card .label { font-size: 12px; line-height: 1.2; margin-bottom: 2px; text-align: center; color: var(--color-text-primary); font-weight: 600; }
 .macro-card .value { font-size: var(--text-sm); line-height: 1.2; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; text-align: center; }
 .macro-card .progress { position: relative; height: 5px; background: var(--color-background-tertiary); border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
 .macro-card.calories .progress-bar { background: #C41E1E; }
@@ -170,8 +180,8 @@ button:focus-visible,
 
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: stretch; justify-content: center; }
 .modal-overlay.active { display: flex; }
-.modal { background: var(--color-background-tertiary); width: 100%; min-height: 100dvh; border-radius: 0; overflow-y: auto; padding-bottom: env(safe-area-inset-bottom); }
-.modal-header { padding: 0.625rem 0.875rem; padding-top: calc(0.625rem + env(safe-area-inset-top)); border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--color-background-primary); z-index: 10; }
+.modal { background: var(--color-background-tertiary); width: 100%; min-height: 100dvh; border-radius: 0; overflow-y: auto; padding-bottom: var(--safe-bottom); }
+.modal-header { padding: 0.625rem 0.875rem; padding-top: calc(0.625rem + var(--safe-top)); border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; justify-content: space-between; align-items: center; position: sticky; top: var(--safe-top); background: var(--color-background-primary); z-index: 10; }
 .modal-header h2 { margin: 0; font-size: var(--text-md); font-weight: 500; color: var(--color-text-primary); }
 .modal-header-left { display: flex; gap: 8px; align-items: center; }
 .modal-add-new { padding: 0 var(--button-sm-px); min-height: var(--button-sm-height); font-size: var(--text-sm); white-space: nowrap; }
@@ -184,7 +194,7 @@ button:focus-visible,
 
 .search-results { max-height: 60vh; overflow-y: auto; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 0 10px; }
 #addFoodModal .modal { display: flex; flex-direction: column; height: 100dvh; min-height: 100dvh; overflow: hidden; padding-bottom: 0; }
-#addFoodModal .modal-body { display: flex; flex-direction: column; flex: 1; min-height: 0; padding-bottom: calc(0.625rem + env(safe-area-inset-bottom)); }
+#addFoodModal .modal-body { display: flex; flex-direction: column; flex: 1; min-height: 0; padding-bottom: calc(0.625rem + var(--safe-bottom)); }
 #addFoodModal .search-controls { flex-shrink: 0; margin-bottom: 0; }
 #addFoodModal .search-results { flex: 1; min-height: 0; max-height: none; margin-top: 6px; -webkit-overflow-scrolling: touch; }
 .food-option { padding: 8px 0; background: transparent; display: flex; justify-content: space-between; align-items: center; gap: 8px; cursor: pointer; }
@@ -282,7 +292,7 @@ button:focus-visible,
 
   <div class="macros-summary">
     <div class="macro-card calories">
-      <div class="label"><span class="label-name">Calories</span><span class="label-suffix"> left</span></div>
+      <div class="label">Calories</div>
       <div class="value" id="calorieValue">0</div>
       <div class="progress"><div class="progress-bar" id="calorieBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
       <div class="meta">
@@ -290,7 +300,7 @@ button:focus-visible,
       </div>
     </div>
     <div class="macro-card carbs">
-      <div class="label"><span class="label-name">Carbs</span><span class="label-suffix"> left</span></div>
+      <div class="label">Carbs</div>
       <div class="value" id="carbValue">0</div>
       <div class="progress"><div class="progress-bar" id="carbBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
       <div class="meta">
@@ -298,7 +308,7 @@ button:focus-visible,
       </div>
     </div>
     <div class="macro-card protein">
-      <div class="label"><span class="label-name">Protein</span><span class="label-suffix"> left</span></div>
+      <div class="label">Protein</div>
       <div class="value" id="proteinValue">0</div>
       <div class="progress"><div class="progress-bar" id="proteinBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
       <div class="meta">
@@ -306,7 +316,7 @@ button:focus-visible,
       </div>
     </div>
     <div class="macro-card fat">
-      <div class="label"><span class="label-name">Fat</span><span class="label-suffix"> left</span></div>
+      <div class="label">Fat</div>
       <div class="value" id="fatValue">0</div>
       <div class="progress"><div class="progress-bar" id="fatBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
       <div class="meta">
