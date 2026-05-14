@@ -111,8 +111,10 @@ button:focus-visible,
 .macro-card.carbs { border: 0.5px solid rgba(30, 64, 175, 0.35); background: #EFF4FF; }
 .macro-card.protein { border: 0.5px solid rgba(22, 101, 52, 0.35); background: #EDF7EF; }
 .macro-card.fat { border: 0.5px solid rgba(124, 58, 237, 0.35); background: #F3E8FF; }
-.macro-card .label { font-size: 12px; line-height: 1.2; margin-bottom: 2px; text-align: center; color: var(--color-text-primary); font-weight: 600; }
-.macro-card .value { font-size: var(--text-sm); line-height: 1.2; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; text-align: center; }
+.macro-card .label { font-size: 13px; line-height: 1.2; margin-bottom: 2px; text-align: center; color: var(--color-text-primary); font-weight: 600; }
+.macro-card .remainder { margin-bottom: 4px; text-align: center; }
+.macro-card .value { font-size: var(--text-sm); line-height: 1.2; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1px; text-align: center; }
+.macro-card .remainder-label { display: block; font-size: 12px; line-height: 1.2; color: var(--color-text-secondary); font-weight: 400; }
 .macro-card .value.is-negative { color: #C41E1E; }
 .macro-card .progress { position: relative; height: 5px; background: var(--color-background-tertiary); border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
 .macro-card.calories .progress-bar { background: #C41E1E; }
@@ -305,7 +307,10 @@ button:focus-visible,
   <div class="macros-summary">
     <div class="macro-card calories">
       <div class="label">Calories</div>
-      <div class="value" id="calorieValue">0</div>
+      <div class="remainder">
+        <div class="value" id="calorieValue">0</div>
+        <span class="remainder-label">remaining</span>
+      </div>
       <div class="progress"><div class="progress-bar" id="calorieBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
       <div class="meta">
         <span class="target"><span id="calorieUsed">0</span> used / <span id="calorieTarget">0</span></span>
@@ -313,7 +318,10 @@ button:focus-visible,
     </div>
     <div class="macro-card fat">
       <div class="label">Fat</div>
-      <div class="value" id="fatValue">0</div>
+      <div class="remainder">
+        <div class="value" id="fatValue">0</div>
+        <span class="remainder-label">remaining</span>
+      </div>
       <div class="progress"><div class="progress-bar" id="fatBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
       <div class="meta">
         <span class="target"><span id="fatUsed">0</span> used / <span id="fatTarget">0</span></span>
@@ -321,7 +329,10 @@ button:focus-visible,
     </div>
     <div class="macro-card carbs">
       <div class="label">Carbs</div>
-      <div class="value" id="carbValue">0</div>
+      <div class="remainder">
+        <div class="value" id="carbValue">0</div>
+        <span class="remainder-label">remaining</span>
+      </div>
       <div class="progress"><div class="progress-bar" id="carbBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
       <div class="meta">
         <span class="target"><span id="carbUsed">0</span> used / <span id="carbTarget">0</span></span>
@@ -329,7 +340,10 @@ button:focus-visible,
     </div>
     <div class="macro-card protein">
       <div class="label">Protein</div>
-      <div class="value" id="proteinValue">0</div>
+      <div class="remainder">
+        <div class="value" id="proteinValue">0</div>
+        <span class="remainder-label">remaining</span>
+      </div>
       <div class="progress"><div class="progress-bar" id="proteinBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
       <div class="meta">
         <span class="target"><span id="proteinUsed">0</span> used / <span id="proteinTarget">0</span></span>
