@@ -168,12 +168,12 @@ button:focus-visible,
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: stretch; justify-content: center; }
 .modal-overlay.active { display: flex; }
 .modal { background: var(--color-background-tertiary); width: 100%; min-height: 100dvh; border-radius: 0; overflow-y: auto; padding-bottom: var(--safe-bottom); }
-.modal-header { padding: 0.625rem 0.875rem; padding-top: calc(0.625rem + var(--safe-top)); border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--color-background-primary); z-index: 10; }
+.modal-header { padding: calc(0.625rem + var(--safe-top)) 0.875rem 0.625rem; border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--color-background-primary); z-index: 10; }
 .modal-header h2 { margin: 0; font-size: var(--text-md); font-weight: 500; color: var(--color-text-primary); }
 .modal-header-left { display: flex; gap: 8px; align-items: center; }
 .modal-add-new { padding: 0 var(--button-sm-px); min-height: var(--button-sm-height); font-size: var(--text-sm); white-space: nowrap; }
 .modal-close { background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); width: var(--icon-button-size); height: var(--icon-button-size); min-width: var(--icon-button-size); min-height: var(--icon-button-size); border-radius: var(--border-radius-md); cursor: pointer; color: var(--color-text-primary); padding: 0; display: inline-flex; align-items: center; justify-content: center; }
-.modal-body { padding: 0.625rem; background: var(--color-background-tertiary); }
+.modal-body { padding: 0.625rem 0.875rem; background: var(--color-background-tertiary); }
 
 .search-input { width: 100%; padding: 0 12px; height: var(--input-md-height); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-md); margin-bottom: 6px; background: var(--color-background-primary); color: var(--color-text-primary); }
 .search-controls { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
