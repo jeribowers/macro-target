@@ -205,6 +205,17 @@ function renderFoodLogMacroLine(calories, carbs, protein, fat) {
   return `<span class="macro-line"><span class="cal">${formatNumber(Math.round(calories))} cal</span><span class="sep">•</span><span class="fat">${formatNumber(Math.round(fat))}g fat</span><span class="sep">•</span><span class="carb">${formatNumber(Math.round(carbs))}g carb</span><span class="sep">•</span><span class="prot">${formatNumber(Math.round(protein))}g pro</span></span>`;
 }
 
+function renderFoodItemInfo(name, weightLabel, macros) {
+  return `
+    <div class="food-info">
+      <div class="food-name-row">
+        <p class="food-name">${name}</p>
+        <p class="food-weight">${weightLabel}</p>
+      </div>
+      <p class="food-macros">${renderFoodLogMacroLine(macros.calories, macros.carbs, macros.protein, macros.fat || 0)}</p>
+    </div>`;
+}
+
 function refreshIcons() {
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
     window.lucide.createIcons();
@@ -233,13 +244,7 @@ function renderFoodLog() {
           <div class="swipe-row" data-deletable="true" data-log-category="${category}" data-log-index="${idx}">
             <button type="button" class="swipe-delete" data-log-category="${category}" data-log-index="${idx}" aria-label="Delete ${item.food.name}">Delete</button>
             <div class="food-item swipe-content">
-              <div class="food-info">
-                <div class="food-name-row">
-                  <p class="food-name">${item.food.name}</p>
-                  <p class="food-weight">${formatNumber(item.quantity)}${item.unit}</p>
-                </div>
-                <p class="food-macros">${renderFoodLogMacroLine(item.macros.calories, item.macros.carbs, item.macros.protein, item.macros.fat || 0)}</p>
-              </div>
+              ${renderFoodItemInfo(item.food.name, `${formatNumber(item.quantity)}${item.unit}`, item.macros)}
               <div class="food-actions">
                 <button onclick="editFoodLog('${category}', ${idx})" title="Edit" aria-label="Edit"><i data-lucide="pencil"></i></button>
               </div>
@@ -306,13 +311,7 @@ function searchFoods(query) {
     const measure = `${formatNumber(servingSize)}${unit}`;
     const servingMacros = getMacrosForFood(displayFood, servingSize, unit);
     const optionBody = `<div class="food-option swipe-content" onclick="selectFoodForLog('${food.id}')">
-      <div class="info">
-        <div class="name-row">
-          <p class="name">${food.name}</p>
-          <p class="measure">${measure}</p>
-        </div>
-        <div class="macros">${renderFoodLogMacroLine(servingMacros.calories, servingMacros.carbs, servingMacros.protein, servingMacros.fat)}</div>
-      </div>
+      ${renderFoodItemInfo(food.name, measure, servingMacros)}
       <div class="actions">
         <button class="btn-primary btn-icon" onclick="event.stopPropagation(); selectFoodForLog('${food.id}')" title="Add" aria-label="Add"><i data-lucide="plus"></i></button>
         <button class="btn-secondary btn-icon" onclick="event.stopPropagation(); editFoodInDB('${food.id}')" title="Edit" aria-label="Edit"><i data-lucide="pencil"></i></button>
@@ -584,12 +583,11 @@ function updateLogFoodPreview() {
   const quantity = parseInputNumber(document.getElementById('foodServingSize').value) || 0;
   const unit = getFoodServingUnit(food);
   const macros = getMacrosForFood(food, quantity, unit);
-  document.getElementById('logFoodPreview').innerHTML = `
-    <div class="food-name-row">
-      <p class="food-name">${food.name}</p>
-      <p class="food-weight">${formatNumber(quantity)}${unit}</p>
-    </div>
-    <p class="food-macros">${renderFoodLogMacroLine(macros.calories, macros.carbs, macros.protein, macros.fat)}</p>`;
+  document.getElementById('logFoodPreview').innerHTML = renderFoodItemInfo(
+    food.name,
+    `${formatNumber(quantity)}${unit}`,
+    macros
+  );
 }
 
 async function addFoodToLog() {
