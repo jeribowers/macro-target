@@ -178,8 +178,10 @@ function updateMacroDisplay() {
   const targets = ACTIVITY_LEVELS[state.activityLevel];
   const totals = getTodayTotals();
   function updateMacro(id, current, target) {
-    const remaining = Math.max(0, target - current);
-    const remainingPercentage = Math.max(0, Math.min((remaining / target) * 100, 100));
+    const remaining = target - current;
+    const remainingPercentage = target > 0
+      ? Math.max(0, Math.min((remaining / target) * 100, 100))
+      : 0;
     document.getElementById(id).textContent = formatNumber(Math.round(remaining));
     document.getElementById(id.replace('Value', 'Bar')).style.width = remainingPercentage + '%';
     document.getElementById(id.replace('Value', 'Target')).textContent = formatNumber(Math.round(target));
