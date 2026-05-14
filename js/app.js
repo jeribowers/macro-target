@@ -186,6 +186,7 @@ function updateMacroDisplay() {
     valueEl.textContent = formatNumber(Math.round(remaining));
     valueEl.classList.toggle('is-negative', remaining < 0);
     document.getElementById(id.replace('Value', 'Bar')).style.width = remainingPercentage + '%';
+    document.getElementById(id.replace('Value', 'Used')).textContent = formatNumber(Math.round(current));
     document.getElementById(id.replace('Value', 'Target')).textContent = formatNumber(Math.round(target));
   }
   updateMacro('calorieValue', totals.calories, targets.calories);

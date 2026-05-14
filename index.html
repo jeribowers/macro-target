@@ -128,7 +128,6 @@ button:focus-visible,
 .macro-card .progress-ticks span { width: 1px; height: 100%; background: rgba(0, 0, 0, 0.18); }
 .macro-card .meta { display: flex; justify-content: center; align-items: baseline; gap: 4px; font-size: 12px; line-height: 1.2; color: var(--color-text-secondary); }
 .macro-card .target { text-align: center; }
-.macro-card .target-suffix { font-weight: 400; }
 
 .content { flex: 1; overflow-y: auto; padding: var(--screen-pad-block) var(--screen-pad-inline); }
 .food-category { margin-bottom: var(--screen-pad-block); }
@@ -309,7 +308,7 @@ button:focus-visible,
       <div class="value" id="calorieValue">0</div>
       <div class="progress"><div class="progress-bar" id="calorieBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
       <div class="meta">
-        <span class="target"><span id="calorieTarget">0</span><span class="target-suffix"> total</span></span>
+        <span class="target"><span id="calorieUsed">0</span> used of <span id="calorieTarget">0</span></span>
       </div>
     </div>
     <div class="macro-card fat">
@@ -317,7 +316,7 @@ button:focus-visible,
       <div class="value" id="fatValue">0</div>
       <div class="progress"><div class="progress-bar" id="fatBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
       <div class="meta">
-        <span class="target"><span id="fatTarget">0</span><span class="target-suffix"> total</span></span>
+        <span class="target"><span id="fatUsed">0</span> used of <span id="fatTarget">0</span></span>
       </div>
     </div>
     <div class="macro-card carbs">
@@ -325,7 +324,7 @@ button:focus-visible,
       <div class="value" id="carbValue">0</div>
       <div class="progress"><div class="progress-bar" id="carbBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
       <div class="meta">
-        <span class="target"><span id="carbTarget">0</span><span class="target-suffix"> total</span></span>
+        <span class="target"><span id="carbUsed">0</span> used of <span id="carbTarget">0</span></span>
       </div>
     </div>
     <div class="macro-card protein">
@@ -333,7 +332,7 @@ button:focus-visible,
       <div class="value" id="proteinValue">0</div>
       <div class="progress"><div class="progress-bar" id="proteinBar" style="width: 100%"></div><div class="progress-ticks" aria-hidden="true"><span></span><span></span><span></span></div></div>
       <div class="meta">
-        <span class="target"><span id="proteinTarget">0</span><span class="target-suffix"> total</span></span>
+        <span class="target"><span id="proteinUsed">0</span> used of <span id="proteinTarget">0</span></span>
       </div>
     </div>
   </div>
