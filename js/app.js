@@ -182,7 +182,9 @@ function updateMacroDisplay() {
     const remainingPercentage = target > 0
       ? Math.max(0, Math.min((remaining / target) * 100, 100))
       : 0;
-    document.getElementById(id).textContent = formatNumber(Math.round(remaining));
+    const valueEl = document.getElementById(id);
+    valueEl.textContent = formatNumber(Math.round(remaining));
+    valueEl.classList.toggle('is-negative', remaining < 0);
     document.getElementById(id.replace('Value', 'Bar')).style.width = remainingPercentage + '%';
     document.getElementById(id.replace('Value', 'Target')).textContent = formatNumber(Math.round(target));
   }
