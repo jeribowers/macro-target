@@ -350,6 +350,12 @@ function selectFoodForLog(foodId) {
   }
 }
 
+function updateEditFoodModalActions() {
+  const deleteFromDatabaseBtn = document.getElementById('deleteFromDatabase');
+  if (!deleteFromDatabaseBtn) return;
+  deleteFromDatabaseBtn.hidden = !state.editingFoodId || isBuiltInFood(state.editingFoodId);
+}
+
 function editFoodInDB(foodId) {
   const food = state.foods.find(f => f.id === foodId);
   if (food) {
@@ -363,6 +369,7 @@ function editFoodInDB(foodId) {
     document.getElementById('editFoodCarbs').value = formatInputNumber(servingMacros.carbs);
     document.getElementById('editFoodProtein').value = formatInputNumber(servingMacros.protein);
     document.getElementById('editFoodFat').value = formatInputNumber(servingMacros.fat);
+    updateEditFoodModalActions();
     document.getElementById('editFoodModal').classList.add('active');
   }
 }
@@ -370,6 +377,8 @@ function editFoodInDB(foodId) {
 function closeEditFoodModal() {
   document.getElementById('editFoodModal').classList.remove('active');
   state.editingFoodId = null;
+  const deleteFromDatabaseBtn = document.getElementById('deleteFromDatabase');
+  if (deleteFromDatabaseBtn) deleteFromDatabaseBtn.hidden = true;
 }
 
 async function saveEditedFood() {
@@ -708,6 +717,13 @@ document.getElementById('searchInput').addEventListener('input', (e) => searchFo
 document.getElementById('editFoodClose').addEventListener('click', closeEditFoodModal);
 document.getElementById('cancelEditFood').addEventListener('click', closeEditFoodModal);
 document.getElementById('editFoodForm').addEventListener('submit', (e) => { e.preventDefault(); saveEditedFood(); });
+const deleteFromDatabaseBtn = document.getElementById('deleteFromDatabase');
+if (deleteFromDatabaseBtn) {
+  deleteFromDatabaseBtn.addEventListener('click', async () => {
+    if (!state.editingFoodId) return;
+    await deleteFoodById(state.editingFoodId);
+  });
+}
 document.getElementById('createFoodClose').addEventListener('click', closeCreateFoodModal);
 document.getElementById('cancelCreateFood').addEventListener('click', closeCreateFoodModal);
 document.getElementById('createFoodForm').addEventListener('submit', (e) => { e.preventDefault(); saveCreatedFood(); });
