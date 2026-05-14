@@ -366,25 +366,38 @@ export async function createCustomFood(userId, food) {
   return rowToFood(data);
 }
 
-export async function upsertFood(userId, food) {
-  const payload = foodToRow(food, userId);
-  if (food.cloudId) {
-    return updateCustomFood(userId, { ...food, cloudId: food.cloudId });
-  }
+async function findFoodRowId(userId, externalId, cloudId) {
+  if (cloudId) return cloudId;
 
-  const { data: existing, error: existingError } = await client
+  const { data, error } = await client
     .from('foods')
     .select('id')
     .eq('user_id', userId)
-    .eq('external_id', payload.external_id)
-    .maybeSingle();
-  if (existingError) throw new Error(toErrorMessage(existingError, 'Could not save the food.'));
+    .eq('external_id', externalId)
+    .order('updated_at', { ascending: false })
+    .limit(1);
+  if (error) throw new Error(toErrorMessage(error, 'Could not save the food.'));
+  return data?.[0]?.id ?? null;
+}
 
-  if (existing?.id) {
-    return updateCustomFood(userId, { ...food, cloudId: existing.id });
+export async function upsertFood(userId, food) {
+  const payload = foodToRow(food, userId);
+  const existingId = await findFoodRowId(userId, payload.external_id, food.cloudId);
+
+  if (existingId) {
+    return updateCustomFood(userId, { ...food, cloudId: existingId });
   }
 
-  return createCustomFood(userId, food);
+  try {
+    return await createCustomFood(userId, food);
+  } catch (error) {
+    const message = toErrorMessage(error, '');
+    if (!message.includes('duplicate key')) throw error;
+
+    const retryId = await findFoodRowId(userId, payload.external_id, null);
+    if (!retryId) throw error;
+    return updateCustomFood(userId, { ...food, cloudId: retryId });
+  }
 }
 
 export async function updateCustomFood(userId, food) {

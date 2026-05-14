@@ -530,7 +530,7 @@ async function saveCreatedFood() {
     fat: Math.round((fatPerServing * toPer100) * 10) / 10
   });
   try {
-    const savedFood = await sync.createCustomFood(sync.getCurrentUserId(), newFood);
+    const savedFood = await sync.upsertFood(sync.getCurrentUserId(), newFood);
     state.foods.push(normalizeFood(savedFood));
     state.currentFoodForLog = normalizeFood(savedFood);
     state.editingLogItem = null;
