@@ -74,6 +74,19 @@ function getDefaultServingSize(food) {
   return normalizeFood(food).defaultServingSize;
 }
 
+function syncFoodSnapshots(savedFood) {
+  const normalized = normalizeFood(savedFood);
+  Object.values(state.dailyLogs).forEach((dayLog) => {
+    Object.values(dayLog).forEach((items) => {
+      items.forEach((item) => {
+        if (item.food?.id !== normalized.id) return;
+        item.food = { ...normalized };
+        item.macros = getMacrosForFood(item.food, item.quantity, item.unit);
+      });
+    });
+  });
+}
+
 function getServingUnitLabel(unit) {
   const labels = { g: 'g', ml: 'ml', oz: 'oz', cup: 'cup', tbsp: 'tbsp', tsp: 'teaspoon', piece: 'piece' };
   return labels[unit] || unit;
@@ -382,6 +395,11 @@ function closeEditFoodModal() {
 }
 
 async function saveEditedFood() {
+  const userId = sync.getCurrentUserId();
+  if (!userId) {
+    reportError(new Error('Sign in to save changes to your food database.'));
+    return;
+  }
   const name = document.getElementById('editFoodName').value.trim();
   const servingSize = parseInputNumber(document.getElementById('editFoodServingSize').value);
   const servingUnit = getDropdownValue('editFoodServingUnitDropdown');
@@ -392,6 +410,10 @@ async function saveEditedFood() {
   const fatPerServing = parseMacroInputNumber(document.getElementById('editFoodFat').value);
   if (!name || isNaN(servingSize) || servingSize <= 0 || !servingUnit || isNaN(defaultServingSize) || defaultServingSize <= 0) { alert('Please fill in all required fields. Reference size and serving size must be greater than 0.'); return; }
   const servingBase = servingSize * (UNIT_CONVERSIONS[servingUnit] || 1);
+  if (!Number.isFinite(servingBase) || servingBase <= 0) {
+    alert('Reference size must be greater than 0.');
+    return;
+  }
   const toPer100 = 100 / servingBase;
   const foodIdx = state.foods.findIndex(f => f.id === state.editingFoodId);
   if (foodIdx === -1) return;
@@ -407,13 +429,17 @@ async function saveEditedFood() {
     fat: Math.round((fatPerServing * toPer100) * 10) / 10
   });
   try {
-    const savedFood = await sync.upsertFood(sync.getCurrentUserId(), updatedFood);
-    state.foods[foodIdx] = normalizeFood(savedFood);
+    const savedFood = await sync.upsertFood(userId, updatedFood);
+    const builtInIds = new Set(DEFAULT_FOODS.map((food) => food.id));
+    const mergedFood = sync.replaceFoodInLibrary(state.foods, savedFood, builtInIds, normalizeFood);
+    syncFoodSnapshots(mergedFood);
     saveState();
     closeEditFoodModal();
     if (document.getElementById('addFoodModal').classList.contains('active')) {
       searchFoods(document.getElementById('searchInput').value);
     }
+    updateMacroDisplay();
+    renderFoodLog();
   } catch (error) {
     reportError(error);
   }

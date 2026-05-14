@@ -193,10 +193,33 @@ export function saveLocalPreferences(preferences) {
   }));
 }
 
+function toPositiveNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : null;
+}
+
+function dedupeCloudFoodRows(rows) {
+  const byKey = new Map();
+  (rows || []).forEach((row) => {
+    const key = row.external_id || row.id;
+    const existing = byKey.get(key);
+    if (!existing) {
+      byKey.set(key, row);
+      return;
+    }
+    const existingUpdated = Date.parse(existing.updated_at || '') || 0;
+    const nextUpdated = Date.parse(row.updated_at || '') || 0;
+    if (nextUpdated >= existingUpdated) {
+      byKey.set(key, row);
+    }
+  });
+  return Array.from(byKey.values());
+}
+
 export function rowToFood(row) {
   const servingUnit = row.serving_unit || row.unit || 'g';
-  const servingSize = Number(row.serving_size ?? row.default_grams ?? 100) || 100;
-  const defaultServingSize = Number(row.default_serving_size ?? row.default_grams ?? servingSize) || servingSize;
+  const servingSize = toPositiveNumber(row.serving_size) ?? 100;
+  const defaultServingSize = toPositiveNumber(row.default_serving_size) ?? servingSize;
   return {
     id: row.external_id || row.id,
     cloudId: row.id,
@@ -346,14 +369,28 @@ export function mergeFoodLibrary(defaultFoods, cloudFoods, normalizeFood) {
   return [...mergedBuiltIns, ...customFoods];
 }
 
+export function replaceFoodInLibrary(foods, savedFood, defaultFoodIds, normalizeFood) {
+  const normalized = normalizeFood(savedFood);
+  const idx = foods.findIndex((food) => food.id === normalized.id);
+  const merged = idx >= 0 && defaultFoodIds.has(normalized.id)
+    ? normalizeFood({ ...foods[idx], ...normalized, id: normalized.id })
+    : normalized;
+  if (idx >= 0) {
+    foods[idx] = merged;
+  } else {
+    foods.push(merged);
+  }
+  return merged;
+}
+
 export async function fetchCustomFoods(userId) {
   const { data, error } = await client
     .from('foods')
     .select('*')
     .eq('user_id', userId)
-    .order('name');
+    .order('updated_at', { ascending: false });
   if (error) throw new Error(toErrorMessage(error, 'Could not load your custom foods.'));
-  return (data || []).map(rowToFood);
+  return dedupeCloudFoodRows(data).map(rowToFood);
 }
 
 export async function createCustomFood(userId, food) {
