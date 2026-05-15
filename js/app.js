@@ -28,6 +28,16 @@ const ACTIVITY_LEVELS = {
   high: { calories: 2000, protein: 127, carbs: 234, fat: 61, label: 'Intense' }
 };
 
+const FOOD_SERVING_UNITS = [
+  { value: 'g', label: 'g' },
+  { value: 'ml', label: 'ml' },
+  { value: 'oz', label: 'oz' },
+  { value: 'cup', label: 'cup' },
+  { value: 'tbsp', label: 'tbsp' },
+  { value: 'tsp', label: 'tsp' },
+  { value: 'piece', label: 'piece' },
+];
+
 const DEFAULT_FOODS = [
   { id: 'chicken_breast', name: 'Chicken Breast', servingSize: 100, servingUnit: 'g', calories: 165, carbs: 0, protein: 31, fat: 3.6 },
   { id: 'brown_rice', name: 'Brown Rice', servingSize: 100, servingUnit: 'g', calories: 111, carbs: 23, protein: 2.6, fat: 0.9 },
@@ -152,12 +162,13 @@ function initProfileTargetFieldDecorations() {
 
 let profileHeightInput = null;
 let profileWeightInput = null;
+let createFoodReferenceInput = null;
 
 function initClearOnFocusInputs() {
   const foodNumericIds = [
     'editFoodServingSize', 'editFoodDefaultServingSize',
     'editFoodCalories', 'editFoodCarbs', 'editFoodProtein', 'editFoodFat',
-    'createFoodServingSize', 'createFoodDefaultServingSize',
+    'createFoodDefaultServingSize',
     'createFoodCalories', 'createFoodCarbs', 'createFoodProtein', 'createFoodFat',
   ];
 
@@ -226,6 +237,29 @@ function initProfileMeasureInputs() {
     onChange: profileBodyChange,
   });
   weightMount.appendChild(profileWeightInput.element);
+}
+
+function syncCreateFoodServingUnitLabel() {
+  const unitEl = document.getElementById('createFoodServingUnit');
+  if (!unitEl || !createFoodReferenceInput) return;
+  unitEl.textContent = getServingUnitLabel(createFoodReferenceInput.getUnit());
+}
+
+function initCreateFoodReferenceMeasure() {
+  const mount = document.getElementById('createFoodReferenceMeasure');
+  if (!mount || createFoodReferenceInput) return;
+
+  createFoodReferenceInput = createMeasureInput({
+    id: 'createFoodServingSize',
+    label: 'Reference Size',
+    units: FOOD_SERVING_UNITS,
+    defaultUnit: 'g',
+    value: 100,
+    convertValue: convertServingQuantity,
+    onChange: syncCreateFoodServingUnitLabel,
+  });
+  mount.appendChild(createFoodReferenceInput.element);
+  syncCreateFoodServingUnitLabel();
 }
 
 function getDateKey(date) { const d = new Date(date); d.setHours(0, 0, 0, 0); return d.toISOString().split('T')[0]; }
@@ -391,6 +425,13 @@ async function persistActivityLevel(level) {
 }
 
 const UNIT_CONVERSIONS = { g: 1, ml: 1, oz: 28.35, cup: 240, tbsp: 15, tsp: 5, piece: 100 };
+
+function convertServingQuantity(value, fromUnit, toUnit) {
+  if (fromUnit === toUnit) return value;
+  const fromBase = value * (UNIT_CONVERSIONS[fromUnit] || 1);
+  const toFactor = UNIT_CONVERSIONS[toUnit] || 1;
+  return fromBase / toFactor;
+}
 
 function getMacrosForFood(food, quantity, unit) {
   const conversion = UNIT_CONVERSIONS[unit] || 1;
@@ -1027,8 +1068,8 @@ function initSwipeToDelete(container, onDelete) {
 function openCreateFoodModal(prefillName = '') {
   closeAddFoodModal();
   document.getElementById('createFoodName').value = prefillName.trim();
-  document.getElementById('createFoodServingSize').value = '100';
-  setDropdownValue('createFoodServingUnitDropdown', 'g');
+  createFoodReferenceInput?.setMeasurement({ value: 100, unit: 'g' });
+  syncCreateFoodServingUnitLabel();
   document.getElementById('createFoodDefaultServingSize').value = '100';
   document.getElementById('createFoodCalories').value = '';
   document.getElementById('createFoodCarbs').value = '';
@@ -1042,8 +1083,9 @@ function closeCreateFoodModal() { document.getElementById('createFoodModal').cla
 
 async function saveCreatedFood() {
   const name = document.getElementById('createFoodName').value.trim();
-  const servingSize = parseInputNumber(document.getElementById('createFoodServingSize').value);
-  const servingUnit = getDropdownValue('createFoodServingUnitDropdown');
+  const reference = createFoodReferenceInput?.getMeasurement() ?? {};
+  const servingSize = reference.value;
+  const servingUnit = reference.unit;
   const defaultServingSize = parseInputNumber(document.getElementById('createFoodDefaultServingSize').value);
   const caloriesPerServing = parseMacroInputNumber(document.getElementById('createFoodCalories').value);
   const carbsPerServing = parseMacroInputNumber(document.getElementById('createFoodCarbs').value);
@@ -1252,7 +1294,6 @@ initDropdown('activityDropdown', (value) => {
   persistActivityLevel(value).catch(reportError);
 });
 initDropdown('logMealDropdown', (value) => { state.logMeal = value; });
-initDropdown('createFoodServingUnitDropdown');
 initDropdown('editFoodServingUnitDropdown');
 initSwipeToDelete(document.getElementById('searchResults'), (btn) => deleteFoodById(btn.dataset.foodId));
 initSwipeToDelete(document.getElementById('content'), (btn) => deleteFoodLog(btn.dataset.logCategory, Number(btn.dataset.logIndex)));
@@ -1275,7 +1316,7 @@ if (deleteFromDatabaseBtn) {
 document.getElementById('createFoodClose').addEventListener('click', closeCreateFoodModal);
 document.getElementById('cancelCreateFood').addEventListener('click', closeCreateFoodModal);
 document.getElementById('createFoodForm').addEventListener('submit', (e) => { e.preventDefault(); saveCreatedFood(); });
-['editFoodServingSize', 'editFoodDefaultServingSize', 'editFoodCalories', 'editFoodCarbs', 'editFoodProtein', 'editFoodFat', 'createFoodServingSize', 'createFoodDefaultServingSize', 'createFoodCalories', 'createFoodCarbs', 'createFoodProtein', 'createFoodFat', 'foodServingSize'].forEach((id) => {
+['editFoodServingSize', 'editFoodDefaultServingSize', 'editFoodCalories', 'editFoodCarbs', 'editFoodProtein', 'editFoodFat', 'createFoodDefaultServingSize', 'createFoodCalories', 'createFoodCarbs', 'createFoodProtein', 'createFoodFat', 'foodServingSize'].forEach((id) => {
   const input = document.getElementById(id);
   if (!input) return;
   input.addEventListener('input', (e) => {
@@ -1401,6 +1442,7 @@ document.getElementById('backupDataClose')?.addEventListener('click', () => clos
 
 initClearOnFocusInputs();
 initProfileMeasureInputs();
+initCreateFoodReferenceMeasure();
 initFieldInfoTips();
 
 document.getElementById('profileAge')?.addEventListener('input', profileBodyChange);
