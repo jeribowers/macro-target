@@ -71,6 +71,7 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --screen-pad-inline: 0.875rem;
   --screen-pad-block: 0.625rem;
+  --inset-pad-inline: 12px;
   --macro-cal: #C41E1E;
   --macro-carb: #1E40AF;
   --macro-prot: #166534;
@@ -144,7 +145,7 @@ button:focus-visible,
 .macro-card .value { font-size: var(--text-lg); line-height: 1.2; font-weight: 600; color: var(--color-text-primary); text-align: center; }
 .macro-card .remainder-suffix { font-size: var(--text-xs); line-height: 1.2; color: var(--color-text-secondary); font-weight: 400; }
 .macro-card .value.is-negative { color: #C41E1E; }
-.macro-card .progress { position: relative; height: 7px; background: var(--color-background-tertiary); border-radius: 999px; overflow: hidden; margin-bottom: 3px; }
+.macro-card .progress { position: relative; height: 7px; background: var(--color-background-primary); border-radius: 999px; overflow: hidden; margin-bottom: 3px; }
 .macro-card.calories .progress-bar { background: #C41E1E; }
 .macro-card.carbs .progress-bar { background: #1E40AF; }
 .macro-card.protein .progress-bar { background: #166534; }
@@ -162,13 +163,13 @@ button:focus-visible,
 .content { flex: 1; overflow-y: auto; padding: var(--screen-pad-block) var(--screen-pad-inline); }
 .food-category { margin-bottom: var(--screen-pad-block); }
 .food-category-shell { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); overflow: hidden; }
-.food-category-header { display: flex; justify-content: space-between; align-items: flex-start; padding: var(--screen-pad-block) 8px; gap: 8px; }
+.food-category-header { display: flex; justify-content: space-between; align-items: center; padding: var(--screen-pad-block) var(--inset-pad-inline); gap: 8px; }
 .food-category-title { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; flex: 1; min-width: 0; }
 .food-category h3 { margin: 0; font-size: var(--text-xl); font-weight: 600; line-height: 1.2; color: var(--color-text-primary); text-transform: capitalize; flex-shrink: 0; }
 .category-total { font-size: var(--text-xs); color: var(--color-text-secondary); min-width: 0; }
 .add-food-header { padding: 0 var(--button-sm-px); min-height: var(--button-sm-height); font-size: var(--text-md); white-space: nowrap; flex-shrink: 0; }
 
-.food-list { padding: 0 8px; border-top: 0.5px solid var(--color-border-tertiary); }
+.food-list { padding: 0 var(--inset-pad-inline); border-top: 0.5px solid var(--color-border-tertiary); }
 .food-list > .food-item,
 .swipe-row .food-item { padding: 0.5rem 0; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .food-info { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -315,7 +316,7 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 .targets-section__header { display: flex; align-items: center; gap: 2px; margin: 0; }
 .targets-section__header h4 { margin: 0; font-size: var(--text-md); font-weight: 600; color: var(--color-text-primary); }
 .targets-levels-list { display: flex; flex-direction: column; gap: 8px; }
-.targets-level-row { display: flex; flex-direction: column; gap: 8px; padding: 8px; border-radius: var(--border-radius-md); background: var(--color-background-targets); border: 0.5px solid var(--color-border-tertiary); }
+.targets-level-row { display: flex; flex-direction: column; gap: 8px; padding: 8px var(--inset-pad-inline); border-radius: var(--border-radius-md); background: var(--color-background-targets); border: 0.5px solid var(--color-border-tertiary); }
 .targets-level-row__name { font-size: var(--text-sm); font-weight: 600; color: var(--color-text-primary); line-height: 1.3; }
 .targets-level-row__fields { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; align-items: end; }
 .targets-level-row .form-group { margin: 0; min-width: 0; }
