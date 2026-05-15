@@ -207,8 +207,8 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 #searchResults > * + * { border-top: 0.5px solid var(--color-border-tertiary); }
 .swipe-row { position: relative; overflow: hidden; }
 .swipe-row + .swipe-row { border-top: 0.5px solid var(--color-border-tertiary); }
-.swipe-delete { position: absolute; top: 0; right: 0; bottom: 0; width: var(--swipe-delete-width); border: none; padding: 0; background: #B42318; color: #FFFFFF; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
-.swipe-delete .lucide { width: var(--icon-size); height: var(--icon-size); stroke-width: 2; }
+.swipe-delete { position: absolute; top: 0; right: 0; bottom: 0; width: var(--swipe-delete-width); border: none; padding: 0; background: #B42318; color: #FFFFFF; font-size: 0; line-height: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.swipe-delete-icon { width: var(--icon-size); height: var(--icon-size); display: block; flex-shrink: 0; }
 .swipe-row .swipe-content { position: relative; z-index: 1; transition: transform 0.2s ease; background: var(--color-background-primary); touch-action: pan-y; }
 .swipe-row.is-open .swipe-content { transform: translateX(calc(-1 * var(--swipe-reveal))); }
 .food-option { padding: 8px 0; background: transparent; display: flex; justify-content: space-between; align-items: center; gap: 8px; cursor: pointer; }
@@ -729,7 +729,7 @@ html.is-auth-callback .app-container[hidden] { display: flex !important; }
 
 
 <div class="save-toast" id="saveToast" role="status" aria-live="polite">Targets Saved</div>
-<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
 <script type="module" src="./js/app.js"></script>
 </body>
 </html>

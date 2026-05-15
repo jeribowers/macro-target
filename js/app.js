@@ -28,6 +28,8 @@ const ACTIVITY_LEVELS = {
   high: { calories: 2000, protein: 127, carbs: 234, fat: 61, label: 'Intense' }
 };
 
+const SWIPE_DELETE_ICON = '<svg class="swipe-delete-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>';
+
 const FOOD_SERVING_UNITS = [
   { value: 'g', label: 'g' },
   { value: 'ml', label: 'ml' },
@@ -903,7 +905,7 @@ function renderFoodLog() {
       log[category].forEach((item, idx) => {
         html += `
           <div class="swipe-row" data-deletable="true" data-log-category="${category}" data-log-index="${idx}">
-            <button type="button" class="swipe-delete" data-log-category="${category}" data-log-index="${idx}" aria-label="Delete ${item.food.name}"><i data-lucide="trash-2" aria-hidden="true"></i></button>
+            <button type="button" class="swipe-delete" data-log-category="${category}" data-log-index="${idx}" aria-label="Delete ${item.food.name}">${SWIPE_DELETE_ICON}</button>
             <div class="food-item swipe-content">
               ${renderFoodItemInfo(item.food.name, `${formatNumber(item.quantity)}${item.unit}`, item.macros)}
               <div class="food-actions">
@@ -986,7 +988,7 @@ function searchFoods(query) {
       html += optionBody;
     } else {
       html += `<div class="swipe-row" data-food-id="${food.id}" data-deletable="true">
-        <button type="button" class="swipe-delete" data-food-id="${food.id}" aria-label="Delete ${food.name}"><i data-lucide="trash-2" aria-hidden="true"></i></button>
+        <button type="button" class="swipe-delete" data-food-id="${food.id}" aria-label="Delete ${food.name}">${SWIPE_DELETE_ICON}</button>
         ${optionBody}
       </div>`;
     }
