@@ -168,14 +168,6 @@ export async function isAllowedUser(email) {
   return Boolean(data);
 }
 
-export function hasMigrated(userId) {
-  return localStorage.getItem(`${MIGRATION_PREFIX}${userId}`) === '1';
-}
-
-export function markMigrated(userId) {
-  localStorage.setItem(`${MIGRATION_PREFIX}${userId}`, '1');
-}
-
 export function hasStarterFoodsSeeded(userId) {
   return localStorage.getItem(`${STARTER_SEED_PREFIX}${userId}`) === '1';
 }
@@ -347,18 +339,6 @@ export async function runNewUserOnboardingIfNeeded(userId, options = {}) {
   markOnboardingComplete(userId);
 }
 
-export function legacyHasUploadableData(localState, defaultFoods) {
-  if (!localState || typeof localState !== 'object') return false;
-  const customFoods = (localState.foods || []).filter(
-    (food) => !defaultFoods.some((builtIn) => builtIn.id === food.id)
-  );
-  if (customFoods.length > 0) return true;
-  const dailyLogs = localState.dailyLogs || {};
-  return Object.values(dailyLogs).some((dayLog) =>
-    Object.values(dayLog || {}).some((items) => (items || []).length > 0)
-  );
-}
-
 export async function getCloudDataCounts(userId) {
   const [foodsResult, logsResult] = await Promise.all([
     client.from('foods').select('id', { count: 'exact', head: true }).eq('user_id', userId),
@@ -367,23 +347,6 @@ export async function getCloudDataCounts(userId) {
   if (foodsResult.error) throw new Error(toErrorMessage(foodsResult.error, 'Could not check your saved foods.'));
   if (logsResult.error) throw new Error(toErrorMessage(logsResult.error, 'Could not check your food log.'));
   return { foods: foodsResult.count ?? 0, logs: logsResult.count ?? 0 };
-}
-
-export async function shouldUploadLocalState(userId, localState, defaultFoods) {
-  if (!legacyHasUploadableData(localState, defaultFoods)) return false;
-  if (!hasMigrated(userId)) return true;
-  const counts = await getCloudDataCounts(userId);
-  return counts.foods === 0 && counts.logs === 0;
-}
-
-export function readLegacyLocalState() {
-  const saved = localStorage.getItem(LEGACY_STATE_KEY);
-  if (!saved) return null;
-  try {
-    return JSON.parse(saved);
-  } catch {
-    return null;
-  }
 }
 
 const VALID_APP_ACTIVITY_LEVELS = new Set(['low', 'medium', 'high']);
@@ -872,51 +835,6 @@ export async function clearAllLogs(userId) {
     .delete()
     .eq('user_id', userId);
   if (error) throw new Error(toErrorMessage(error, 'Could not clear your logs.'));
-}
-
-export async function uploadLocalState(userId, localState, defaultFoods, normalizeFood) {
-  const foodsToUpload = (localState.foods || [])
-    .map(normalizeFood)
-    .filter((food) => {
-      const builtIn = defaultFoods.find((defaultFood) => defaultFood.id === food.id);
-      if (!builtIn) return true;
-      return foodDiffersFromDefault(food, builtIn, normalizeFood);
-    });
-
-  for (const food of foodsToUpload) {
-    await upsertFood(userId, food);
-  }
-
-  const { logs: existingLogCount } = await getCloudDataCounts(userId);
-  const rows = [];
-  if (existingLogCount === 0) {
-    Object.entries(localState.dailyLogs || {}).forEach(([logDate, dayLog]) => {
-      Object.entries(dayLog || {}).forEach(([meal, items]) => {
-        (items || []).forEach((item) => {
-          rows.push(logItemToRow({
-            food: normalizeFood(item.food),
-            quantity: item.quantity,
-            unit: item.unit,
-            macros: item.macros,
-          }, userId, logDate, meal));
-        });
-      });
-    });
-  }
-
-  if (rows.length > 0) {
-    const { error } = await client.from('log_entries').insert(rows);
-    if (error) throw new Error(toErrorMessage(error, 'Could not upload your food logs.'));
-  }
-
-  if (localState.activityLevel) {
-    await saveActivityLevel(userId, localState.activityLevel);
-  }
-
-  const localProfile = readUserProfile();
-  if (localProfile) {
-    await saveUserProfile(userId, localProfile, localState.activityLevel);
-  }
 }
 
 export async function exportCloudState(userId, defaultFoods, normalizeFood) {

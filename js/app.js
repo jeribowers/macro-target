@@ -374,6 +374,8 @@ function reportAuthError(error) {
   message.textContent = error?.message || '';
 }
 
+const AUTH_PENDING_KEY = 'macroTrackerAuthPending';
+
 let suppressAuthGate = false;
 let initialAuthSettled = false;
 let authListenerRegistered = false;
@@ -391,7 +393,24 @@ function setAuthVisible(showAuth) {
   if (loading && showAuth) loading.hidden = true;
 }
 
+function clearAuthPendingFlag() {
+  try {
+    sessionStorage.removeItem(AUTH_PENDING_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+function setAuthPendingFlag() {
+  try {
+    sessionStorage.setItem(AUTH_PENDING_KEY, '1');
+  } catch {
+    /* ignore */
+  }
+}
+
 function forceShowAuthGate() {
+  clearAuthPendingFlag();
   initialAuthSettled = true;
   suppressAuthGate = false;
   sessionBootstrapInFlight = false;
@@ -433,6 +452,7 @@ function setAuthBootstrapping(active) {
 
 function beginAuthBootstrap() {
   suppressAuthGate = true;
+  setAuthPendingFlag();
   document.documentElement.classList.add('is-auth-callback', 'is-auth-loading');
   setAuthBootstrapping(true);
 }
@@ -488,20 +508,21 @@ function setLoadingVisible(visible, { hideApp = false } = {}) {
 }
 
 function showSignedInApp() {
+  clearAuthPendingFlag();
   document.documentElement.classList.remove('show-auth-gate');
   suppressAuthGate = false;
   sessionBootstrapInFlight = false;
   const authGate = document.getElementById('authGate');
   const appContainer = document.querySelector('.app-container');
   const loading = document.getElementById('appLoading');
+  if (authGate) authGate.hidden = true;
+  document.documentElement.classList.add('is-app-ready');
+  if (appContainer) appContainer.hidden = false;
+  document.documentElement.classList.remove('is-auth-loading', 'is-auth-callback');
   if (loading) {
     loading.hidden = true;
     loading.classList.remove('app-loading--fullscreen');
   }
-  if (authGate) authGate.hidden = true;
-  document.documentElement.classList.remove('is-auth-loading', 'is-auth-callback');
-  document.documentElement.classList.add('is-app-ready');
-  if (appContainer) appContainer.hidden = false;
 }
 
 function renderSignedInUi() {
@@ -919,7 +940,7 @@ function renderMacroLine(calories, carbs, protein, fat, muted = false) {
 }
 
 function renderMacroBadges(calories, carbs, protein, fat, shortLabels = false) {
-  const carbLabel = shortLabels ? 'car' : 'carbs';
+  const carbLabel = shortLabels ? 'carb' : 'carbs';
   const protLabel = shortLabels ? 'pro' : 'protein';
   return `<span class="macro-line macro-badge-row"><span class="macro-badge cal">${formatNumber(Math.round(calories))} cal</span><span class="macro-badge fat">${formatNumber(Math.round(fat))}g fat</span><span class="macro-badge carb">${formatNumber(Math.round(carbs))}g ${carbLabel}</span><span class="macro-badge prot">${formatNumber(Math.round(protein))}g ${protLabel}</span></span>`;
 }
@@ -1634,7 +1655,6 @@ function initAppMenu() {
   document.getElementById('openBackupBtn')?.addEventListener('click', (e) => {
     e.stopPropagation();
     menu?.classList.remove('open');
-    updateDeviceUploadSection();
     openModal('backupDataModal');
   });
   document.getElementById('menuSignOutBtn')?.addEventListener('click', (e) => {
@@ -1666,25 +1686,6 @@ document.querySelectorAll('input[name="profileSex"], input[name="profileDietGoal
 initProfileTargetFieldDecorations();
 
 document.getElementById('profileResetTargetsBtn')?.addEventListener('click', resetProfileTargetsToFormula);
-
-document.getElementById('uploadDeviceBtn')?.addEventListener('click', async () => {
-  const userId = sync.getCurrentUserId();
-  const legacy = sync.readLegacyLocalState();
-  if (!userId || !sync.legacyHasUploadableData(legacy, DEFAULT_FOODS)) return;
-  if (!confirm('Upload foods and logs saved on this device to your account?')) return;
-  try {
-    setLoadingVisible(true);
-    await sync.uploadLocalState(userId, legacy, DEFAULT_FOODS, normalizeFood);
-    sync.markMigrated(userId);
-    await reloadSignedInUserState(userId);
-    updateDeviceUploadSection();
-    closeModal('backupDataModal');
-  } catch (error) {
-    reportError(error, 'Could not upload data from this device.');
-  } finally {
-    setLoadingVisible(false);
-  }
-});
 
 document.getElementById('exportBtn').addEventListener('click', async () => {
   try {
@@ -1734,23 +1735,6 @@ document.getElementById('importFile').addEventListener('change', (e) => {
   reader.readAsText(file);
 });
 
-document.getElementById('clearLogsBtn').addEventListener('click', async () => {
-  if (!confirm('Clear all logged foods? Your custom food library will be kept.')) return;
-  try {
-    setLoadingVisible(true);
-    await sync.clearAllLogs(sync.getCurrentUserId());
-    state.dailyLogs = {};
-    saveState();
-    updateMacroDisplay();
-    renderFoodLog();
-    closeModal('backupDataModal');
-  } catch (error) {
-    reportError(error);
-  } finally {
-    setLoadingVisible(false);
-  }
-});
-
 function updateDateDisplay() {
   const current = new Date(state.currentDate);
   const today = new Date(); today.setHours(0,0,0,0);
@@ -1794,16 +1778,6 @@ async function reloadSignedInUserState(userId, { renderUi = true } = {}) {
   }
 }
 
-function updateDeviceUploadSection() {
-  const section = document.getElementById('deviceUploadSection');
-  if (!section) return;
-  const legacy = sync.readLegacyLocalState();
-  section.hidden = !sync.legacyHasUploadableData(legacy, DEFAULT_FOODS);
-  if (document.getElementById('backupDataModal')?.classList.contains('active')) {
-    scheduleStackedModalScrollSync('backupDataModal');
-  }
-}
-
 async function initializeSignedInUser(userId) {
   sync.setCurrentUserId(userId);
   setLoadingVisible(true, { hideApp: true });
@@ -1813,12 +1787,6 @@ async function initializeSignedInUser(userId) {
 
     if (cloudIsEmpty) {
       sync.clearFreshAccountLocalState(userId);
-    } else {
-      const legacy = sync.readLegacyLocalState();
-      if (await sync.shouldUploadLocalState(userId, legacy, DEFAULT_FOODS)) {
-        await sync.uploadLocalState(userId, legacy, DEFAULT_FOODS, normalizeFood);
-        sync.markMigrated(userId);
-      }
     }
 
     await sync.runNewUserOnboardingIfNeeded(userId, {
@@ -1834,7 +1802,6 @@ async function initializeSignedInUser(userId) {
   } finally {
     showSignedInApp();
     renderSignedInUi();
-    updateDeviceUploadSection();
   }
 }
 
@@ -1911,11 +1878,18 @@ async function boot() {
 
     if (isOAuthReturn) {
       try {
-        const session = await sync.finishAuthFromUrl();
+        let session = await sync.finishAuthFromUrl();
+        if (!session) {
+          await new Promise((resolve) => window.setTimeout(resolve, 100));
+          session = await sync.getSession();
+        }
         if (session) {
           await handleSession(session);
           return;
         }
+        reportAuthError(new Error('Google sign-in could not be completed. Please try again.'));
+        revealAuthGate();
+        return;
       } catch (error) {
         reportAuthError(error);
         revealAuthGate();
@@ -1935,8 +1909,13 @@ async function boot() {
     revealAuthGate();
   } finally {
     initialAuthSettled = true;
-    endAuthBootstrap();
     registerAuthListener();
+    if (document.documentElement.classList.contains('is-app-ready')) {
+      endAuthBootstrap();
+    } else if (!document.documentElement.classList.contains('is-auth-loading')
+      && !document.documentElement.classList.contains('is-auth-callback')) {
+      endAuthBootstrap();
+    }
   }
 }
 

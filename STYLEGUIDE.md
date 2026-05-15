@@ -44,11 +44,11 @@ Use **headline-style title case** for all labels, headings, titles, menu items, 
 
 Examples:
 
-- Daily Targets Based on Activity Level
+- Daily Targets
 - Reset to Formula Defaults
 - Add to Log
 - Sign in with Google
-- Backup & Data
+- Settings
 
 ## Button Tokens
 
@@ -111,10 +111,17 @@ Use a 4px base spacing scale.
 Use shared classes for titled blocks inside modals (settings, personalize, backup).
 
 - **Heading:** `section-heading` — `textMd` (17px), font-weight 600, `colorTextPrimary`. Matches “Daily Targets Based on Activity Level”.
-- **Description:** `section-description` — `textSm` (15px), line-height 1.45, `colorTextPrimary`. Body copy below the heading; not secondary/muted.
+- **Description:** `section-description` — `textSm` (15px), line-height 1.45, `colorTextPrimary`. Body copy below the heading; not secondary/muted. Vertical rhythm: `--section-title-description-gap` (4px) above the description, `--section-description-content-gap` (20px) below it before controls or content.
 - **Hint / footnote:** `targets-hint` — `textXs`, `colorTextSecondary` (e.g. override lock message with actions).
 
-Wrap heading + description + controls in a flex column with 8px gap (`settings-section`, `targets-section`).
+Wrap heading + description + controls in a flex column with 8px gap (`settings-section`, `targets-section`). Section dividers use `colorBorderSecondary` (not tertiary). Space **above** the divider line: `--modal-section-gap-above-divider` (margin-top, 20px). Space **below** the line before the heading: `--modal-section-pad-below-divider` (padding-top, 12px).
+
+## Modal Spacing
+
+All modals share body padding tokens in `index.html`:
+
+- `--modal-gap-after-header` (16px): space between the modal title bar and first content row.
+- `--modal-pad-bottom` (24px) + safe area: scroll past the last control without clipping (e.g. personalize hint, backup actions).
 
 ## List Pattern Standard
 
@@ -168,7 +175,7 @@ Inside `.category-total`, each badge gets a light macro-tinted fill (same tints 
 ### Rules
 
 - Do not add per-screen badge color overrides; use the shared badge styles only.
-- Short labels in meal totals: `car` and `pro` (not `carbs` / `protein`).
+- Short labels in meal totals: `carb` and `pro` (not `carbs` / `protein`).
 - Individual food rows use the macro **line** pattern (colored text + `•` separators), not badges.
 
 ## Change Process
