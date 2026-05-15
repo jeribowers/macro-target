@@ -12,8 +12,8 @@ This guide defines the default visual system for shared UI so the app feels slig
 
 Use these as the baseline text scale.
 
-- `textXs`: 13px
-- `textSm`: 15px
+- `textXs` (`--text-xs`): 13px — **minimum size in the app**
+- `textSm` (`--text-sm`): 15px
 - `textMd` (default body): 17px
 - `textLg`: 19px
 - `textXl`: 22px
@@ -25,6 +25,30 @@ Use these as the baseline text scale.
 - Secondary/supporting text: `textSm` (15px)
 - Section headings: `textLg` to `textXl` (19px to 22px)
 - Screen/page headings: `text2xl` (28px)
+
+### Minimum Text Size
+
+The **smallest text in the app** is `textXs` (13px / `--text-xs`).
+
+- Reference: food log serving size (`.food-weight` next to the food name).
+- **No UI text may be smaller than 13px.** Do not use 11px, 12px, or other sub-minimum sizes.
+- Form labels, hints, macro badges, tooltips, and supporting metadata use `textXs` or larger.
+
+### Title Case for Labels and Headings
+
+Use **headline-style title case** for all labels, headings, titles, menu items, and button text. Do not apply to body paragraphs, hints, or tooltip content.
+
+- Capitalize the first and last word.
+- Capitalize major words (nouns, verbs, adjectives, adverbs, pronouns).
+- Keep these words lowercase unless they are first or last: `a`, `an`, `the`, `and`, `but`, `or`, `nor`, `for`, `on`, `at`, `to`, `from`, `by`, `in`, `of`, `as`, `with`.
+
+Examples:
+
+- Your Daily Targets Based on Activity Level
+- Reset to Formula Defaults
+- Add to Log
+- Sign in with Google
+- Backup & Data
 
 ## Button Tokens
 
@@ -98,6 +122,7 @@ Use this for food lists and other repeated row-based content.
 - Keep row spacing compact and consistent across screens.
 - Keep action controls aligned and visually consistent with icon/button standards.
 - Empty states should live inside the shell and use shared empty-state text styles.
+- Food log row meta: food name `textSm` (15px); serving size `textXs` (13px, minimum); macro line `textXs` or larger.
 
 ## Change Process
 

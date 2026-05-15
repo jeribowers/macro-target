@@ -13,11 +13,20 @@
 <link rel="icon" type="image/png" sizes="512x512" href="./icon-512x512.png">
 <link rel="manifest" href="./manifest.json">
 <title>Macro Tracker</title>
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  if (params.has('code') || params.has('error') || location.hash.indexOf('access_token=') !== -1) {
+    document.documentElement.classList.add('is-auth-callback');
+  }
+})();
+</script>
 <style>
 :root {
   --color-background-primary: #FFFFFF;
   --color-background-secondary: #F5F4EF;
   --color-background-tertiary: #FAFAF7;
+  --color-background-targets: #F0EFEA;
   --color-background-info: #E6F1FB;
   --color-text-primary: #1A1A1A;
   --color-text-secondary: #6B6B6B;
@@ -30,6 +39,7 @@
   --border-radius-md: 8px;
   --border-radius-lg: 12px;
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --text-xs: 13px;
   --text-sm: 15px;
   --text-md: 17px;
   --text-lg: 19px;
@@ -111,10 +121,10 @@ button:focus-visible,
 .macro-card.carbs { border: 0.5px solid rgba(30, 64, 175, 0.35); background: #EFF4FF; }
 .macro-card.protein { border: 0.5px solid rgba(22, 101, 52, 0.35); background: #EDF7EF; }
 .macro-card.fat { border: 0.5px solid rgba(124, 58, 237, 0.35); background: #F3E8FF; }
-.macro-card .label { font-size: 13px; line-height: 1.2; margin-bottom: 2px; text-align: center; color: var(--color-text-primary); font-weight: 600; }
+.macro-card .label { font-size: var(--text-xs); line-height: 1.2; margin-bottom: 2px; text-align: center; color: var(--color-text-primary); font-weight: 600; }
 .macro-card .remainder { display: flex; justify-content: center; align-items: baseline; gap: 3px; margin-bottom: 4px; }
 .macro-card .value { font-size: var(--text-md); line-height: 1.2; font-weight: 600; color: var(--color-text-primary); text-align: center; }
-.macro-card .remainder-suffix { font-size: 12px; line-height: 1.2; color: var(--color-text-secondary); font-weight: 400; }
+.macro-card .remainder-suffix { font-size: var(--text-xs); line-height: 1.2; color: var(--color-text-secondary); font-weight: 400; }
 .macro-card .value.is-negative { color: #C41E1E; }
 .macro-card .progress { position: relative; height: 5px; background: var(--color-background-tertiary); border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
 .macro-card.calories .progress-bar { background: #C41E1E; }
@@ -128,26 +138,26 @@ button:focus-visible,
 .macro-card .progress-bar { position: relative; z-index: 0; height: 100%; transition: width 0.2s; }
 .macro-card .progress-ticks { position: absolute; inset: 0; display: flex; justify-content: space-between; box-sizing: border-box; padding: 0 25%; pointer-events: none; z-index: 1; }
 .macro-card .progress-ticks span { width: 1px; height: 100%; background: rgba(0, 0, 0, 0.18); }
-.macro-card .meta { display: flex; justify-content: center; align-items: baseline; gap: 4px; font-size: 12px; line-height: 1.2; color: var(--color-text-secondary); }
+.macro-card .meta { display: flex; justify-content: center; align-items: baseline; gap: 4px; font-size: var(--text-xs); line-height: 1.2; color: var(--color-text-secondary); }
 .macro-card .target { text-align: center; }
 
 .content { flex: 1; overflow-y: auto; padding: var(--screen-pad-block) var(--screen-pad-inline); }
 .food-category { margin-bottom: var(--screen-pad-block); }
 .food-category-shell { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); overflow: hidden; }
-.food-category-header { display: flex; justify-content: space-between; align-items: center; padding: var(--screen-pad-block) var(--screen-pad-inline); gap: 8px; }
-.food-category-title { display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1; min-width: 0; flex-wrap: wrap; }
+.food-category-header { display: flex; justify-content: space-between; align-items: flex-start; padding: var(--screen-pad-block) var(--screen-pad-inline); gap: 8px; }
+.food-category-title { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; flex: 1; min-width: 0; }
 .food-category h3 { margin: 0; font-size: var(--text-md); font-weight: 600; color: var(--color-text-primary); text-transform: capitalize; flex-shrink: 0; }
-.category-total { font-size: 12px; color: var(--color-text-secondary); min-width: 0; }
+.category-total { font-size: var(--text-xs); color: var(--color-text-secondary); min-width: 0; }
 .add-food-header { padding: 0 var(--button-sm-px); min-height: var(--button-sm-height); font-size: var(--text-sm); white-space: nowrap; flex-shrink: 0; }
 
 .food-list { padding: 0 var(--screen-pad-inline); border-top: 0.5px solid var(--color-border-tertiary); }
-.food-item { padding: 6px 0; display: flex; justify-content: space-between; align-items: start; gap: 10px; }
-.food-item + .food-item { border-top: 0.5px solid var(--color-border-tertiary); }
-.food-info { flex: 1; }
-.food-name-row { display: flex; gap: 4px; margin-bottom: 2px; align-items: baseline; }
+.food-list > .food-item,
+.swipe-row .food-item { padding: var(--screen-pad-block) 0; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.food-info { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.food-name-row { display: flex; gap: 4px; margin: 0; align-items: baseline; }
 .food-name { font-size: var(--text-sm); font-weight: 500; color: var(--color-text-primary); margin: 0; }
-.food-weight { font-size: 13px; color: var(--color-text-secondary); margin: 0; font-weight: 400; }
-.food-macros { font-size: 12px; color: var(--color-text-secondary); margin: 0; }
+.food-weight { font-size: var(--text-xs); color: var(--color-text-secondary); margin: 0; font-weight: 400; }
+.food-macros { font-size: var(--text-xs); color: var(--color-text-secondary); margin: 0; }
 
 .macro-line .cal { color: #C41E1E; font-weight: 500; }
 .macro-line .carb { color: #1E40AF; font-weight: 500; }
@@ -155,7 +165,7 @@ button:focus-visible,
 .macro-line .fat { color: #7C3AED; font-weight: 500; }
 .macro-line .sep { color: var(--color-text-tertiary); display: inline-block; padding: 0 6px; font-weight: 400; }
 .macro-badge-row { display: flex; flex-wrap: wrap; gap: 4px; }
-.macro-badge-row .macro-badge { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 999px; border: 0.5px solid; font-size: 11px; font-weight: 500; line-height: 1.2; white-space: nowrap; background: transparent; }
+.macro-badge-row .macro-badge { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 999px; border: 0.5px solid; font-size: var(--text-xs); font-weight: 500; line-height: 1.2; white-space: nowrap; background: transparent; }
 .macro-badge-row .macro-badge.cal { color: #C41E1E; border-color: rgba(196, 30, 30, 0.35); }
 .macro-badge-row .macro-badge.carb { color: #1E40AF; border-color: rgba(30, 64, 175, 0.35); }
 .macro-badge-row .macro-badge.prot { color: #166534; border-color: rgba(22, 101, 52, 0.35); }
@@ -201,12 +211,67 @@ button:focus-visible,
 .search-empty { text-align: center; color: var(--color-text-secondary); padding: 1rem 0; margin: 0; }
 
 .form-group { margin-bottom: 0; }
-.form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.form-group label { display: block; font-size: var(--text-xs); font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.form-checkbox { display: flex; align-items: center; gap: 8px; margin: 0; font-size: var(--text-sm); font-weight: 500; color: var(--color-text-primary); cursor: pointer; }
+.form-checkbox input { margin: 0; width: 16px; height: 16px; flex-shrink: 0; accent-color: #1E40AF; }
 .form-group input { width: 100%; padding: 0 12px; height: var(--input-md-height); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-md); font-family: var(--font-sans); background: var(--color-background-primary); color: var(--color-text-primary); }
 #editFoodForm,
 #createFoodForm,
 #addToLogModal .modal-body,
-#settingsModal .modal-body { display: flex; flex-direction: column; row-gap: 1rem; }
+#personalizeModal .modal-body,
+#backupDataModal .modal-body { display: flex; flex-direction: column; row-gap: 1rem; max-height: calc(100dvh - 4rem); overflow-y: auto; }
+#appMenuDropdown .dropdown-menu { min-width: 200px; }
+#appMenuDropdown .dropdown-trigger.btn-icon { width: var(--icon-button-size); padding: 0; justify-content: center; }
+#appMenuDropdown .dropdown-trigger .caret { display: none; }
+.menu-item-btn { width: 100%; text-align: left; padding: 11px 14px; font-size: var(--text-sm); color: var(--color-text-primary); cursor: pointer; border: none; background: none; font-family: var(--font-sans); }
+.menu-item-btn:hover { background: var(--color-background-secondary); }
+.profile-measures-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.72fr); gap: 8px; align-items: end; }
+.profile-age-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.profile-age-field label { display: block; font-size: var(--text-xs); font-weight: 500; color: var(--color-text-primary); margin-bottom: 0; }
+.profile-age-field input { width: 100%; padding: 0 12px; height: var(--input-md-height); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-md); font-family: var(--font-sans); background: var(--color-background-primary); color: var(--color-text-primary); min-width: 0; }
+.measure-input { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.measure-input__label { display: block; font-size: var(--text-xs); font-weight: 500; color: var(--color-text-primary); margin: 0; }
+.measure-input__control { display: flex; align-items: stretch; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); min-width: 0; overflow: visible; }
+.measure-input__control:focus-within { border-color: var(--focus-ring); box-shadow: var(--focus-ring-shadow); }
+.measure-input__field { flex: 1; min-width: 0; border: none; height: var(--input-md-height); padding: 0 12px; font-size: var(--text-md); font-family: var(--font-sans); background: transparent; color: var(--color-text-primary); }
+.measure-input__field:focus { outline: none; box-shadow: none; }
+.measure-input__unit { flex: 0 0 auto; position: relative; border-left: 0.5px solid var(--color-border-tertiary); }
+.measure-input__unit .dropdown-trigger { border: none; border-radius: 0; height: var(--input-md-height); min-width: 56px; padding: 0 10px; font-size: var(--text-md); background: transparent; }
+.measure-input__unit .dropdown-menu { z-index: 300; }
+.radio-fieldset { border: none; margin: 0; padding: 0; }
+.radio-fieldset legend { font-size: var(--text-xs); font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; padding: 0; }
+.radio-fieldset-legend { display: inline-flex; align-items: center; gap: 2px; }
+.radio-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.field-info-tip { position: relative; display: inline-flex; align-items: center; flex-shrink: 0; }
+.info-tip-btn { width: 28px; height: 28px; border: none; background: transparent; color: var(--color-text-secondary); cursor: help; display: inline-flex; align-items: center; justify-content: center; padding: 0; border-radius: 50%; font-family: var(--font-sans); }
+.info-tip-btn .lucide { width: 16px; height: 16px; }
+.info-tip-btn:focus-visible { outline: none; box-shadow: var(--focus-ring-shadow); }
+.info-tip-content { position: fixed; left: 0; top: 0; width: min(272px, calc(100vw - 16px)); padding: 8px 10px; font-size: var(--text-xs); line-height: 1.45; font-weight: 400; color: var(--color-text-primary); background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); box-shadow: 0 4px 12px rgba(0,0,0,0.12); opacity: 0; visibility: hidden; pointer-events: none; z-index: 1100; text-align: left; }
+.field-info-tip:hover .info-tip-content,
+.field-info-tip:focus-within .info-tip-content { opacity: 1; visibility: visible; pointer-events: auto; }
+.radio-pill { display: inline-flex; align-items: center; gap: 4px; font-size: var(--text-sm); color: var(--color-text-primary); cursor: pointer; padding: 6px 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); }
+.radio-pill:has(input:checked) { background: var(--color-background-info); border-color: var(--color-border-info); color: var(--color-text-info); }
+.radio-pill input { margin: 0; }
+.targets-card { display: flex; flex-direction: column; gap: 8px; background: var(--color-background-targets); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 12px; }
+.targets-card__header { display: flex; align-items: center; gap: 2px; margin: 0; }
+.targets-card__header h4 { margin: 0; font-size: var(--text-sm); font-weight: 600; color: var(--color-text-primary); }
+.targets-levels-list { display: flex; flex-direction: column; gap: 8px; }
+.targets-level-row { display: flex; flex-direction: column; gap: 8px; padding: 8px; border-radius: var(--border-radius-md); background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); }
+.targets-level-row__name { font-size: var(--text-sm); font-weight: 600; color: var(--color-text-primary); line-height: 1.3; }
+.targets-level-row__fields { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; align-items: end; }
+.targets-level-row .form-group { margin: 0; min-width: 0; }
+.targets-level-row .profile-target-label-row { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; min-width: 0; }
+.targets-level-row .profile-target-label-row label { margin: 0; line-height: 1.25; flex: 0 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.targets-level-row .profile-target-field input { box-sizing: border-box; width: 100%; min-width: 0; height: var(--input-md-height); padding: 0 6px; font-size: var(--text-sm); font-family: var(--font-sans); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); }
+.targets-level-row .profile-target-lock-icon { flex-shrink: 0; width: 12px; height: 12px; color: var(--color-text-secondary); opacity: 0; pointer-events: none; }
+.targets-level-row .profile-target-field.is-locked .profile-target-lock-icon { opacity: 1; }
+.targets-hint { font-size: var(--text-xs); line-height: 1.45; color: var(--color-text-secondary); margin: 0; }
+.targets-hint .profile-target-lock-icon { opacity: 1; display: inline-block; vertical-align: -2px; margin-right: 4px; }
+.targets-hint .btn-text-link { display: inline; align-self: auto; vertical-align: baseline; }
+.targets-hint[hidden] { display: none; }
+.btn-text-link { margin: 0; padding: 0; border: none; background: none; color: #1E40AF; font-family: var(--font-sans); font-size: var(--text-xs); font-weight: 500; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; align-self: flex-start; }
+.save-toast { position: fixed; bottom: calc(1rem + var(--safe-bottom)); left: 50%; transform: translateX(-50%); background: var(--color-text-primary); color: #fff; font-size: var(--text-sm); padding: 10px 16px; border-radius: var(--border-radius-md); z-index: 1100; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+.save-toast.is-visible { opacity: 1; }
 #editFoodForm > .form-actions,
 #createFoodForm > .form-actions,
 #addToLogModal .modal-body > .form-actions { margin-top: 0; }
@@ -223,7 +288,7 @@ button:focus-visible,
 
 .form-actions { display: flex; gap: 6px; margin-top: 0; }
 .form-actions button { flex: 1; min-height: var(--button-md-height); padding: 0 var(--button-md-px); font-size: var(--text-md); }
-.add-to-log-delete { margin: 0.5rem 0 0; padding: 0; border: none; background: none; color: #B42318; font-family: var(--font-sans); font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; align-self: flex-start; }
+.add-to-log-delete { margin: 0.5rem 0 0; padding: 0; border: none; background: none; color: #B42318; font-family: var(--font-sans); font-size: var(--text-xs); font-weight: 500; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; align-self: flex-start; }
 .add-to-log-delete[hidden] { display: none; }
 .add-to-log-delete:focus-visible { outline: none; box-shadow: var(--focus-ring-shadow); border-radius: 4px; }
 
@@ -243,18 +308,20 @@ button:focus-visible,
 .serving-size-unit { display: flex; align-items: center; padding: 0 12px; color: var(--color-text-secondary); font-size: var(--text-md); border-left: 0.5px solid var(--color-border-tertiary); white-space: nowrap; }
 .modal-body .form-group > .dropdown { width: 100%; }
 
-.log-food-preview { margin-bottom: 0; }
+.log-food-preview { margin-bottom: 0; padding: 8px; border-radius: var(--border-radius-md); background: var(--color-background-targets); border: 0.5px solid var(--color-border-tertiary); }
+.log-food-preview .food-info { gap: 4px; }
 
 .editable-macros { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 0.5rem; }
 .editable-macro { display: flex; flex-direction: column; }
-.editable-macro label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 3px; font-weight: 500; }
-.editable-macro input { padding: 0 10px; height: 40px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-sm); background: var(--color-background-primary); color: var(--color-text-primary); }
+.editable-macro label { font-size: var(--text-xs); color: var(--color-text-secondary); margin-bottom: 3px; font-weight: 500; }
+.editable-macro input { width: 100%; padding: 0 12px; height: var(--input-md-height); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-md); font-family: var(--font-sans); background: var(--color-background-primary); color: var(--color-text-primary); }
 
 .settings-section { margin-top: 0; padding-top: 0.75rem; border-top: 0.5px solid var(--color-border-tertiary); }
 .settings-section h4 { margin: 0 0 8px 0; font-size: var(--text-sm); font-weight: 500; color: var(--color-text-primary); }
 .settings-actions { display: flex; gap: 6px; }
 .settings-actions button { flex: 1; min-height: var(--button-md-height); padding: 0 var(--button-md-px); font-size: var(--text-md); }
-.auth-gate { min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; background: var(--color-background-tertiary); }
+.auth-gate { min-height: 100dvh; display: none; align-items: center; justify-content: center; padding: 1.5rem; background: var(--color-background-tertiary); }
+html.show-auth-gate .auth-gate:not([hidden]) { display: flex; }
 .auth-card { width: 100%; max-width: 360px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.5rem; text-align: center; }
 .auth-card h1 { margin: 0 0 0.5rem 0; font-size: var(--text-xl); font-weight: 600; color: var(--color-text-primary); }
 .auth-card p { margin: 0 0 1rem 0; font-size: var(--text-sm); color: var(--color-text-secondary); }
@@ -262,8 +329,17 @@ button:focus-visible,
 .auth-gate[hidden],
 .app-loading[hidden],
 .app-container[hidden] { display: none !important; }
+html.is-auth-callback #authGate,
+html.is-auth-callback #authGate[hidden] { display: none !important; }
+html.is-auth-callback #appLoading,
+html.is-auth-callback #appLoading[hidden] { display: flex !important; }
+html.is-auth-callback .app-container,
+html.is-auth-callback .app-container[hidden] { display: flex !important; }
 .app-loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(250, 250, 247, 0.72); z-index: 1200; font-size: var(--text-sm); color: var(--color-text-secondary); }
 .lucide { width: var(--icon-size); height: var(--icon-size); stroke-width: 2; }
+.targets-level-row .profile-target-lock-icon,
+.targets-hint .profile-target-lock-icon,
+.lucide.profile-target-lock-icon { width: 12px; height: 12px; flex-shrink: 0; color: var(--color-text-secondary); }
 </style>
 </head>
 <body>
@@ -283,23 +359,30 @@ button:focus-visible,
   <div class="header">
     <div class="header-controls">
       <div class="date-nav">
-        <button id="prevBtn" title="Previous day" aria-label="Previous day"><i data-lucide="chevron-left"></i></button>
+        <button id="prevBtn" title="Previous day" aria-label="Previous Day"><i data-lucide="chevron-left"></i></button>
         <div class="date-display" id="dateDisplay">Today</div>
-        <button id="todayBtn" title="Go to today" aria-label="Go to today"><i data-lucide="calendar-days"></i></button>
+        <button id="todayBtn" title="Go to today" aria-label="Go to Today"><i data-lucide="calendar-days"></i></button>
       </div>
       <div class="header-actions">
         <div class="dropdown" id="activityDropdown">
           <button type="button" class="dropdown-trigger" id="activityTrigger">
-            <span id="activityLabel">Med (1,700)</span>
+            <span id="activityLabel">Moderate</span>
             <span class="caret"></span>
           </button>
           <div class="dropdown-menu right-aligned" id="activityMenu">
-            <div class="dropdown-item" data-value="low">Low (1,200)</div>
-            <div class="dropdown-item selected" data-value="medium">Med (1,700)</div>
-            <div class="dropdown-item" data-value="high">High (2,000)</div>
+            <div class="dropdown-item" data-value="low">Easy</div>
+            <div class="dropdown-item selected" data-value="medium">Moderate</div>
+            <div class="dropdown-item" data-value="high">Intense</div>
           </div>
         </div>
-        <button id="settingsBtn" class="btn-icon" aria-label="Settings"><i data-lucide="settings"></i></button>
+        <div class="dropdown" id="appMenuDropdown">
+          <button type="button" class="btn-icon dropdown-trigger" id="appMenuBtn" aria-label="Menu" aria-haspopup="menu"><i data-lucide="menu"></i></button>
+          <div class="dropdown-menu right-aligned" id="appMenu" role="menu">
+            <button type="button" class="menu-item-btn" id="openPersonalizeBtn" role="menuitem">Personalize Targets</button>
+            <button type="button" class="menu-item-btn" id="openBackupBtn" role="menuitem">Backup &amp; Data</button>
+            <button type="button" class="menu-item-btn" id="menuSignOutBtn" role="menuitem">Sign Out</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -408,7 +491,7 @@ button:focus-visible,
           <button type="button" class="btn-secondary" id="cancelEditFood">Cancel</button>
           <button type="submit" class="btn-primary">Save Food</button>
         </div>
-        <button type="button" class="add-to-log-delete" id="deleteFromDatabase" hidden>Delete from food database</button>
+        <button type="button" class="add-to-log-delete" id="deleteFromDatabase" hidden>Delete from Food Library</button>
       </form>
     </div>
   </div>
@@ -443,7 +526,6 @@ button:focus-visible,
               </div>
             </div>
           </div>
-          <div class="field-separator" aria-hidden="true"></div>
           <div class="form-group default-serving-size"><label>Serving Size</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="createFoodDefaultServingSize" required value="100"></div>
         </div>
         <div class="macro-input-group">
@@ -452,6 +534,10 @@ button:focus-visible,
           <div class="form-group"><label>Carbs (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="createFoodCarbs" required></div>
           <div class="form-group"><label>Protein (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="createFoodProtein" required></div>
         </div>
+        <label class="form-checkbox" for="createFoodAddToLog">
+          <input type="checkbox" id="createFoodAddToLog" checked>
+          <span>Add to Food Log for Today</span>
+        </label>
         <div class="form-actions">
           <button type="button" class="btn-secondary" id="cancelCreateFood">Cancel</button>
           <button type="submit" class="btn-primary">Save Food</button>
@@ -464,7 +550,7 @@ button:focus-visible,
 <div class="modal-overlay" id="addToLogModal">
   <div class="modal">
     <div class="modal-header">
-      <h2>Add to Log</h2>
+      <h2>Add to Daily Food Log</h2>
       <button class="modal-close" id="addToLogClose" aria-label="Close"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body">
@@ -497,30 +583,117 @@ button:focus-visible,
         <button type="button" class="btn-secondary" id="cancelAddToLog">Cancel</button>
         <button type="button" class="btn-primary" id="confirmAddToLog">Add to Log</button>
       </div>
-      <button type="button" class="add-to-log-delete" id="deleteFromLog" hidden>Delete from food log</button>
+      <button type="button" class="add-to-log-delete" id="deleteFromLog" hidden>Delete from Food Log</button>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay" id="settingsModal">
+<div class="modal-overlay" id="personalizeModal">
   <div class="modal">
     <div class="modal-header">
-      <h2>Settings</h2>
-      <button class="modal-close" id="settingsClose" aria-label="Close"><i data-lucide="x"></i></button>
+      <h2>Personalize Targets</h2>
+      <button type="button" class="modal-close" id="personalizeClose" aria-label="Close"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body">
-      <div class="settings-section" style="margin-top: 0; padding-top: 0; border-top: 0;">
-        <h4>Account</h4>
-        <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0 0 8px 0;">Your food log syncs to your Google account.</p>
-        <button type="button" class="btn-secondary btn-block" id="signOutBtn">Sign out</button>
+      <div class="profile-measures-row">
+        <div id="profileHeightMeasure"></div>
+        <div id="profileWeightMeasure"></div>
+        <div class="profile-age-field">
+          <label for="profileAge">Age</label>
+          <input type="text" id="profileAge" inputmode="numeric" autocomplete="off">
+        </div>
       </div>
-      <div class="settings-section" id="deviceUploadSection" hidden>
-        <h4>Data on this device</h4>
+      <fieldset class="radio-fieldset">
+        <legend class="radio-fieldset-legend">
+          Gender
+          <span class="field-info-tip">
+            <button type="button" class="info-tip-btn" aria-label="How We Calculate Targets by Gender" aria-describedby="profileSexOtherTip">
+              <i data-lucide="info" aria-hidden="true"></i>
+            </button>
+            <span id="profileSexOtherTip" class="info-tip-content" role="tooltip">We calculate targets based on Mifflin-St Jeor male and female formulas due to metabolic differences. &quot;Other&quot; uses an average of both. You can adjust final targets manually.</span>
+          </span>
+        </legend>
+        <div class="radio-row">
+          <label class="radio-pill"><input type="radio" name="profileSex" value="F"> Female</label>
+          <label class="radio-pill"><input type="radio" name="profileSex" value="M"> Male</label>
+          <label class="radio-pill"><input type="radio" name="profileSex" value="Other"> Other</label>
+        </div>
+      </fieldset>
+      <fieldset class="radio-fieldset">
+        <legend class="radio-fieldset-legend">
+          Diet Goal
+          <span class="field-info-tip">
+            <button type="button" class="info-tip-btn" aria-label="About Diet Goal Calorie Adjustments" aria-describedby="profileDietGoalTip">
+              <i data-lucide="info" aria-hidden="true"></i>
+            </button>
+            <span id="profileDietGoalTip" class="info-tip-content" role="tooltip">Based on a 300 calorie adjustment: Maintain uses your baseline, Lose targets <span id="profileDietGoalLossRate">~0.5 lb</span>/week loss, Gain targets <span id="profileDietGoalGainRate">~0.5 lb</span>/week gain.</span>
+          </span>
+        </legend>
+        <div class="radio-row">
+          <label class="radio-pill"><input type="radio" name="profileDietGoal" value="Maintain"> Maintain</label>
+          <label class="radio-pill"><input type="radio" name="profileDietGoal" value="Lose" checked> Lose</label>
+          <label class="radio-pill"><input type="radio" name="profileDietGoal" value="Gain"> Gain</label>
+        </div>
+      </fieldset>
+      <div class="targets-card">
+        <div class="targets-card__header">
+          <h4>Your Daily Targets Based on Activity Level</h4>
+          <span class="field-info-tip">
+            <button type="button" class="info-tip-btn" aria-label="About Daily Targets and Activity Level" aria-describedby="profileTargetsTip">
+              <i data-lucide="info" aria-hidden="true"></i>
+            </button>
+            <span id="profileTargetsTip" class="info-tip-content" role="tooltip">Activity level estimates your daily calorie burn, which sets your targets. Edit any number to customize. These targets update based on your activity level selection in the food log.</span>
+          </span>
+        </div>
+        <div id="profileTargetsLevels" class="targets-levels-list" aria-live="polite">
+        <div class="targets-level-row" data-level="low">
+          <span class="targets-level-row__name">Easy</span>
+          <div class="targets-level-row__fields">
+            <div class="form-group"><label for="profileLowCalories">Calories</label><input type="text" inputmode="numeric" id="profileLowCalories" data-level="low" data-macro="calories" autocomplete="off"></div>
+          <div class="form-group"><label for="profileLowFat">Fat (g)</label><input type="text" inputmode="numeric" id="profileLowFat" data-level="low" data-macro="fat" autocomplete="off"></div>
+          <div class="form-group"><label for="profileLowCarbs">Carbs (g)</label><input type="text" inputmode="numeric" id="profileLowCarbs" data-level="low" data-macro="carbs" autocomplete="off"></div>
+          <div class="form-group"><label for="profileLowProtein">Protein (g)</label><input type="text" inputmode="numeric" id="profileLowProtein" data-level="low" data-macro="protein" autocomplete="off"></div>
+          </div>
+        </div>
+        <div class="targets-level-row" data-level="medium">
+          <span class="targets-level-row__name">Moderate</span>
+          <div class="targets-level-row__fields">
+            <div class="form-group"><label for="profileMedCalories">Calories</label><input type="text" inputmode="numeric" id="profileMedCalories" data-level="medium" data-macro="calories" autocomplete="off"></div>
+          <div class="form-group"><label for="profileMedFat">Fat (g)</label><input type="text" inputmode="numeric" id="profileMedFat" data-level="medium" data-macro="fat" autocomplete="off"></div>
+          <div class="form-group"><label for="profileMedCarbs">Carbs (g)</label><input type="text" inputmode="numeric" id="profileMedCarbs" data-level="medium" data-macro="carbs" autocomplete="off"></div>
+          <div class="form-group"><label for="profileMedProtein">Protein (g)</label><input type="text" inputmode="numeric" id="profileMedProtein" data-level="medium" data-macro="protein" autocomplete="off"></div>
+          </div>
+        </div>
+        <div class="targets-level-row" data-level="high">
+          <span class="targets-level-row__name">Intense</span>
+          <div class="targets-level-row__fields">
+            <div class="form-group"><label for="profileHighCalories">Calories</label><input type="text" inputmode="numeric" id="profileHighCalories" data-level="high" data-macro="calories" autocomplete="off"></div>
+          <div class="form-group"><label for="profileHighFat">Fat (g)</label><input type="text" inputmode="numeric" id="profileHighFat" data-level="high" data-macro="fat" autocomplete="off"></div>
+          <div class="form-group"><label for="profileHighCarbs">Carbs (g)</label><input type="text" inputmode="numeric" id="profileHighCarbs" data-level="high" data-macro="carbs" autocomplete="off"></div>
+          <div class="form-group"><label for="profileHighProtein">Protein (g)</label><input type="text" inputmode="numeric" id="profileHighProtein" data-level="high" data-macro="protein" autocomplete="off"></div>
+          </div>
+        </div>
+        </div>
+        <p class="targets-hint" id="profileOverrideHint" hidden><i class="profile-target-lock-icon" data-lucide="pencil" aria-hidden="true"></i> Edited fields remain locked when you change measurements. <button type="button" class="btn-text-link" id="profileResetTargetsBtn">Reset to Formula Defaults</button>.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="backupDataModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Backup &amp; Data</h2>
+      <button type="button" class="modal-close" id="backupDataClose" aria-label="Close"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="settings-section" id="deviceUploadSection" style="margin-top: 0; padding-top: 0; border-top: 0;" hidden>
+        <h4>Data on This Device</h4>
         <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0 0 8px 0;">This device still has foods or logs that were not uploaded to your account yet.</p>
-        <button type="button" class="btn-secondary btn-block" id="uploadDeviceBtn">Upload from this device</button>
+        <button type="button" class="btn-secondary btn-block" id="uploadDeviceBtn">Upload from This Device</button>
       </div>
       <div class="settings-section">
-        <h4>Backup your data</h4>
+        <h4>Backup Your Data</h4>
         <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0 0 8px 0;">Export your foods and logs as JSON. Import to restore from a backup file.</p>
         <div class="settings-actions">
           <button type="button" class="btn-secondary" id="exportBtn">Export</button>
@@ -530,13 +703,15 @@ button:focus-visible,
       </div>
       <div class="settings-section">
         <h4>Reset</h4>
-        <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0 0 8px 0;">Clear all logged foods (keeps your custom food database).</p>
-        <button type="button" class="btn-secondary btn-block" id="clearLogsBtn">Clear all logs</button>
+        <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0 0 8px 0;">Clear all logged foods (keeps your custom food library).</p>
+        <button type="button" class="btn-secondary btn-block" id="clearLogsBtn">Clear All Logs</button>
       </div>
     </div>
   </div>
 </div>
 
+
+<div class="save-toast" id="saveToast" role="status" aria-live="polite">Targets Saved</div>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script type="module" src="./js/app.js"></script>
 </body>

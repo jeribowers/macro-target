@@ -1,9 +1,12 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
 
+import { sanitizeProfile } from './profile-calculator.js';
+
 const MIGRATION_PREFIX = 'macroTrackerMigrated_';
 const PREFERENCES_KEY = 'macroTrackerPreferences';
 const LEGACY_STATE_KEY = 'macroTrackerState';
+const USER_PROFILE_KEY = 'userProfile';
 
 let client = null;
 let currentUserId = null;
@@ -57,6 +60,15 @@ function toErrorMessage(error, fallback) {
   return error.message || fallback;
 }
 
+function isMissingUserProfileColumn(error) {
+  const message = toErrorMessage(error, '').toLowerCase();
+  return message.includes('user_profile') && (
+    message.includes('does not exist')
+    || message.includes('could not find')
+    || message.includes('schema cache')
+  );
+}
+
 function gramsForQuantity(quantity, unit) {
   const conversions = { g: 1, ml: 1, oz: 28.35, cup: 240, tbsp: 15, tsp: 5, piece: 100 };
   const amount = Number(quantity) || 0;
@@ -99,9 +111,9 @@ export async function getSession() {
 }
 
 export function onAuthStateChange(callback) {
-  return client.auth.onAuthStateChange((_event, session) => {
+  return client.auth.onAuthStateChange((event, session) => {
     setCurrentUserId(session?.user?.id || null);
-    callback(session);
+    callback(event, session);
   });
 }
 
@@ -191,6 +203,24 @@ export function saveLocalPreferences(preferences) {
   localStorage.setItem(PREFERENCES_KEY, JSON.stringify({
     recentSearches: preferences.recentSearches || [],
   }));
+}
+
+export function readUserProfile() {
+  const saved = localStorage.getItem(USER_PROFILE_KEY);
+  if (!saved) return null;
+  try {
+    return sanitizeProfile(JSON.parse(saved));
+  } catch {
+    return null;
+  }
+}
+
+export function writeUserProfile(profile) {
+  if (!profile) {
+    localStorage.removeItem(USER_PROFILE_KEY);
+    return;
+  }
+  localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(profile));
 }
 
 function toPositiveNumber(value) {
@@ -470,6 +500,23 @@ export async function fetchActivityLevel(userId) {
   return data?.activity_level || 'medium';
 }
 
+export async function fetchUserProfile(userId) {
+  const { data, error } = await client
+    .from('user_settings')
+    .select('user_profile, activity_level')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (error) {
+    if (isMissingUserProfileColumn(error)) {
+      const activityLevel = await fetchActivityLevel(userId);
+      return { profile: readUserProfile(), activityLevel };
+    }
+    throw new Error(toErrorMessage(error, 'Could not load your profile.'));
+  }
+  const profile = sanitizeProfile(data?.user_profile) || readUserProfile();
+  return { profile, activityLevel: data?.activity_level || 'medium' };
+}
+
 export async function saveActivityLevel(userId, activityLevel) {
   const { error } = await client
     .from('user_settings')
@@ -479,6 +526,34 @@ export async function saveActivityLevel(userId, activityLevel) {
       updated_at: new Date().toISOString(),
     }, { onConflict: 'user_id' });
   if (error) throw new Error(toErrorMessage(error, 'Could not save your activity level.'));
+}
+
+function toAppActivityLevel(level) {
+  if (level === 'low' || level === 'medium' || level === 'high') return level;
+  if (level === 'Low') return 'low';
+  if (level === 'High') return 'high';
+  return 'medium';
+}
+
+export async function saveUserProfile(userId, profile, activityLevel) {
+  const appLevel = toAppActivityLevel(activityLevel || profile?.activityLevel);
+  const level = ['low', 'medium', 'high'].includes(appLevel) ? appLevel : 'medium';
+  if (profile) writeUserProfile(profile);
+  const { error } = await client
+    .from('user_settings')
+    .upsert({
+      user_id: userId,
+      activity_level: level,
+      user_profile: profile,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'user_id' });
+  if (error) {
+    if (isMissingUserProfileColumn(error)) {
+      await saveActivityLevel(userId, level);
+      return;
+    }
+    throw new Error(toErrorMessage(error, 'Could not save your profile.'));
+  }
 }
 
 export async function fetchLogEntriesForDate(userId, logDate, foods) {
@@ -575,13 +650,19 @@ export async function uploadLocalState(userId, localState, defaultFoods, normali
   if (localState.activityLevel) {
     await saveActivityLevel(userId, localState.activityLevel);
   }
+
+  const localProfile = readUserProfile();
+  if (localProfile) {
+    await saveUserProfile(userId, localProfile, localState.activityLevel);
+  }
 }
 
 export async function exportCloudState(userId, defaultFoods, normalizeFood) {
-  const [foods, logsResult, activityLevel] = await Promise.all([
+  const [foods, logsResult, activityLevel, profileResult] = await Promise.all([
     fetchCustomFoods(userId),
     client.from('log_entries').select('*').eq('user_id', userId).order('log_date'),
     fetchActivityLevel(userId),
+    fetchUserProfile(userId),
   ]);
   if (logsResult.error) throw new Error(toErrorMessage(logsResult.error, 'Could not export your logs.'));
 
@@ -602,6 +683,7 @@ export async function exportCloudState(userId, defaultFoods, normalizeFood) {
     foods: mergedFoods,
     recentSearches: readLocalPreferences().recentSearches,
     activityLevel,
+    userProfile: profileResult.profile || readUserProfile(),
   };
 }
 
@@ -649,7 +731,13 @@ export async function importCloudState(userId, payload, defaultFoods, normalizeF
     if (error) throw new Error(toErrorMessage(error, 'Could not import your food logs.'));
   }
 
-  if (payload.activityLevel) {
+  if (payload.userProfile) {
+    const profile = sanitizeProfile(payload.userProfile);
+    if (profile) {
+      writeUserProfile(profile);
+      await saveUserProfile(userId, profile, payload.activityLevel);
+    }
+  } else if (payload.activityLevel) {
     await saveActivityLevel(userId, payload.activityLevel);
   }
 

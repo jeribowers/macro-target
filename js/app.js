@@ -1,9 +1,31 @@
 import * as sync from './sync-service.js';
+import {
+  calculateTargets,
+  convertHeightValue,
+  convertWeightValue,
+  getDefaultMeasureUnits,
+  formatActivityLabel,
+  isProfileComplete,
+  profileLevelToAppKey,
+  appKeyToProfileLevel,
+  sanitizeProfile,
+  targetsMatchFormula,
+  targetsByLevelMatchFormula,
+  buildTargetsByLevel,
+  ACTIVITY_APP_KEYS,
+  createEmptyTargetFieldLocks,
+  normalizeTargetFieldLocks,
+  inferTargetFieldLocks,
+  hasAnyTargetFieldLocks,
+} from './profile-calculator.js';
+import { createMeasureInput } from './components/measure-input.js';
+import { attachClearOnFocus } from './components/clear-on-focus-input.js';
+import { initFieldInfoTips } from './components/field-info-tip.js';
 
 const ACTIVITY_LEVELS = {
-  low: { calories: 1200, protein: 120, carbs: 115, fat: 45, label: 'Low (1,200)' },
-  medium: { calories: 1700, protein: 121, carbs: 184, fat: 53, label: 'Med (1,700)' },
-  high: { calories: 2000, protein: 127, carbs: 234, fat: 61, label: 'High (2,000)' }
+  low: { calories: 1200, protein: 120, carbs: 115, fat: 45, label: 'Easy' },
+  medium: { calories: 1700, protein: 121, carbs: 184, fat: 53, label: 'Moderate' },
+  high: { calories: 2000, protein: 127, carbs: 234, fat: 61, label: 'Intense' }
 };
 
 const DEFAULT_FOODS = [
@@ -25,8 +47,186 @@ let state = {
   currentDate: new Date(), activityLevel: 'medium', dailyLogs: {},
   foods: DEFAULT_FOODS.map(normalizeFood), recentSearches: [],
   currentFoodForLog: null, editingFoodId: null,
-  editingLogItem: null, defaultCategory: null, logMeal: 'breakfast'
+  editingLogItem: null, defaultCategory: null, logMeal: 'breakfast',
+  userProfile: null,
 };
+
+let profileDraft = null;
+let profileTargetLocks = createEmptyTargetFieldLocks();
+let profileSaveTimer = null;
+
+const PROFILE_LEVEL_PREFIX = { low: 'Low', medium: 'Med', high: 'High' };
+const PROFILE_MACROS = ['calories', 'fat', 'carbs', 'protein'];
+
+function profileTargetInputId(levelKey, macro) {
+  const macroName = macro === 'calories' ? 'Calories' : macro === 'protein' ? 'Protein' : macro === 'carbs' ? 'Carbs' : 'Fat';
+  return `profile${PROFILE_LEVEL_PREFIX[levelKey]}${macroName}`;
+}
+
+const WEEKLY_WEIGHT_RATE_LB = 0.5;
+const LB_TO_KG = 0.453592;
+
+function formatWeeklyWeightRateLabel(unit) {
+  if (unit === 'kg') {
+    const kg = Math.round(WEEKLY_WEIGHT_RATE_LB * LB_TO_KG * 10) / 10;
+    return `~${kg} kg`;
+  }
+  return `~${WEEKLY_WEIGHT_RATE_LB} lb`;
+}
+
+function updateDietGoalHint() {
+  const lossEl = document.getElementById('profileDietGoalLossRate');
+  const gainEl = document.getElementById('profileDietGoalGainRate');
+  if (!lossEl || !gainEl) return;
+  const label = formatWeeklyWeightRateLabel(profileWeightInput?.getUnit() || 'kg');
+  lossEl.textContent = label;
+  gainEl.textContent = label;
+}
+
+const profileBodyChange = () => {
+  updateDietGoalHint();
+  updateProfileTargetsFields();
+  scheduleProfileAutoSave();
+};
+
+function scheduleProfileAutoSave() {
+  const modal = document.getElementById('personalizeModal');
+  if (!modal?.classList.contains('active')) return;
+  window.clearTimeout(profileSaveTimer);
+  profileSaveTimer = window.setTimeout(() => {
+    void saveUserProfile({ auto: true });
+  }, 400);
+}
+
+function syncTargetLockIndicators() {
+  ACTIVITY_APP_KEYS.forEach((key) => {
+    PROFILE_MACROS.forEach((macro) => {
+      const input = document.getElementById(profileTargetInputId(key, macro));
+      const group = input?.closest('.profile-target-field');
+      if (group) group.classList.toggle('is-locked', Boolean(profileTargetLocks[key]?.[macro]));
+    });
+  });
+  const hint = document.getElementById('profileOverrideHint');
+  if (hint) hint.hidden = !hasAnyTargetFieldLocks(profileTargetLocks);
+  refreshIcons();
+}
+
+function profileTargetFieldChange(inputEl) {
+  const level = inputEl?.dataset?.level;
+  const macro = inputEl?.dataset?.macro;
+  if (!level || !macro || !profileTargetLocks[level]) return;
+  const raw = String(inputEl.value ?? '').trim();
+  if (!raw || !Number.isFinite(parseMacroInputNumber(raw))) return;
+  profileTargetLocks[level][macro] = true;
+  syncTargetLockIndicators();
+  scheduleProfileAutoSave();
+}
+
+function initProfileTargetFieldDecorations() {
+  document.querySelectorAll('#profileTargetsLevels input[data-level]').forEach((input) => {
+    const group = input.closest('.form-group');
+    if (!group || group.classList.contains('profile-target-field')) return;
+    group.classList.add('profile-target-field');
+
+    const label = group.querySelector('label');
+    if (label && !group.querySelector('.profile-target-label-row')) {
+      const labelRow = document.createElement('div');
+      labelRow.className = 'profile-target-label-row';
+      label.parentNode.insertBefore(labelRow, label);
+      labelRow.appendChild(label);
+      const icon = document.createElement('i');
+      icon.setAttribute('data-lucide', 'pencil');
+      icon.className = 'profile-target-lock-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      labelRow.appendChild(icon);
+    }
+
+    const legacyWrap = input.closest('.profile-target-input-wrap');
+    if (legacyWrap) {
+      legacyWrap.parentNode.insertBefore(input, legacyWrap);
+      legacyWrap.remove();
+    }
+  });
+  syncTargetLockIndicators();
+}
+
+let profileHeightInput = null;
+let profileWeightInput = null;
+
+function initClearOnFocusInputs() {
+  const foodNumericIds = [
+    'editFoodServingSize', 'editFoodDefaultServingSize',
+    'editFoodCalories', 'editFoodCarbs', 'editFoodProtein', 'editFoodFat',
+    'createFoodServingSize', 'createFoodDefaultServingSize',
+    'createFoodCalories', 'createFoodCarbs', 'createFoodProtein', 'createFoodFat',
+  ];
+
+  const formatNumericCommit = (raw) => {
+    const parsed = parseInputNumber(raw);
+    return Number.isFinite(parsed) ? formatInputNumber(parsed) : null;
+  };
+
+  foodNumericIds.forEach((id) => {
+    attachClearOnFocus(document.getElementById(id), {
+      formatOnCommit: formatNumericCommit,
+      numericOnly: 'decimal',
+    });
+  });
+
+  attachClearOnFocus(document.getElementById('foodServingSize'), {
+    formatOnCommit: formatNumericCommit,
+    numericOnly: 'decimal',
+    onRestore: () => updateLogFoodPreview(),
+    onCommit: () => updateLogFoodPreview(),
+  });
+
+  attachClearOnFocus(document.getElementById('profileAge'), {
+    formatOnCommit: (raw) => {
+      const parsed = parseInputNumber(raw);
+      if (!Number.isFinite(parsed)) return null;
+      return String(Math.round(parsed));
+    },
+    numericOnly: 'integer',
+    onRestore: () => profileBodyChange(),
+    onCommit: () => profileBodyChange(),
+  });
+
+  document.querySelectorAll('#profileTargetsLevels input[data-level]').forEach((input) => {
+    attachClearOnFocus(input, {
+      formatOnCommit: (raw) => formatInputNumber(parseMacroInputNumber(raw)),
+      numericOnly: 'integer',
+      onCommit: (el) => profileTargetFieldChange(el),
+    });
+  });
+}
+
+function initProfileMeasureInputs() {
+  const heightMount = document.getElementById('profileHeightMeasure');
+  const weightMount = document.getElementById('profileWeightMeasure');
+  if (!heightMount || !weightMount) return;
+
+  const localeUnits = getDefaultMeasureUnits();
+
+  profileHeightInput = createMeasureInput({
+    id: 'profileHeight',
+    label: 'Height',
+    units: [{ value: 'cm', label: 'cm' }, { value: 'in', label: 'in' }],
+    defaultUnit: localeUnits.heightUnit,
+    convertValue: convertHeightValue,
+    onChange: profileBodyChange,
+  });
+  heightMount.appendChild(profileHeightInput.element);
+
+  profileWeightInput = createMeasureInput({
+    id: 'profileWeight',
+    label: 'Weight',
+    units: [{ value: 'kg', label: 'kg' }, { value: 'lb', label: 'lb' }],
+    defaultUnit: localeUnits.weightUnit,
+    convertValue: convertWeightValue,
+    onChange: profileBodyChange,
+  });
+  weightMount.appendChild(profileWeightInput.element);
+}
 
 function getDateKey(date) { const d = new Date(date); d.setHours(0, 0, 0, 0); return d.toISOString().split('T')[0]; }
 
@@ -106,12 +306,65 @@ function reportAuthError(error) {
   message.textContent = error?.message || '';
 }
 
+let suppressAuthGate = false;
+let initialAuthSettled = false;
+let authListenerRegistered = false;
+
 function setAuthVisible(showAuth) {
+  if (showAuth && (!initialAuthSettled || suppressAuthGate)) return;
+  document.documentElement.classList.toggle('show-auth-gate', showAuth);
   const authGate = document.getElementById('authGate');
   const appContainer = document.querySelector('.app-container');
+  const loading = document.getElementById('appLoading');
   if (authGate) authGate.hidden = !showAuth;
   if (appContainer) appContainer.hidden = showAuth;
-  if (showAuth) setLoadingVisible(false);
+  if (loading && showAuth) loading.hidden = true;
+}
+
+function revealAuthGate() {
+  initialAuthSettled = true;
+  endAuthBootstrap();
+  setAuthVisible(true);
+}
+
+function registerAuthListener() {
+  if (authListenerRegistered) return;
+  authListenerRegistered = true;
+  sync.onAuthStateChange((event, session) => {
+    if (session) void handleSession(session);
+    else if (event === 'SIGNED_OUT') handleSignedOut();
+  });
+}
+
+function setAuthBootstrapping(active) {
+  const authGate = document.getElementById('authGate');
+  const appContainer = document.querySelector('.app-container');
+  const loading = document.getElementById('appLoading');
+  if (!active) return;
+  if (authGate) authGate.hidden = true;
+  if (appContainer) appContainer.hidden = false;
+  if (loading) loading.hidden = false;
+}
+
+function beginAuthBootstrap() {
+  suppressAuthGate = true;
+  document.documentElement.classList.add('is-auth-callback');
+  setAuthBootstrapping(true);
+}
+
+function endAuthBootstrap() {
+  suppressAuthGate = false;
+  document.documentElement.classList.remove('is-auth-callback');
+}
+
+function handleSignedOut() {
+  if (suppressAuthGate) return;
+  sync.setCurrentUserId(null);
+  setAuthVisible(true);
+  reportAuthError({ message: '' });
+  ['personalizeModal', 'backupDataModal', 'addFoodModal', 'editFoodModal', 'createFoodModal', 'addToLogModal'].forEach((id) => {
+    document.getElementById(id)?.classList.remove('active');
+  });
 }
 
 function setLoadingVisible(visible) {
@@ -187,8 +440,252 @@ function getCategoryTotals(category) {
   return totals;
 }
 
+function getActiveMacroTargets() {
+  if (state.userProfile && isProfileComplete(state.userProfile)) {
+    const stored = state.userProfile.targetsByLevel?.[state.activityLevel];
+    if (state.userProfile.targetsOverridden && stored) return stored;
+    const computed = calculateTargets(state.userProfile, state.activityLevel);
+    if (computed) return computed;
+    if (stored) return stored;
+  }
+  return ACTIVITY_LEVELS[state.activityLevel];
+}
+
+function updateActivityDropdownLabels() {
+  const menu = document.getElementById('activityMenu');
+  if (!menu) return;
+  const keys = ['low', 'medium', 'high'];
+  const items = menu.querySelectorAll('.dropdown-item');
+  items.forEach((item) => {
+    const key = item.dataset.value;
+    if (!keys.includes(key)) return;
+    item.textContent = formatActivityLabel(key);
+  });
+  const selected = menu.querySelector(`.dropdown-item[data-value="${state.activityLevel}"]`);
+  const labelEl = document.getElementById('activityLabel');
+  if (selected && labelEl) labelEl.textContent = selected.textContent;
+}
+
+function openModal(id) {
+  document.getElementById(id)?.classList.add('active');
+  refreshIcons();
+}
+
+function closeModal(id) {
+  document.getElementById(id)?.classList.remove('active');
+}
+
+function showSaveToast(message = 'Targets Saved') {
+  const toast = document.getElementById('saveToast');
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add('is-visible');
+  window.setTimeout(() => toast.classList.remove('is-visible'), 2200);
+}
+
+function getCheckedRadio(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : '';
+}
+
+function readProfileBodyFromForm() {
+  return {
+    height: { value: profileHeightInput?.getValue() ?? NaN, unit: profileHeightInput?.getUnit() || 'cm' },
+    weight: { value: profileWeightInput?.getValue() ?? NaN, unit: profileWeightInput?.getUnit() || 'kg' },
+    age: Math.round(parseInputNumber(document.getElementById('profileAge')?.value)),
+    sex: getCheckedRadio('profileSex'),
+    dietGoal: getCheckedRadio('profileDietGoal') || 'Maintain',
+  };
+}
+
+function readTargetsByLevelFromForm() {
+  const byLevel = {};
+  ACTIVITY_APP_KEYS.forEach((key) => {
+    byLevel[key] = {
+      calories: Math.round(parseMacroInputNumber(document.getElementById(profileTargetInputId(key, 'calories'))?.value)),
+      protein: Math.round(parseMacroInputNumber(document.getElementById(profileTargetInputId(key, 'protein'))?.value)),
+      carbs: Math.round(parseMacroInputNumber(document.getElementById(profileTargetInputId(key, 'carbs'))?.value)),
+      fat: Math.round(parseMacroInputNumber(document.getElementById(profileTargetInputId(key, 'fat'))?.value)),
+    };
+  });
+  return byLevel;
+}
+
+function fillTargetsByLevelFields(targetsByLevel) {
+  if (!targetsByLevel) return;
+  ACTIVITY_APP_KEYS.forEach((key) => {
+    const targets = targetsByLevel[key];
+    if (!targets) return;
+    PROFILE_MACROS.forEach((macro) => {
+      const input = document.getElementById(profileTargetInputId(key, macro));
+      if (input) input.value = formatInputNumber(targets[macro]);
+    });
+  });
+}
+
+function updateProfileTargetsFields() {
+  const body = readProfileBodyFromForm();
+  let hasAny = false;
+  ACTIVITY_APP_KEYS.forEach((key) => {
+    const computed = calculateTargets(body, key);
+    if (!computed) return;
+    hasAny = true;
+    PROFILE_MACROS.forEach((macro) => {
+      if (profileTargetLocks[key]?.[macro]) return;
+      const input = document.getElementById(profileTargetInputId(key, macro));
+      if (input) input.value = formatInputNumber(computed[macro]);
+    });
+  });
+  if (!hasAny) return;
+  syncTargetLockIndicators();
+}
+
+function readProfileDraftFromForm() {
+  const body = readProfileBodyFromForm();
+  const targetsByLevel = readTargetsByLevelFromForm();
+  const activityLevel = appKeyToProfileLevel(state.activityLevel);
+
+  const base = {
+    height: { value: body.height.value, unit: body.height.unit },
+    weight: { value: body.weight.value, unit: body.weight.unit },
+    age: body.age,
+    sex: body.sex,
+    activityLevel,
+    dietGoal: body.dietGoal,
+    targetsByLevel,
+    calculatedTargets: targetsByLevel[state.activityLevel],
+    targetsOverridden: hasAnyTargetFieldLocks(profileTargetLocks),
+    targetFieldLocks: profileTargetLocks,
+  };
+  return sanitizeProfile(base) || base;
+}
+
+function fillProfileFormFromDraft(draft) {
+  const d = draft || {};
+  const age = document.getElementById('profileAge');
+  profileHeightInput?.setMeasurement(d.height);
+  profileWeightInput?.setMeasurement(d.weight);
+  if (age) age.value = d.age != null && Number.isFinite(d.age) ? String(d.age) : '';
+  const sex = d.sex || 'F';
+  document.querySelectorAll('input[name="profileSex"]').forEach((el) => { el.checked = el.value === sex; });
+  const goal = d.dietGoal || 'Maintain';
+  document.querySelectorAll('input[name="profileDietGoal"]').forEach((el) => { el.checked = el.value === goal; });
+  const byLevel = d.targetsByLevel || buildTargetsByLevel(d, null, d.calculatedTargets);
+  fillTargetsByLevelFields(byLevel);
+  const bodyForLocks = {
+    height: d.height,
+    weight: d.weight,
+    age: d.age,
+    sex: d.sex,
+    dietGoal: d.dietGoal,
+  };
+  profileTargetLocks = d.targetFieldLocks
+    ? normalizeTargetFieldLocks(JSON.parse(JSON.stringify(d.targetFieldLocks)))
+    : (d.targetsOverridden
+      ? inferTargetFieldLocks(bodyForLocks, byLevel)
+      : createEmptyTargetFieldLocks());
+  syncTargetLockIndicators();
+  updateDietGoalHint();
+}
+
+function updateProfilePreview() {
+  profileDraft = readProfileDraftFromForm();
+  updateProfileTargetsFields();
+}
+
+function openPersonalizeModal() {
+  profileDraft = state.userProfile
+    ? JSON.parse(JSON.stringify(state.userProfile))
+    : {
+      height: { value: 160, unit: 'cm' },
+      weight: { value: 59, unit: 'kg' },
+      age: 30,
+      sex: 'F',
+      activityLevel: appKeyToProfileLevel(state.activityLevel),
+      dietGoal: 'Maintain',
+      targetsOverridden: false,
+    };
+  fillProfileFormFromDraft(profileDraft);
+  updateProfilePreview();
+  openModal('personalizeModal');
+  void saveUserProfile({ auto: true });
+}
+
+function resetProfileTargetsToFormula() {
+  profileTargetLocks = createEmptyTargetFieldLocks();
+  const body = readProfileBodyFromForm();
+  const byLevel = {};
+  let hasAny = false;
+  ACTIVITY_APP_KEYS.forEach((key) => {
+    const computed = calculateTargets(body, key);
+    if (computed) {
+      byLevel[key] = computed;
+      hasAny = true;
+    }
+  });
+  if (!hasAny) {
+    reportError({ message: 'Enter valid height, weight, and age to calculate targets.' });
+    return;
+  }
+  fillTargetsByLevelFields(byLevel);
+  syncTargetLockIndicators();
+  profileDraft = readProfileDraftFromForm();
+  void saveUserProfile({ auto: true });
+}
+
+async function saveUserProfile(options = {}) {
+  const { closeModal: shouldClose = false, showToast = false, auto = false } = options;
+  const body = readProfileBodyFromForm();
+  const targetsByLevel = readTargetsByLevelFromForm();
+  const activityKey = state.activityLevel;
+  const computed = calculateTargets(body, activityKey);
+  if (!computed) {
+    if (!auto) reportError({ message: 'Please enter valid height, weight, age, and gender.' });
+    return;
+  }
+  const profileBody = {
+    ...body,
+    activityLevel: appKeyToProfileLevel(state.activityLevel),
+  };
+  const overridden = hasAnyTargetFieldLocks(profileTargetLocks)
+    || !targetsByLevelMatchFormula(profileBody, targetsByLevel);
+  const profile = sanitizeProfile({
+    height: body.height,
+    weight: body.weight,
+    age: body.age,
+    sex: body.sex,
+    dietGoal: body.dietGoal,
+    activityLevel: appKeyToProfileLevel(state.activityLevel),
+    targetsByLevel,
+    calculatedTargets: targetsByLevel[activityKey],
+    targetsOverridden: overridden,
+    targetFieldLocks: profileTargetLocks,
+  });
+  if (!profile) {
+    if (!auto) reportError({ message: 'Could not save your profile. Check your inputs.' });
+    return;
+  }
+
+  state.userProfile = profile;
+  state.activityLevel = profileLevelToAppKey(profile.activityLevel);
+  sync.writeUserProfile(profile);
+  profileDraft = profile;
+
+  const userId = sync.getCurrentUserId();
+  try {
+    if (userId) await sync.saveUserProfile(userId, profile, state.activityLevel);
+    setDropdownValue('activityDropdown', state.activityLevel);
+    updateActivityDropdownLabels();
+    updateMacroDisplay();
+    if (shouldClose) closeModal('personalizeModal');
+    if (showToast) showSaveToast();
+  } catch (error) {
+    reportError(error, 'Could not save your targets.');
+  }
+}
+
 function updateMacroDisplay() {
-  const targets = ACTIVITY_LEVELS[state.activityLevel];
+  const targets = getActiveMacroTargets();
   const totals = getTodayTotals();
   function updateMacro(id, current, target) {
     const remaining = target - current;
@@ -299,7 +796,7 @@ async function deleteFoodById(foodId) {
   }
   const food = state.foods.find(f => f.id === foodId);
   if (!food) return;
-  if (!confirm(`Delete "${food.name}" from food database? Existing foods already logged will stay in your daily logs.`)) return;
+  if (!confirm(`Delete "${food.name}" from food library? Existing foods already logged will stay in your daily logs.`)) return;
   try {
     await sync.deleteCustomFood(sync.getCurrentUserId(), food);
     state.foods = state.foods.filter(f => f.id !== foodId);
@@ -397,7 +894,7 @@ function closeEditFoodModal() {
 async function saveEditedFood() {
   const userId = sync.getCurrentUserId();
   if (!userId) {
-    reportError(new Error('Sign in to save changes to your food database.'));
+    reportError(new Error('Sign in to save changes to your food library.'));
     return;
   }
   const name = document.getElementById('editFoodName').value.trim();
@@ -537,6 +1034,8 @@ function openCreateFoodModal(prefillName = '') {
   document.getElementById('createFoodCarbs').value = '';
   document.getElementById('createFoodProtein').value = '';
   document.getElementById('createFoodFat').value = '';
+  const addToLogCheckbox = document.getElementById('createFoodAddToLog');
+  if (addToLogCheckbox) addToLogCheckbox.checked = true;
   document.getElementById('createFoodModal').classList.add('active');
 }
 function closeCreateFoodModal() { document.getElementById('createFoodModal').classList.remove('active'); }
@@ -568,20 +1067,28 @@ async function saveCreatedFood() {
     protein: Math.round((proteinPerServing * toPer100) * 10) / 10,
     fat: Math.round((fatPerServing * toPer100) * 10) / 10
   });
+  const addToLog = document.getElementById('createFoodAddToLog')?.checked ?? true;
   try {
     const savedFood = await sync.upsertFood(sync.getCurrentUserId(), newFood);
-    state.foods.push(normalizeFood(savedFood));
-    state.currentFoodForLog = normalizeFood(savedFood);
-    state.editingLogItem = null;
-    state.logMeal = state.defaultCategory || 'breakfast';
-    document.getElementById('foodServingSize').value = formatInputNumber(getDefaultServingSize(savedFood));
-    document.getElementById('foodServingUnit').textContent = getServingUnitLabel(getFoodServingUnit(savedFood));
+    const normalized = normalizeFood(savedFood);
+    state.foods.push(normalized);
     if (!state.recentSearches.includes(savedFood.id)) {
       state.recentSearches.unshift(savedFood.id);
       state.recentSearches = state.recentSearches.slice(0, 3);
     }
+    saveState();
     closeCreateFoodModal();
-    await addFoodToLog();
+
+    if (addToLog) {
+      await addFoodEntryToDailyLog(normalized, { category: state.defaultCategory || 'breakfast' });
+    } else {
+      const searchQuery = document.getElementById('searchInput')?.value?.trim() || '';
+      openAddFoodModal(state.defaultCategory);
+      if (searchQuery) {
+        document.getElementById('searchInput').value = searchQuery;
+        searchFoods(searchQuery);
+      }
+    }
   } catch (error) {
     reportError(error);
   }
@@ -598,7 +1105,7 @@ function updateAddToLogModalActions() {
   const confirmBtn = document.getElementById('confirmAddToLog');
   const isEditing = Boolean(state.editingLogItem);
   if (deleteFromLogBtn) deleteFromLogBtn.hidden = !isEditing;
-  if (confirmBtn) confirmBtn.textContent = isEditing ? 'Save changes' : 'Add to Log';
+  if (confirmBtn) confirmBtn.textContent = isEditing ? 'Save Changes' : 'Add to Log';
 }
 
 function openAddToLogModal() {
@@ -630,22 +1137,32 @@ function updateLogFoodPreview() {
   );
 }
 
-async function addFoodToLog() {
-  if (!state.currentFoodForLog) return;
-  const food = state.currentFoodForLog;
-  const category = state.logMeal || state.defaultCategory || 'breakfast';
-  const quantity = parseInputNumber(document.getElementById('foodServingSize').value) || getDefaultServingSize(food);
-  const unit = getFoodServingUnit(food);
+async function addFoodEntryToDailyLog(food, options = {}) {
+  const unit = options.unit ?? getFoodServingUnit(food);
+  const quantity = options.quantity ?? getDefaultServingSize(food);
+  const category = options.category ?? state.logMeal ?? state.defaultCategory ?? 'breakfast';
   const macros = getMacrosForFood(food, quantity, unit);
   const log = getCurrentDayLog();
   const entry = { food, quantity, unit, macros };
+  const cloudId = await sync.createLogEntry(sync.getCurrentUserId(), getDateKey(state.currentDate), category, entry);
+  entry.cloudId = cloudId;
+  log[category].push(entry);
+  saveState();
+  updateMacroDisplay();
+  renderFoodLog();
+}
+
+async function addFoodToLog() {
+  if (!state.currentFoodForLog) return;
+  const food = state.currentFoodForLog;
+  const quantity = parseInputNumber(document.getElementById('foodServingSize').value) || getDefaultServingSize(food);
+  const unit = getFoodServingUnit(food);
   try {
-    const cloudId = await sync.createLogEntry(sync.getCurrentUserId(), getDateKey(state.currentDate), category, entry);
-    entry.cloudId = cloudId;
-    log[category].push(entry);
-    saveState();
-    updateMacroDisplay();
-    renderFoodLog();
+    await addFoodEntryToDailyLog(food, {
+      quantity,
+      unit,
+      category: state.logMeal || state.defaultCategory || 'breakfast',
+    });
     closeAddToLogModal();
   } catch (error) {
     reportError(error);
@@ -725,7 +1242,12 @@ function initDropdown(dropdownId, onChange) {
 
 initDropdown('activityDropdown', (value) => {
   state.activityLevel = value;
+  if (state.userProfile) {
+    state.userProfile.activityLevel = appKeyToProfileLevel(value);
+    sync.writeUserProfile(state.userProfile);
+  }
   saveState();
+  updateActivityDropdownLabels();
   updateMacroDisplay();
   persistActivityLevel(value).catch(reportError);
 });
@@ -761,31 +1283,6 @@ document.getElementById('createFoodForm').addEventListener('submit', (e) => { e.
     if (next !== e.target.value) e.target.value = next;
   });
 });
-document.getElementById('createFoodServingSize').addEventListener('focus', (e) => {
-  e.target.value = '';
-});
-document.getElementById('createFoodServingSize').addEventListener('blur', (e) => {
-  if (e.target.value === '' || e.target.value === '-') {
-    e.target.value = '100';
-  }
-});
-document.getElementById('createFoodDefaultServingSize').addEventListener('focus', (e) => {
-  e.target.value = '';
-});
-document.getElementById('createFoodDefaultServingSize').addEventListener('blur', (e) => {
-  if (e.target.value === '' || e.target.value === '-') {
-    e.target.value = '100';
-  }
-});
-['editFoodCalories', 'editFoodCarbs', 'editFoodProtein', 'editFoodFat', 'createFoodCalories', 'createFoodCarbs', 'createFoodProtein', 'createFoodFat'].forEach((id) => {
-  const input = document.getElementById(id);
-  if (!input) return;
-  input.addEventListener('blur', (e) => {
-    if (e.target.value === '' || e.target.value === '-') {
-      e.target.value = '0';
-    }
-  });
-});
 document.getElementById('addToLogClose').addEventListener('click', closeAddToLogModal);
 document.getElementById('cancelAddToLog').addEventListener('click', closeAddToLogModal);
 const deleteFromLogBtn = document.getElementById('deleteFromLog');
@@ -798,16 +1295,6 @@ if (deleteFromLogBtn) {
   });
 }
 document.getElementById('foodServingSize').addEventListener('input', updateLogFoodPreview);
-document.getElementById('foodServingSize').addEventListener('focus', (e) => {
-  e.target.value = '';
-});
-document.getElementById('foodServingSize').addEventListener('blur', (e) => {
-  if (e.target.value === '' || e.target.value === '-') {
-    const fallback = state.currentFoodForLog ? getDefaultServingSize(state.currentFoodForLog) : 100;
-    e.target.value = formatInputNumber(fallback);
-    updateLogFoodPreview();
-  }
-});
 document.getElementById('confirmAddToLog').addEventListener('click', async () => {
   if (state.editingLogItem) {
     const log = getCurrentDayLog();
@@ -872,12 +1359,59 @@ document.getElementById('todayBtn').addEventListener('click', async () => {
   }
 });
 
-// Settings
-document.getElementById('settingsBtn').addEventListener('click', () => {
-  updateDeviceUploadSection();
-  document.getElementById('settingsModal').classList.add('active');
+function initAppMenu() {
+  const dropdown = document.getElementById('appMenuDropdown');
+  if (!dropdown) return;
+  const trigger = dropdown.querySelector('.dropdown-trigger');
+  const menu = dropdown.querySelector('.dropdown-menu');
+  trigger?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.querySelectorAll('.dropdown-menu.open').forEach((m) => {
+      if (m !== menu) m.classList.remove('open');
+    });
+    menu?.classList.toggle('open');
+  });
+  document.getElementById('openPersonalizeBtn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menu?.classList.remove('open');
+    openPersonalizeModal();
+  });
+  document.getElementById('openBackupBtn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menu?.classList.remove('open');
+    updateDeviceUploadSection();
+    openModal('backupDataModal');
+  });
+  document.getElementById('menuSignOutBtn')?.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    menu?.classList.remove('open');
+    try {
+      await sync.signOut();
+      handleSignedOut();
+    } catch (error) {
+      reportError(error);
+    }
+  });
+}
+
+initAppMenu();
+
+document.getElementById('personalizeClose')?.addEventListener('click', () => closeModal('personalizeModal'));
+document.getElementById('backupDataClose')?.addEventListener('click', () => closeModal('backupDataModal'));
+
+initClearOnFocusInputs();
+initProfileMeasureInputs();
+initFieldInfoTips();
+
+document.getElementById('profileAge')?.addEventListener('input', profileBodyChange);
+
+document.querySelectorAll('input[name="profileSex"], input[name="profileDietGoal"]').forEach((el) => {
+  el.addEventListener('change', profileBodyChange);
 });
-document.getElementById('settingsClose').addEventListener('click', () => document.getElementById('settingsModal').classList.remove('active'));
+
+initProfileTargetFieldDecorations();
+
+document.getElementById('profileResetTargetsBtn')?.addEventListener('click', resetProfileTargetsToFormula);
 
 document.getElementById('uploadDeviceBtn')?.addEventListener('click', async () => {
   const userId = sync.getCurrentUserId();
@@ -890,7 +1424,7 @@ document.getElementById('uploadDeviceBtn')?.addEventListener('click', async () =
     sync.markMigrated(userId);
     await reloadSignedInUserState(userId);
     updateDeviceUploadSection();
-    document.getElementById('settingsModal').classList.remove('active');
+    closeModal('backupDataModal');
   } catch (error) {
     reportError(error, 'Could not upload data from this device.');
   } finally {
@@ -923,19 +1457,19 @@ document.getElementById('importFile').addEventListener('change', (e) => {
       const data = JSON.parse(event.target.result);
       if (!confirm('This will replace all your current data. Continue?')) return;
       setLoadingVisible(true);
-      await sync.importCloudState(sync.getCurrentUserId(), data, DEFAULT_FOODS, normalizeFood);
       const userId = sync.getCurrentUserId();
+      await sync.importCloudState(userId, data, DEFAULT_FOODS, normalizeFood);
+      if (data.userProfile) {
+        const profile = sanitizeProfile(data.userProfile);
+        if (profile) {
+          state.userProfile = profile;
+          sync.writeUserProfile(profile);
+        }
+      }
       await reloadSignedInUserState(userId);
-      state.activityLevel = await sync.fetchActivityLevel(userId);
       state.dailyLogs = {};
       await loadDayLog(getDateKey(state.currentDate));
-      const prefs = sync.readLocalPreferences();
-      state.recentSearches = prefs.recentSearches || [];
-      setDropdownValue('activityDropdown', state.activityLevel);
-      updateDateDisplay();
-      updateMacroDisplay();
-      renderFoodLog();
-      document.getElementById('settingsModal').classList.remove('active');
+      closeModal('backupDataModal');
     } catch (err) {
       reportError(err, 'Invalid backup file or import failed.');
     } finally {
@@ -947,7 +1481,7 @@ document.getElementById('importFile').addEventListener('change', (e) => {
 });
 
 document.getElementById('clearLogsBtn').addEventListener('click', async () => {
-  if (!confirm('Clear all logged foods? Your custom food database will be kept.')) return;
+  if (!confirm('Clear all logged foods? Your custom food library will be kept.')) return;
   try {
     setLoadingVisible(true);
     await sync.clearAllLogs(sync.getCurrentUserId());
@@ -955,7 +1489,7 @@ document.getElementById('clearLogsBtn').addEventListener('click', async () => {
     saveState();
     updateMacroDisplay();
     renderFoodLog();
-    document.getElementById('settingsModal').classList.remove('active');
+    closeModal('backupDataModal');
   } catch (error) {
     reportError(error);
   } finally {
@@ -977,11 +1511,21 @@ function updateDateDisplay() {
 async function reloadSignedInUserState(userId) {
   const cloudFoods = await sync.fetchCustomFoods(userId);
   state.foods = sync.mergeFoodLibrary(DEFAULT_FOODS, cloudFoods, normalizeFood);
-  state.activityLevel = await sync.fetchActivityLevel(userId);
+  const { profile: cloudProfile, activityLevel } = await sync.fetchUserProfile(userId);
+  const localProfile = sync.readUserProfile();
+  state.userProfile = cloudProfile || localProfile;
+  state.activityLevel = activityLevel || 'medium';
+  if (state.userProfile) {
+    state.userProfile.activityLevel = appKeyToProfileLevel(state.activityLevel);
+    sync.writeUserProfile(state.userProfile);
+  } else if (cloudProfile) {
+    sync.writeUserProfile(cloudProfile);
+  }
   const prefs = sync.readLocalPreferences();
   state.recentSearches = prefs.recentSearches || [];
   await loadDayLog(getDateKey(state.currentDate));
   setDropdownValue('activityDropdown', state.activityLevel);
+  updateActivityDropdownLabels();
   updateDateDisplay();
   updateMacroDisplay();
   renderFoodLog();
@@ -1010,76 +1554,86 @@ async function initializeSignedInUser(userId) {
   }
 }
 
+let sessionBootstrapInFlight = false;
+
 async function handleSession(session) {
-  if (!session) {
-    if (!sync.hasAuthCallbackInUrl()) setAuthVisible(true);
-    return;
-  }
+  if (!session) return;
+  if (sessionBootstrapInFlight) return;
+  sessionBootstrapInFlight = true;
+  suppressAuthGate = true;
+  setAuthBootstrapping(true);
   try {
     const allowed = await sync.isAllowedUser(session.user.email);
     if (!allowed) {
       await sync.signOut();
       reportAuthError(new Error('This Google account does not have access yet.'));
-      setAuthVisible(true);
+      revealAuthGate();
       return;
     }
-    setAuthVisible(false);
     await initializeSignedInUser(session.user.id);
   } catch (error) {
     reportAuthError(error);
-    setAuthVisible(true);
+    revealAuthGate();
+  } finally {
+    sessionBootstrapInFlight = false;
+    document.documentElement.classList.remove('is-auth-callback');
   }
 }
 
 async function boot() {
+  const isOAuthReturn = sync.hasAuthCallbackInUrl();
+  if (isOAuthReturn) beginAuthBootstrap();
+
   try {
     sync.initSupabase();
+
     document.getElementById('googleSignInBtn')?.addEventListener('click', async () => {
       try {
         reportAuthError({ message: '' });
+        beginAuthBootstrap();
         await sync.signInWithGoogle();
       } catch (error) {
+        revealAuthGate();
         reportAuthError(error);
       }
-    });
-    document.getElementById('signOutBtn')?.addEventListener('click', async () => {
-      try {
-        await sync.signOut();
-      } catch (error) {
-        reportError(error);
-      }
-    });
-    sync.onAuthStateChange((session) => {
-      if (session) void handleSession(session);
     });
 
     const callbackError = sync.getAuthCallbackError();
     if (callbackError) {
       sync.clearAuthCallbackFromUrl();
       reportAuthError(new Error(callbackError));
-      setAuthVisible(true);
+      revealAuthGate();
       return;
     }
 
-    if (sync.hasAuthCallbackInUrl()) {
-      setLoadingVisible(true);
+    if (isOAuthReturn) {
       try {
-        await sync.finishAuthFromUrl();
+        const session = await sync.finishAuthFromUrl();
+        if (session) {
+          await handleSession(session);
+          return;
+        }
       } catch (error) {
         reportAuthError(error);
-        setAuthVisible(true);
+        revealAuthGate();
         return;
-      } finally {
-        setLoadingVisible(false);
       }
     }
 
     const session = await sync.getSession();
-    if (session) await handleSession(session);
-    else setAuthVisible(true);
+    if (session) {
+      setAuthBootstrapping(true);
+      await handleSession(session);
+    } else {
+      revealAuthGate();
+    }
   } catch (error) {
     reportAuthError(error);
-    setAuthVisible(true);
+    revealAuthGate();
+  } finally {
+    initialAuthSettled = true;
+    endAuthBootstrap();
+    registerAuthListener();
   }
 }
 
