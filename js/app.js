@@ -405,7 +405,7 @@ function forceShowAuthGate() {
   initialAuthSettled = true;
   suppressAuthGate = false;
   sessionBootstrapInFlight = false;
-  document.documentElement.classList.remove('is-auth-callback');
+  document.documentElement.classList.remove('is-auth-callback', 'is-auth-loading', 'is-app-ready');
   document.documentElement.classList.add('show-auth-gate');
   const authGate = document.getElementById('authGate');
   const appContainer = document.querySelector('.app-container');
@@ -437,18 +437,18 @@ function registerAuthListener() {
 
 function setAuthBootstrapping(active) {
   if (!active) return;
+  document.documentElement.classList.add('is-auth-loading');
   setLoadingVisible(true, { hideApp: true });
 }
 
 function beginAuthBootstrap() {
   suppressAuthGate = true;
-  document.documentElement.classList.add('is-auth-callback');
+  document.documentElement.classList.add('is-auth-callback', 'is-auth-loading');
   setAuthBootstrapping(true);
 }
 
 function endAuthBootstrap() {
   suppressAuthGate = false;
-  document.documentElement.classList.remove('is-auth-callback');
 }
 
 function handleSignedOut() {
@@ -498,22 +498,30 @@ function setLoadingVisible(visible, { hideApp = false } = {}) {
 }
 
 function showSignedInApp() {
-  document.documentElement.classList.remove('is-auth-callback', 'show-auth-gate');
+  document.documentElement.classList.remove('show-auth-gate');
   suppressAuthGate = false;
   sessionBootstrapInFlight = false;
   const authGate = document.getElementById('authGate');
   const appContainer = document.querySelector('.app-container');
   const loading = document.getElementById('appLoading');
-  if (authGate) authGate.hidden = true;
   if (loading) {
     loading.hidden = true;
     loading.classList.remove('app-loading--fullscreen');
   }
+  if (authGate) authGate.hidden = true;
+  document.documentElement.classList.remove('is-auth-loading', 'is-auth-callback');
+  document.documentElement.classList.add('is-app-ready');
   if (appContainer) appContainer.hidden = false;
 }
 
-async function loadDayLog(dateKey) {
-  const userId = sync.getCurrentUserId();
+function renderSignedInUi() {
+  updateDateDisplay();
+  updateMacroDisplay();
+  renderFoodLog();
+  refreshIcons();
+}
+
+async function loadDayLog(dateKey, userId = sync.getCurrentUserId()) {
   if (!userId) return;
   const [dayLog] = await Promise.all([
     sync.fetchLogEntriesForDate(userId, dateKey, state.foods),
@@ -1765,7 +1773,7 @@ function updateDateDisplay() {
   }
 }
 
-async function reloadSignedInUserState(userId) {
+async function reloadSignedInUserState(userId, { renderUi = true } = {}) {
   const cloudFoods = await sync.fetchCustomFoods(userId);
   state.foods = sync.mergeFoodLibrary(DEFAULT_FOODS, cloudFoods, normalizeFood);
   const [{ profile: cloudProfile, activityLevel }, cloudActivityByDate] = await Promise.all([
@@ -1789,12 +1797,11 @@ async function reloadSignedInUserState(userId) {
   };
   saveState();
   const dateKey = getDateKey(state.currentDate);
-  await loadDayLog(dateKey);
+  await loadDayLog(dateKey, userId);
   applyActivityLevelForDate(dateKey);
-  updateDateDisplay();
-  updateMacroDisplay();
-  renderFoodLog();
-  refreshIcons();
+  if (renderUi) {
+    renderSignedInUi();
+  }
 }
 
 function updateDeviceUploadSection() {
@@ -1805,6 +1812,7 @@ function updateDeviceUploadSection() {
 }
 
 async function initializeSignedInUser(userId) {
+  sync.setCurrentUserId(userId);
   setLoadingVisible(true, { hideApp: true });
   try {
     const legacy = sync.readLegacyLocalState();
@@ -1812,20 +1820,38 @@ async function initializeSignedInUser(userId) {
       await sync.uploadLocalState(userId, legacy, DEFAULT_FOODS, normalizeFood);
       sync.markMigrated(userId);
     }
-    await reloadSignedInUserState(userId);
+    await reloadSignedInUserState(userId, { renderUi: false });
     bootstrappedUserId = userId;
   } finally {
     showSignedInApp();
+    renderSignedInUi();
     updateDeviceUploadSection();
   }
 }
 
 let sessionBootstrapInFlight = false;
 
+function dayLogLooksEmpty(dayLog) {
+  if (!dayLog) return true;
+  return Object.values(dayLog).every((items) => !items?.length);
+}
+
 async function handleSession(session) {
   if (!session) return;
+  sync.setCurrentUserId(session.user.id);
   if (sessionBootstrapInFlight) return;
-  if (bootstrappedUserId === session.user.id) return;
+  if (bootstrappedUserId === session.user.id) {
+    const dateKey = getDateKey(state.currentDate);
+    if (dayLogLooksEmpty(state.dailyLogs[dateKey])) {
+      try {
+        await loadDayLog(dateKey, session.user.id);
+        renderSignedInUi();
+      } catch (error) {
+        reportAuthError(error);
+      }
+    }
+    return;
+  }
   sessionBootstrapInFlight = true;
   suppressAuthGate = true;
   setAuthBootstrapping(true);
