@@ -167,10 +167,11 @@ function initProfileTargetFieldDecorations() {
 let profileHeightInput = null;
 let profileWeightInput = null;
 let createFoodReferenceInput = null;
+let editFoodReferenceInput = null;
 
 function initClearOnFocusInputs() {
   const foodNumericIds = [
-    'editFoodServingSize', 'editFoodDefaultServingSize',
+    'editFoodDefaultServingSize',
     'editFoodCalories', 'editFoodCarbs', 'editFoodProtein', 'editFoodFat',
     'createFoodDefaultServingSize',
     'createFoodCalories', 'createFoodCarbs', 'createFoodProtein', 'createFoodFat',
@@ -249,6 +250,12 @@ function syncCreateFoodServingUnitLabel() {
   unitEl.textContent = getServingUnitLabel(createFoodReferenceInput.getUnit());
 }
 
+function syncEditFoodServingUnitLabel() {
+  const unitEl = document.getElementById('editFoodServingUnit');
+  if (!unitEl || !editFoodReferenceInput) return;
+  unitEl.textContent = getServingUnitLabel(editFoodReferenceInput.getUnit());
+}
+
 function initCreateFoodReferenceMeasure() {
   const mount = document.getElementById('createFoodReferenceMeasure');
   if (!mount || createFoodReferenceInput) return;
@@ -264,6 +271,23 @@ function initCreateFoodReferenceMeasure() {
   });
   mount.appendChild(createFoodReferenceInput.element);
   syncCreateFoodServingUnitLabel();
+}
+
+function initEditFoodReferenceMeasure() {
+  const mount = document.getElementById('editFoodReferenceMeasure');
+  if (!mount || editFoodReferenceInput) return;
+
+  editFoodReferenceInput = createMeasureInput({
+    id: 'editFoodServingSize',
+    label: 'Reference Size',
+    units: FOOD_SERVING_UNITS,
+    defaultUnit: 'g',
+    value: 100,
+    convertValue: convertServingQuantity,
+    onChange: syncEditFoodServingUnitLabel,
+  });
+  mount.appendChild(editFoodReferenceInput.element);
+  syncEditFoodServingUnitLabel();
 }
 
 function getDateKey(date) { const d = new Date(date); d.setHours(0, 0, 0, 0); return d.toISOString().split('T')[0]; }
@@ -955,7 +979,7 @@ function searchFoods(query) {
       ${renderFoodItemInfo(food.name, measure, servingMacros)}
       <div class="actions">
         <button class="btn-primary btn-icon" onclick="event.stopPropagation(); selectFoodForLog('${food.id}')" title="Add" aria-label="Add"><i data-lucide="plus"></i></button>
-        <button class="btn-secondary btn-icon" onclick="event.stopPropagation(); editFoodInDB('${food.id}')" title="Edit" aria-label="Edit"><i data-lucide="pencil"></i></button>
+        <button class="btn-secondary btn-icon" onclick="event.stopPropagation(); editFoodInDB('${food.id}')" title="Edit Food in Library" aria-label="Edit Food in Library"><i data-lucide="pencil"></i></button>
       </div>
     </div>`;
     if (isBuiltInFood(food.id)) {
@@ -997,8 +1021,11 @@ function editFoodInDB(foodId) {
   if (food) {
     state.editingFoodId = foodId;
     document.getElementById('editFoodName').value = food.name;
-    document.getElementById('editFoodServingSize').value = formatInputNumber(food.servingSize || 100);
-    setDropdownValue('editFoodServingUnitDropdown', food.servingUnit || 'g');
+    editFoodReferenceInput?.setMeasurement({
+      value: food.servingSize || 100,
+      unit: food.servingUnit || 'g',
+    });
+    syncEditFoodServingUnitLabel();
     document.getElementById('editFoodDefaultServingSize').value = formatInputNumber(getDefaultServingSize(food));
     const servingMacros = getMacrosForFood(food, food.servingSize || 100, food.servingUnit || 'g');
     document.getElementById('editFoodCalories').value = formatInputNumber(servingMacros.calories);
@@ -1026,8 +1053,9 @@ async function saveEditedFood() {
     return;
   }
   const name = document.getElementById('editFoodName').value.trim();
-  const servingSize = parseInputNumber(document.getElementById('editFoodServingSize').value);
-  const servingUnit = getDropdownValue('editFoodServingUnitDropdown');
+  const reference = editFoodReferenceInput?.getMeasurement() ?? {};
+  const servingSize = reference.value;
+  const servingUnit = reference.unit;
   const defaultServingSize = parseInputNumber(document.getElementById('editFoodDefaultServingSize').value);
   const caloriesPerServing = parseMacroInputNumber(document.getElementById('editFoodCalories').value);
   const carbsPerServing = parseMacroInputNumber(document.getElementById('editFoodCarbs').value);
@@ -1389,7 +1417,6 @@ initDropdown('activityDropdown', (value) => {
   persistActivityLevelForDate(value, dateKey).catch(reportError);
 });
 initDropdown('logMealDropdown', (value) => { state.logMeal = value; });
-initDropdown('editFoodServingUnitDropdown');
 initSwipeToDelete(document.getElementById('searchResults'), (btn) => deleteFoodById(btn.dataset.foodId));
 initSwipeToDelete(document.getElementById('content'), (btn) => deleteFoodLog(btn.dataset.logCategory, Number(btn.dataset.logIndex)));
 
@@ -1543,6 +1570,7 @@ document.getElementById('backupDataClose')?.addEventListener('click', () => clos
 initClearOnFocusInputs();
 initProfileMeasureInputs();
 initCreateFoodReferenceMeasure();
+initEditFoodReferenceMeasure();
 initFieldInfoTips();
 
 document.getElementById('profileAge')?.addEventListener('input', profileBodyChange);
