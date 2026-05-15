@@ -124,6 +124,43 @@ Use this for food lists and other repeated row-based content.
 - Empty states should live inside the shell and use shared empty-state text styles.
 - Food log row meta: food name `textSm` (15px); serving size `textXs` (13px, minimum); macro line `textXs` or larger.
 
+## Macro Badge Pattern
+
+Use macro badges to show compact calorie and macro totals in a horizontal row.
+
+### Structure
+
+- Container: `macro-badge-row` (flex row, 4px gap, wrap allowed).
+- Item: `macro-badge` plus macro class: `cal`, `fat`, `carb`, or `prot`.
+- Order: calories, fat, carbs, protein (matches daily macro cards and food log macro line).
+
+### Base Styles
+
+- Text: `textXs` (13px), font-weight 500.
+- Shape: pill (`border-radius: 999px`), padding `2px 6px`, `white-space: nowrap`.
+- Macro colors use shared tokens: `--macro-cal`, `--macro-fat`, `--macro-carb`, `--macro-prot`.
+
+### Meal Section Totals
+
+Inside `.category-total`, each badge gets a light macro-tinted fill (same tints as daily macro cards): calories `#F8E7E7`, carbs `#EFF4FF`, protein `#EDF7EF`, fat `#F3E8FF`. Text stays macro-colored with a light border.
+
+### Markup Example
+
+```html
+<span class="macro-badge-row">
+  <span class="macro-badge cal">420 cal</span>
+  <span class="macro-badge fat">12g fat</span>
+  <span class="macro-badge carb">45g car</span>
+  <span class="macro-badge prot">28g pro</span>
+</span>
+```
+
+### Rules
+
+- Do not add per-screen badge color overrides; use the shared badge styles only.
+- Short labels in meal totals: `car` and `pro` (not `carbs` / `protein`).
+- Individual food rows use the macro **line** pattern (colored text + `•` separators), not badges.
+
 ## Change Process
 
 When updating shared UI:

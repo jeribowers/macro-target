@@ -859,13 +859,13 @@ function renderMacroLine(calories, carbs, protein, fat, muted = false) {
 }
 
 function renderMacroBadges(calories, carbs, protein, fat, shortLabels = false) {
-  const carbLabel = shortLabels ? 'carb' : 'carbs';
+  const carbLabel = shortLabels ? 'car' : 'carbs';
   const protLabel = shortLabels ? 'pro' : 'protein';
   return `<span class="macro-line macro-badge-row"><span class="macro-badge cal">${formatNumber(Math.round(calories))} cal</span><span class="macro-badge fat">${formatNumber(Math.round(fat))}g fat</span><span class="macro-badge carb">${formatNumber(Math.round(carbs))}g ${carbLabel}</span><span class="macro-badge prot">${formatNumber(Math.round(protein))}g ${protLabel}</span></span>`;
 }
 
 function renderFoodLogMacroLine(calories, carbs, protein, fat) {
-  return `<span class="macro-line"><span class="cal">${formatNumber(Math.round(calories))} cal</span><span class="sep">•</span><span class="fat">${formatNumber(Math.round(fat))}g fat</span><span class="sep">•</span><span class="carb">${formatNumber(Math.round(carbs))}g carb</span><span class="sep">•</span><span class="prot">${formatNumber(Math.round(protein))}g pro</span></span>`;
+  return `<span class="macro-line"><span class="cal">${formatNumber(Math.round(calories))} cal</span><span class="sep">•</span><span class="fat">${formatNumber(Math.round(fat))}g fat</span><span class="sep">•</span><span class="carb">${formatNumber(Math.round(carbs))}g car</span><span class="sep">•</span><span class="prot">${formatNumber(Math.round(protein))}g pro</span></span>`;
 }
 
 function renderFoodItemInfo(name, weightLabel, macros) {
