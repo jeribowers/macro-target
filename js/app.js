@@ -903,7 +903,7 @@ function renderFoodLog() {
       log[category].forEach((item, idx) => {
         html += `
           <div class="swipe-row" data-deletable="true" data-log-category="${category}" data-log-index="${idx}">
-            <button type="button" class="swipe-delete" data-log-category="${category}" data-log-index="${idx}" aria-label="Delete ${item.food.name}">Delete</button>
+            <button type="button" class="swipe-delete" data-log-category="${category}" data-log-index="${idx}" aria-label="Delete ${item.food.name}"><i data-lucide="trash-2" aria-hidden="true"></i></button>
             <div class="food-item swipe-content">
               ${renderFoodItemInfo(item.food.name, `${formatNumber(item.quantity)}${item.unit}`, item.macros)}
               <div class="food-actions">
@@ -986,7 +986,7 @@ function searchFoods(query) {
       html += optionBody;
     } else {
       html += `<div class="swipe-row" data-food-id="${food.id}" data-deletable="true">
-        <button type="button" class="swipe-delete" data-food-id="${food.id}" aria-label="Delete ${food.name}">Delete</button>
+        <button type="button" class="swipe-delete" data-food-id="${food.id}" aria-label="Delete ${food.name}"><i data-lucide="trash-2" aria-hidden="true"></i></button>
         ${optionBody}
       </div>`;
     }
@@ -1098,12 +1098,18 @@ async function saveEditedFood() {
   }
 }
 
+function getSwipeRevealWidth() {
+  const val = getComputedStyle(document.documentElement).getPropertyValue('--swipe-reveal').trim();
+  const parsed = parseFloat(val);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 48;
+}
+
 function initSwipeToDelete(container, onDelete) {
   if (!container || container.dataset.swipeBound === 'true') return;
   container.dataset.swipeBound = 'true';
 
-  const SWIPE_WIDTH = 88;
-  const SWIPE_THRESHOLD = 44;
+  const SWIPE_WIDTH = getSwipeRevealWidth();
+  const SWIPE_THRESHOLD = Math.round(SWIPE_WIDTH * 0.45);
   let activeSwipe = null;
 
   function closeOpenRows(except) {

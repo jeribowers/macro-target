@@ -51,6 +51,9 @@
   --input-md-height: 40px;
   --icon-button-size: var(--button-sm-height);
   --icon-size: 18px;
+  --swipe-delete-width: var(--icon-button-size);
+  --swipe-action-gap: 8px;
+  --swipe-reveal: calc(var(--swipe-delete-width) + var(--swipe-action-gap));
   --focus-ring: var(--color-border-info);
   --focus-ring-shadow: 0 0 0 2px var(--color-background-primary), 0 0 0 4px var(--focus-ring);
   --safe-top: env(safe-area-inset-top, 0px);
@@ -204,9 +207,10 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 #searchResults > * + * { border-top: 0.5px solid var(--color-border-tertiary); }
 .swipe-row { position: relative; overflow: hidden; }
 .swipe-row + .swipe-row { border-top: 0.5px solid var(--color-border-tertiary); }
-.swipe-delete { position: absolute; top: 0; right: 0; bottom: 0; width: 88px; border: none; padding: 0; background: #B42318; color: #FFFFFF; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; cursor: pointer; }
+.swipe-delete { position: absolute; top: 0; right: 0; bottom: 0; width: var(--swipe-delete-width); border: none; padding: 0; background: #B42318; color: #FFFFFF; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.swipe-delete .lucide { width: var(--icon-size); height: var(--icon-size); stroke-width: 2; }
 .swipe-row .swipe-content { position: relative; z-index: 1; transition: transform 0.2s ease; background: var(--color-background-primary); touch-action: pan-y; }
-.swipe-row.is-open .swipe-content { transform: translateX(-88px); }
+.swipe-row.is-open .swipe-content { transform: translateX(calc(-1 * var(--swipe-reveal))); }
 .food-option { padding: 8px 0; background: transparent; display: flex; justify-content: space-between; align-items: center; gap: 8px; cursor: pointer; }
 .food-option + .food-option { border-top: 0.5px solid var(--color-border-tertiary); }
 .food-option .food-info { flex: 1; min-width: 0; }
