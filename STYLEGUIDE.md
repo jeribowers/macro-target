@@ -106,6 +106,16 @@ Use a 4px base spacing scale.
 - Do not apply one-off local `className` size overrides unless explicitly requested.
 - If a screen needs denser UI, create a documented variant instead of ad hoc overrides.
 
+## Modal Section Headings and Descriptions
+
+Use shared classes for titled blocks inside modals (settings, personalize, backup).
+
+- **Heading:** `section-heading` — `textMd` (17px), font-weight 600, `colorTextPrimary`. Matches “Daily Targets Based on Activity Level”.
+- **Description:** `section-description` — `textSm` (15px), line-height 1.45, `colorTextPrimary`. Body copy below the heading; not secondary/muted.
+- **Hint / footnote:** `targets-hint` — `textXs`, `colorTextSecondary` (e.g. override lock message with actions).
+
+Wrap heading + description + controls in a flex column with 8px gap (`settings-section`, `targets-section`).
+
 ## List Pattern Standard
 
 Use this for food lists and other repeated row-based content.

@@ -312,7 +312,10 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 .radio-pill input { margin: 0; }
 .targets-section { display: flex; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 0.5px solid var(--color-border-tertiary); }
 .targets-section__header { display: flex; align-items: center; gap: 2px; margin: 0; }
-.targets-section__header h4 { margin: 0; font-size: var(--text-md); font-weight: 600; color: var(--color-text-primary); }
+.section-heading,
+.targets-section__header h4,
+.settings-section h4 { margin: 0; font-size: var(--text-md); font-weight: 600; color: var(--color-text-primary); }
+.section-description { margin: 0; font-size: var(--text-sm); line-height: 1.45; color: var(--color-text-primary); }
 .targets-levels-list { display: flex; flex-direction: column; gap: 8px; }
 .targets-level-row { display: flex; flex-direction: column; gap: 8px; padding: 8px var(--inset-pad-inline); border-radius: var(--border-radius-md); background: var(--color-background-targets); border: 0.5px solid var(--color-border-tertiary); }
 .targets-level-row__name { font-size: var(--text-sm); font-weight: 600; color: var(--color-text-primary); line-height: 1.3; }
@@ -378,8 +381,7 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 .editable-macro label { font-size: var(--text-xs); color: var(--color-text-secondary); margin-bottom: 3px; font-weight: 500; }
 .editable-macro input { width: 100%; padding: 0 12px; height: var(--input-md-height); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-md); font-family: var(--font-sans); background: var(--color-background-primary); color: var(--color-text-primary); }
 
-.settings-section { margin-top: 0; padding-top: 0.75rem; border-top: 0.5px solid var(--color-border-tertiary); }
-.settings-section h4 { margin: 0 0 8px 0; font-size: var(--text-md); font-weight: 500; color: var(--color-text-primary); }
+.settings-section { margin-top: 0; padding-top: 0.75rem; border-top: 0.5px solid var(--color-border-tertiary); display: flex; flex-direction: column; gap: 8px; }
 .settings-actions { display: flex; gap: 6px; }
 .settings-actions button { flex: 1; min-height: var(--button-md-height); padding: 0 var(--button-md-px); font-size: var(--text-md); }
 .auth-gate { min-height: 100dvh; display: none; align-items: center; justify-content: center; padding: 1.5rem; background: var(--color-background-tertiary); }
@@ -677,7 +679,7 @@ html.is-auth-callback .app-container { display: none !important; }
       </fieldset>
       <section class="targets-section">
         <div class="targets-section__header">
-          <h4>Daily Targets Based on Activity Level</h4>
+          <h4 class="section-heading">Daily Targets Based on Activity Level</h4>
           <span class="field-info-tip">
             <button type="button" class="info-tip-btn" aria-label="About Daily Targets and Activity Level" aria-describedby="profileTargetsTip">
               <i data-lucide="info" aria-hidden="true"></i>
@@ -728,13 +730,13 @@ html.is-auth-callback .app-container { display: none !important; }
     </div>
     <div class="modal-body">
       <div class="settings-section" id="deviceUploadSection" style="margin-top: 0; padding-top: 0; border-top: 0;" hidden>
-        <h4>Data on This Device</h4>
-        <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0 0 8px 0;">This device still has foods or logs that were not uploaded to your account yet.</p>
+        <h4 class="section-heading">Data on This Device</h4>
+        <p class="section-description">This device still has foods or logs that were not uploaded to your account yet.</p>
         <button type="button" class="btn-secondary btn-block" id="uploadDeviceBtn">Upload from This Device</button>
       </div>
       <div class="settings-section">
-        <h4>Backup Your Data</h4>
-        <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0 0 8px 0;">Export your foods and logs as JSON. Import to restore from a backup file.</p>
+        <h4 class="section-heading">Backup Your Data</h4>
+        <p class="section-description">Export your foods and logs as JSON. Import to restore from a backup file.</p>
         <div class="settings-actions">
           <button type="button" class="btn-secondary" id="exportBtn">Export</button>
           <button type="button" class="btn-secondary" id="importBtn">Import</button>
@@ -742,8 +744,8 @@ html.is-auth-callback .app-container { display: none !important; }
         <input type="file" id="importFile" accept=".json" style="display: none;">
       </div>
       <div class="settings-section">
-        <h4>Reset</h4>
-        <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0 0 8px 0;">Clear all logged foods (keeps your custom food library).</p>
+        <h4 class="section-heading">Reset</h4>
+        <p class="section-description">Clear all logged foods (keeps your custom food library).</p>
         <button type="button" class="btn-secondary btn-block" id="clearLogsBtn">Clear All Logs</button>
       </div>
     </div>
