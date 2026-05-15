@@ -67,6 +67,36 @@ function toErrorMessage(error, fallback) {
   return error.message || fallback;
 }
 
+/** Rolling window for cloud Daily Logs; must match purge_expired_daily_logs_for_user in Supabase (UTC). */
+export const DAILY_LOG_RETENTION_DAYS = 30;
+
+export function getDailyLogRetentionCutoffDateKey() {
+  const now = new Date();
+  const utcMidnightMs = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const msPerDay = 86400000;
+  return new Date(utcMidnightMs - DAILY_LOG_RETENTION_DAYS * msPerDay).toISOString().slice(0, 10);
+}
+
+export async function purgeExpiredDailyLogsRemote() {
+  if (!client) return;
+  const { error } = await client.rpc('purge_expired_daily_logs_for_user');
+  if (error) throw new Error(toErrorMessage(error, 'Could not apply Daily Log retention.'));
+}
+
+/** Drops per-day activity cached locally that falls outside the cloud retention window. */
+export function pruneLocalPreferencesDailyLogMetadata() {
+  const cutoff = getDailyLogRetentionCutoffDateKey();
+  const prefs = readLocalPreferences();
+  const nextActivity = {};
+  Object.entries(prefs.activityLevelsByDate || {}).forEach(([k, v]) => {
+    if (k >= cutoff) nextActivity[k] = v;
+  });
+  saveLocalPreferences({
+    recentSearches: prefs.recentSearches,
+    activityLevelsByDate: nextActivity,
+  });
+}
+
 function isMissingUserProfileColumn(error) {
   const message = toErrorMessage(error, '').toLowerCase();
   return message.includes('user_profile') && (
@@ -894,8 +924,10 @@ export async function importCloudState(userId, payload, defaultFoods, normalizeF
     await upsertFood(userId, food);
   }
 
+  const cutoff = getDailyLogRetentionCutoffDateKey();
   const rows = [];
   Object.entries(payload.dailyLogs || {}).forEach(([logDate, dayLog]) => {
+    if (logDate < cutoff) return;
     Object.entries(dayLog || {}).forEach(([meal, items]) => {
       (items || []).forEach((item) => {
         rows.push(logItemToRow({
@@ -924,14 +956,16 @@ export async function importCloudState(userId, payload, defaultFoods, normalizeF
   }
 
   const activityLevelsByDate = payload.activityLevelsByDate || {};
+  const retainedPairs = Object.entries(activityLevelsByDate).filter(([logDate]) => logDate >= cutoff);
   await Promise.all(
-    Object.entries(activityLevelsByDate).map(([logDate, level]) =>
+    retainedPairs.map(([logDate, level]) =>
       saveActivityLevelForDate(userId, logDate, level),
     ),
   );
 
+  const retainedActivity = Object.fromEntries(retainedPairs);
   saveLocalPreferences({
     recentSearches: payload.recentSearches || [],
-    activityLevelsByDate,
+    activityLevelsByDate: retainedActivity,
   });
 }

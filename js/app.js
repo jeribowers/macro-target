@@ -284,6 +284,22 @@ function initEditFoodReferenceMeasure() {
 
 function getDateKey(date) { const d = new Date(date); d.setHours(0, 0, 0, 0); return d.toISOString().split('T')[0]; }
 
+function pruneExpiredLocalDailyLogCaches() {
+  const cutoff = sync.getDailyLogRetentionCutoffDateKey();
+  Object.keys(state.dailyLogs).forEach((key) => {
+    if (key < cutoff) delete state.dailyLogs[key];
+  });
+  const prev = state.activityLevelsByDate || {};
+  const next = {};
+  Object.entries(prev).forEach(([key, level]) => {
+    if (key >= cutoff) next[key] = level;
+  });
+  if (Object.keys(next).length !== Object.keys(prev).length) {
+    state.activityLevelsByDate = next;
+    saveState();
+  }
+}
+
 function formatNumber(value) {
   const number = Number(value);
   if (!Number.isFinite(number)) return '0';
@@ -949,7 +965,7 @@ function renderMacroBadges(calories, carbs, protein, fat, shortLabels = false) {
 }
 
 function renderFoodLogMacroLine(calories, carbs, protein, fat) {
-  return `<span class="macro-line"><span class="cal">${formatNumber(Math.round(calories))} cal</span><span class="sep">•</span><span class="fat">${formatNumber(Math.round(fat))}g fat</span><span class="sep">•</span><span class="carb">${formatNumber(Math.round(carbs))}g car</span><span class="sep">•</span><span class="prot">${formatNumber(Math.round(protein))}g pro</span></span>`;
+  return `<span class="macro-line"><span class="cal">${formatNumber(Math.round(calories))} cal</span><span class="sep">•</span><span class="fat">${formatNumber(Math.round(fat))}g fat</span><span class="sep">•</span><span class="carb">${formatNumber(Math.round(carbs))}g carb</span><span class="sep">•</span><span class="prot">${formatNumber(Math.round(protein))}g pro</span></span>`;
 }
 
 function renderFoodItemInfo(name, weightLabel, macros) {
@@ -1861,6 +1877,13 @@ async function initializeSignedInUser(userId) {
   sync.setCurrentUserId(userId);
   setLoadingVisible(true, { hideApp: true });
   try {
+    try {
+      await sync.purgeExpiredDailyLogsRemote();
+    } catch (err) {
+      console.warn('[macro-tracker] Daily Log retention could not run:', err);
+    }
+    sync.pruneLocalPreferencesDailyLogMetadata();
+
     const counts = await sync.getCloudDataCounts(userId);
     const cloudIsEmpty = counts.foods === 0 && counts.logs === 0;
 
@@ -1877,6 +1900,7 @@ async function initializeSignedInUser(userId) {
       buildDefaultProfile: () => buildDefaultNewUserProfile(state.defaultActivityLevel),
     });
     await reloadSignedInUserState(userId, { renderUi: false });
+    pruneExpiredLocalDailyLogCaches();
     bootstrappedUserId = userId;
   } finally {
     showSignedInApp();

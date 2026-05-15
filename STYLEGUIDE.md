@@ -167,7 +167,7 @@ Inside `.category-total`, each badge gets a light macro-tinted fill (same tints 
 <span class="macro-badge-row">
   <span class="macro-badge cal">420 cal</span>
   <span class="macro-badge fat">12g fat</span>
-  <span class="macro-badge carb">45g car</span>
+  <span class="macro-badge carb">45g carb</span>
   <span class="macro-badge prot">28g pro</span>
 </span>
 ```
