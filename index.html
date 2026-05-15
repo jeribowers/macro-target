@@ -179,8 +179,11 @@ button:focus-visible,
 .food-actions { display: flex; gap: 3px; flex-shrink: 0; }
 .food-actions button { padding: 0; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); cursor: pointer; border-radius: var(--border-radius-md); font-size: var(--text-sm); min-width: var(--icon-button-size); min-height: var(--icon-button-size); display: inline-flex; align-items: center; justify-content: center; }
 
-.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: stretch; justify-content: center; }
-.modal-overlay.active { display: flex; }
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: stretch; justify-content: center; overscroll-behavior: contain; }
+.modal-overlay.active { display: flex; overscroll-behavior: none; }
+html.modal-open,
+html.modal-open body { overflow: hidden; height: 100%; overscroll-behavior: none; }
+html.modal-open .app-container { overflow: hidden; touch-action: none; }
 .modal { background: var(--color-background-tertiary); width: 100%; min-height: 100dvh; border-radius: 0; overflow-y: auto; padding-bottom: var(--safe-bottom); }
 .modal-header { padding: calc(var(--screen-pad-block) + var(--safe-top)) var(--screen-pad-inline) var(--screen-pad-block); border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--color-background-primary); z-index: 10; }
 .modal-header h2 { margin: 0; font-size: var(--text-md); font-weight: 500; color: var(--color-text-primary); }
@@ -231,8 +234,12 @@ button:focus-visible,
 #createFoodForm > .default-serving-size .serving-size-input { width: 100%; }
 #createFoodReferenceMeasure .measure-input__unit .dropdown-trigger { min-width: 52px; }
 #createFoodReferenceMeasure .measure-input__unit .dropdown-menu { min-width: 7rem; }
+#personalizeModal .modal,
+#backupDataModal .modal { display: flex; flex-direction: column; height: 100dvh; min-height: 100dvh; max-height: 100dvh; overflow: hidden; padding-bottom: 0; }
+#personalizeModal .modal-header,
+#backupDataModal .modal-header { flex-shrink: 0; }
 #personalizeModal .modal-body,
-#backupDataModal .modal-body { max-height: calc(100dvh - 4rem); overflow-y: auto; }
+#backupDataModal .modal-body { flex: 1; min-height: 0; max-height: none; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-bottom: calc(var(--screen-pad-block) + var(--safe-bottom)); }
 #addToLogModal .modal-body,
 #createFoodModal .modal-body,
 #editFoodModal .modal-body { overflow: visible; }

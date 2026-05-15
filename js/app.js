@@ -417,6 +417,7 @@ function handleSignedOut() {
   ['personalizeModal', 'backupDataModal', 'addFoodModal', 'editFoodModal', 'createFoodModal', 'addToLogModal'].forEach((id) => {
     document.getElementById(id)?.classList.remove('active');
   });
+  syncModalOpenState();
 }
 
 function setLoadingVisible(visible) {
@@ -543,13 +544,20 @@ function updateActivityDropdownLabels() {
   if (selected && labelEl) labelEl.textContent = selected.textContent;
 }
 
+function syncModalOpenState() {
+  const anyOpen = Boolean(document.querySelector('.modal-overlay.active'));
+  document.documentElement.classList.toggle('modal-open', anyOpen);
+}
+
 function openModal(id) {
   document.getElementById(id)?.classList.add('active');
+  syncModalOpenState();
   refreshIcons();
 }
 
 function closeModal(id) {
   document.getElementById(id)?.classList.remove('active');
+  syncModalOpenState();
 }
 
 function showSaveToast(message = 'Targets Saved') {
@@ -864,10 +872,14 @@ function openAddFoodModal(defaultCategory = null) {
   state.editingFoodId = null;
   state.defaultCategory = defaultCategory || 'breakfast';
   document.getElementById('addFoodModal').classList.add('active');
+  syncModalOpenState();
   document.getElementById('searchInput').value = '';
   searchFoods('');
 }
-function closeAddFoodModal() { document.getElementById('addFoodModal').classList.remove('active'); }
+function closeAddFoodModal() {
+  document.getElementById('addFoodModal').classList.remove('active');
+  syncModalOpenState();
+}
 
 function isBuiltInFood(foodId) {
   return DEFAULT_FOODS.some(f => f.id === foodId);
@@ -966,11 +978,13 @@ function editFoodInDB(foodId) {
     document.getElementById('editFoodFat').value = formatInputNumber(servingMacros.fat);
     updateEditFoodModalActions();
     document.getElementById('editFoodModal').classList.add('active');
+    syncModalOpenState();
   }
 }
 
 function closeEditFoodModal() {
   document.getElementById('editFoodModal').classList.remove('active');
+  syncModalOpenState();
   state.editingFoodId = null;
   const deleteFromDatabaseBtn = document.getElementById('deleteFromDatabase');
   if (deleteFromDatabaseBtn) deleteFromDatabaseBtn.hidden = true;
@@ -1122,8 +1136,12 @@ function openCreateFoodModal(prefillName = '') {
   const addToLogCheckbox = document.getElementById('createFoodAddToLog');
   if (addToLogCheckbox) addToLogCheckbox.checked = true;
   document.getElementById('createFoodModal').classList.add('active');
+  syncModalOpenState();
 }
-function closeCreateFoodModal() { document.getElementById('createFoodModal').classList.remove('active'); }
+function closeCreateFoodModal() {
+  document.getElementById('createFoodModal').classList.remove('active');
+  syncModalOpenState();
+}
 
 async function saveCreatedFood() {
   const name = document.getElementById('createFoodName').value.trim();
@@ -1197,6 +1215,7 @@ function updateAddToLogModalActions() {
 function openAddToLogModal() {
   if (!state.currentFoodForLog) return;
   document.getElementById('addToLogModal').classList.add('active');
+  syncModalOpenState();
   state.logMeal = state.editingLogItem?.category || state.defaultCategory || state.logMeal || 'breakfast';
   setDropdownValue('logMealDropdown', state.logMeal);
   updateAddToLogModalActions();
@@ -1208,7 +1227,12 @@ function openAddToLogModal() {
   }
   updateLogFoodPreview();
 }
-function closeAddToLogModal() { document.getElementById('addToLogModal').classList.remove('active'); state.currentFoodForLog = null; state.editingLogItem = null; }
+function closeAddToLogModal() {
+  document.getElementById('addToLogModal').classList.remove('active');
+  syncModalOpenState();
+  state.currentFoodForLog = null;
+  state.editingLogItem = null;
+}
 
 function updateLogFoodPreview() {
   if (!state.currentFoodForLog) return;
