@@ -1805,11 +1805,19 @@ async function initializeSignedInUser(userId) {
   sync.setCurrentUserId(userId);
   setLoadingVisible(true, { hideApp: true });
   try {
-    const legacy = sync.readLegacyLocalState();
-    if (await sync.shouldUploadLocalState(userId, legacy, DEFAULT_FOODS)) {
-      await sync.uploadLocalState(userId, legacy, DEFAULT_FOODS, normalizeFood);
-      sync.markMigrated(userId);
+    const counts = await sync.getCloudDataCounts(userId);
+    const cloudIsEmpty = counts.foods === 0 && counts.logs === 0;
+
+    if (cloudIsEmpty) {
+      sync.clearFreshAccountLocalState(userId);
+    } else {
+      const legacy = sync.readLegacyLocalState();
+      if (await sync.shouldUploadLocalState(userId, legacy, DEFAULT_FOODS)) {
+        await sync.uploadLocalState(userId, legacy, DEFAULT_FOODS, normalizeFood);
+        sync.markMigrated(userId);
+      }
     }
+
     await sync.runNewUserOnboardingIfNeeded(userId, {
       starterFoods: STARTER_FOODS,
       starterLogEntries: STARTER_LOG_ENTRIES,

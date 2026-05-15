@@ -193,6 +193,18 @@ export function markOnboardingComplete(userId) {
   markStarterFoodsSeeded(userId);
 }
 
+/** Clears device caches so a fresh cloud account gets onboarding, not stale local data. */
+export function clearFreshAccountLocalState(userId) {
+  localStorage.removeItem(USER_PROFILE_KEY);
+  localStorage.removeItem(PREFERENCES_KEY);
+  localStorage.removeItem(LEGACY_STATE_KEY);
+  if (userId) {
+    localStorage.removeItem(`${ONBOARDING_PREFIX}${userId}`);
+    localStorage.removeItem(`${STARTER_SEED_PREFIX}${userId}`);
+    localStorage.removeItem(`${MIGRATION_PREFIX}${userId}`);
+  }
+}
+
 export function filterStarterFoods(starterFoods) {
   return (starterFoods || []).filter((food) => {
     const id = String(food?.id ?? '').trim().toLowerCase();
