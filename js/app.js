@@ -409,8 +409,11 @@ function registerAuthListener() {
   if (authListenerRegistered) return;
   authListenerRegistered = true;
   sync.onAuthStateChange((event, session) => {
-    if (session) void handleSession(session);
-    else if (event === 'SIGNED_OUT') handleSignedOut();
+    if (session) {
+      void handleSession(session);
+      return;
+    }
+    if (event === 'SIGNED_OUT') handleSignedOut();
   });
 }
 
@@ -436,17 +439,16 @@ function endAuthBootstrap() {
 }
 
 function handleSignedOut() {
-  suppressAuthGate = false;
   sessionBootstrapInFlight = false;
-  initialAuthSettled = true;
   sync.setCurrentUserId(null);
-  setAuthVisible(true);
-  reportAuthError({ message: '' });
+  setLoadingVisible(false);
   ['personalizeModal', 'backupDataModal', 'addFoodModal', 'editFoodModal', 'createFoodModal', 'addToLogModal'].forEach((id) => {
     document.getElementById(id)?.classList.remove('active');
   });
   hideAllFieldInfoTips();
   syncModalOpenState();
+  reportAuthError({ message: '' });
+  revealAuthGate();
 }
 
 function setLoadingVisible(visible) {
@@ -584,8 +586,9 @@ function syncStackedModalScroll(overlayId) {
   const overlay = document.getElementById(overlayId);
   if (!overlay?.classList.contains('active')) return;
   const modal = overlay.querySelector('.modal');
-  if (!modal) return;
-  const needsScroll = modal.scrollHeight > modal.clientHeight + 1;
+  const body = overlay.querySelector('.modal-body');
+  if (!modal || !body) return;
+  const needsScroll = body.scrollHeight > body.clientHeight + 1;
   modal.classList.toggle('modal--scrollable', needsScroll);
 }
 
@@ -600,10 +603,17 @@ function syncAllStackedModalScroll() {
 }
 
 function openModal(id) {
-  document.getElementById(id)?.classList.add('active');
+  const overlay = document.getElementById(id);
+  overlay?.classList.add('active');
   syncModalOpenState();
   refreshIcons();
-  if (STACKED_MODAL_IDS.includes(id)) scheduleStackedModalScrollSync(id);
+  if (STACKED_MODAL_IDS.includes(id)) {
+    const body = overlay?.querySelector('.modal-body');
+    const modal = overlay?.querySelector('.modal');
+    if (body) body.scrollTop = 0;
+    if (modal) modal.scrollTop = 0;
+    scheduleStackedModalScrollSync(id);
+  }
 }
 
 function closeModal(id) {
@@ -1587,9 +1597,9 @@ function initAppMenu() {
       await sync.signOut();
     } catch (error) {
       reportError(error, 'Sign-out failed.');
-      return;
+    } finally {
+      handleSignedOut();
     }
-    handleSignedOut();
   });
 }
 

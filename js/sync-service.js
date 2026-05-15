@@ -128,7 +128,9 @@ export async function signInWithGoogle() {
 export async function signOut() {
   const { error } = await client.auth.signOut({ scope: 'local' });
   if (error) throw new Error(toErrorMessage(error, 'Sign-out failed.'));
-  void client.auth.signOut({ scope: 'global' }).catch(() => {});
+  window.setTimeout(() => {
+    void client.auth.signOut({ scope: 'global' }).catch(() => {});
+  }, 0);
 }
 
 export async function isAllowedUser(email) {

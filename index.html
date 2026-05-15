@@ -253,11 +253,13 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 #createFoodReferenceMeasure .measure-input__unit .dropdown-menu,
 #editFoodReferenceMeasure .measure-input__unit .dropdown-menu { min-width: 7rem; }
 #personalizeModal .modal,
-#backupDataModal .modal { min-height: 0; height: auto; max-height: 100dvh; overflow-x: hidden; overflow-y: hidden; overscroll-behavior: contain; }
-#personalizeModal .modal.modal--scrollable,
-#backupDataModal .modal.modal--scrollable { overflow-y: auto; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+#backupDataModal .modal { display: flex; flex-direction: column; min-height: 0; height: auto; max-height: 100dvh; overflow: hidden; overscroll-behavior: contain; }
+#personalizeModal .modal-header,
+#backupDataModal .modal-header { position: static; flex-shrink: 0; }
 #personalizeModal .modal-body,
-#backupDataModal .modal-body { overflow: visible; }
+#backupDataModal .modal-body { flex: 1 1 auto; min-height: 0; overflow: visible; }
+#personalizeModal .modal.modal--scrollable .modal-body,
+#backupDataModal .modal.modal--scrollable .modal-body { overflow-y: auto; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
 #addToLogModal .modal-body,
 #createFoodModal .modal-body,
 #editFoodModal .modal-body { overflow: visible; }
@@ -301,7 +303,7 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 .targets-section__header h4 { margin: 0; font-size: var(--text-md); font-weight: 600; color: var(--color-text-primary); }
 .targets-levels-list { display: flex; flex-direction: column; gap: 8px; }
 .targets-level-row { display: flex; flex-direction: column; gap: 8px; padding: 8px; border-radius: var(--border-radius-md); background: var(--color-background-targets); border: 0.5px solid var(--color-border-tertiary); }
-.targets-level-row__name { font-size: var(--text-md); font-weight: 600; color: var(--color-text-primary); line-height: 1.3; }
+.targets-level-row__name { font-size: var(--text-sm); font-weight: 600; color: var(--color-text-primary); line-height: 1.3; }
 .targets-level-row__fields { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; align-items: end; }
 .targets-level-row .form-group { margin: 0; min-width: 0; }
 .targets-level-row .profile-target-label-row { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; min-width: 0; }
