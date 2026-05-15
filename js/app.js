@@ -387,6 +387,7 @@ function reportAuthError(error) {
 let suppressAuthGate = false;
 let initialAuthSettled = false;
 let authListenerRegistered = false;
+let isSigningOut = false;
 
 function setAuthVisible(showAuth) {
   if (showAuth && (!initialAuthSettled || suppressAuthGate)) return;
@@ -399,21 +400,37 @@ function setAuthVisible(showAuth) {
   if (loading && showAuth) loading.hidden = true;
 }
 
-function revealAuthGate() {
+function forceShowAuthGate() {
   initialAuthSettled = true;
+  suppressAuthGate = false;
+  sessionBootstrapInFlight = false;
+  document.documentElement.classList.remove('is-auth-callback');
+  document.documentElement.classList.add('show-auth-gate');
+  const authGate = document.getElementById('authGate');
+  const appContainer = document.querySelector('.app-container');
+  const loading = document.getElementById('appLoading');
+  if (authGate) authGate.hidden = false;
+  if (appContainer) appContainer.hidden = true;
+  if (loading) loading.hidden = true;
+}
+
+function revealAuthGate() {
   endAuthBootstrap();
-  setAuthVisible(true);
+  forceShowAuthGate();
 }
 
 function registerAuthListener() {
   if (authListenerRegistered) return;
   authListenerRegistered = true;
   sync.onAuthStateChange((event, session) => {
-    if (session) {
-      void handleSession(session);
-      return;
-    }
-    if (event === 'SIGNED_OUT') handleSignedOut();
+    window.setTimeout(() => {
+      if (isSigningOut) return;
+      if (session) {
+        void handleSession(session);
+        return;
+      }
+      if (event === 'SIGNED_OUT') handleSignedOut();
+    }, 0);
   });
 }
 
@@ -439,7 +456,6 @@ function endAuthBootstrap() {
 }
 
 function handleSignedOut() {
-  sessionBootstrapInFlight = false;
   sync.setCurrentUserId(null);
   setLoadingVisible(false);
   ['personalizeModal', 'backupDataModal', 'addFoodModal', 'editFoodModal', 'createFoodModal', 'addToLogModal'].forEach((id) => {
@@ -448,7 +464,20 @@ function handleSignedOut() {
   hideAllFieldInfoTips();
   syncModalOpenState();
   reportAuthError({ message: '' });
-  revealAuthGate();
+  forceShowAuthGate();
+}
+
+async function performSignOut() {
+  if (isSigningOut) return;
+  isSigningOut = true;
+  handleSignedOut();
+  try {
+    await sync.signOut();
+  } catch (error) {
+    reportError(error, 'Sign-out failed.');
+  } finally {
+    isSigningOut = false;
+  }
 }
 
 function setLoadingVisible(visible) {
@@ -1589,17 +1618,11 @@ function initAppMenu() {
     updateDeviceUploadSection();
     openModal('backupDataModal');
   });
-  document.getElementById('menuSignOutBtn')?.addEventListener('click', async (e) => {
+  document.getElementById('menuSignOutBtn')?.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
     menu?.classList.remove('open');
-    try {
-      await sync.signOut();
-    } catch (error) {
-      reportError(error, 'Sign-out failed.');
-    } finally {
-      handleSignedOut();
-    }
+    void performSignOut();
   });
 }
 

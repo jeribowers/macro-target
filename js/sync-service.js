@@ -125,9 +125,26 @@ export async function signInWithGoogle() {
   if (error) throw new Error(toErrorMessage(error, 'Google sign-in failed.'));
 }
 
+function clearPersistedAuthSession() {
+  Object.keys(localStorage).forEach((key) => {
+    if (key.startsWith('sb-') && key.includes('auth-token')) {
+      localStorage.removeItem(key);
+    }
+  });
+}
+
 export async function signOut() {
-  const { error } = await client.auth.signOut({ scope: 'local' });
-  if (error) throw new Error(toErrorMessage(error, 'Sign-out failed.'));
+  const TIMEOUT_MS = 4000;
+  const localSignOut = client.auth.signOut({ scope: 'local' });
+  const timeout = new Promise((resolve) => {
+    window.setTimeout(() => resolve({ error: { message: 'Sign-out timed out.' } }), TIMEOUT_MS);
+  });
+  const { error } = await Promise.race([localSignOut, timeout]);
+  if (error) {
+    clearPersistedAuthSession();
+    const retry = await client.auth.signOut({ scope: 'local' });
+    if (retry.error) throw new Error(toErrorMessage(retry.error, 'Sign-out failed.'));
+  }
   window.setTimeout(() => {
     void client.auth.signOut({ scope: 'global' }).catch(() => {});
   }, 0);
