@@ -1799,6 +1799,9 @@ function updateDeviceUploadSection() {
   if (!section) return;
   const legacy = sync.readLegacyLocalState();
   section.hidden = !sync.legacyHasUploadableData(legacy, DEFAULT_FOODS);
+  if (document.getElementById('backupDataModal')?.classList.contains('active')) {
+    scheduleStackedModalScrollSync('backupDataModal');
+  }
 }
 
 async function initializeSignedInUser(userId) {
