@@ -1,9 +1,16 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
 
-import { sanitizeProfile } from './profile-calculator.js';
+import {
+  sanitizeProfile,
+  isProfileComplete,
+  buildDefaultNewUserProfile,
+  profileLevelToAppKey,
+} from './profile-calculator.js';
 
 const MIGRATION_PREFIX = 'macroTrackerMigrated_';
+const STARTER_SEED_PREFIX = 'macroTrackerStarterSeeded_';
+const ONBOARDING_PREFIX = 'macroTrackerOnboarded_';
 const PREFERENCES_KEY = 'macroTrackerPreferences';
 const LEGACY_STATE_KEY = 'macroTrackerState';
 const USER_PROFILE_KEY = 'userProfile';
@@ -167,6 +174,165 @@ export function hasMigrated(userId) {
 
 export function markMigrated(userId) {
   localStorage.setItem(`${MIGRATION_PREFIX}${userId}`, '1');
+}
+
+export function hasStarterFoodsSeeded(userId) {
+  return localStorage.getItem(`${STARTER_SEED_PREFIX}${userId}`) === '1';
+}
+
+export function markStarterFoodsSeeded(userId) {
+  localStorage.setItem(`${STARTER_SEED_PREFIX}${userId}`, '1');
+}
+
+export function hasCompletedOnboarding(userId) {
+  return localStorage.getItem(`${ONBOARDING_PREFIX}${userId}`) === '1';
+}
+
+export function markOnboardingComplete(userId) {
+  localStorage.setItem(`${ONBOARDING_PREFIX}${userId}`, '1');
+  markStarterFoodsSeeded(userId);
+}
+
+export function filterStarterFoods(starterFoods) {
+  return (starterFoods || []).filter((food) => {
+    const id = String(food?.id ?? '').trim().toLowerCase();
+    const name = String(food?.name ?? '').trim().toLowerCase();
+    return id !== 'test' && name !== 'test';
+  });
+}
+
+export async function seedStarterFoodsIfNeeded(userId, starterFoods, normalizeFood) {
+  const foods = filterStarterFoods(starterFoods);
+  if (!userId || !foods.length) return false;
+
+  const existing = await fetchCustomFoods(userId);
+  if (existing.length > 0) {
+    markStarterFoodsSeeded(userId);
+    return false;
+  }
+
+  for (const food of foods) {
+    await upsertFood(userId, normalizeFood(food));
+  }
+  markStarterFoodsSeeded(userId);
+  return true;
+}
+
+export async function seedDefaultProfileIfNeeded(userId, buildDefaultProfile = buildDefaultNewUserProfile) {
+  if (!userId) return false;
+
+  const { data, error } = await client
+    .from('user_settings')
+    .select('user_profile')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (error && !isMissingUserProfileColumn(error)) {
+    throw new Error(toErrorMessage(error, 'Could not check your profile.'));
+  }
+
+  const existing = sanitizeProfile(data?.user_profile);
+  if (existing && isProfileComplete(existing)) return false;
+
+  const profile = typeof buildDefaultProfile === 'function'
+    ? buildDefaultProfile()
+    : buildDefaultNewUserProfile();
+  if (!profile) return false;
+
+  const activityKey = profileLevelToAppKey(profile.activityLevel);
+  await saveUserProfile(userId, profile, activityKey);
+  return true;
+}
+
+export async function seedStarterLogEntriesIfNeeded(
+  userId,
+  logDate,
+  starterEntries,
+  normalizeFood,
+  getMacrosForFood,
+) {
+  if (!userId || !logDate || !starterEntries?.length || typeof getMacrosForFood !== 'function') {
+    return false;
+  }
+
+  const { logs } = await getCloudDataCounts(userId);
+  if (logs > 0) return false;
+
+  const foods = await fetchCustomFoods(userId);
+  if (!foods.length) return false;
+
+  const byId = new Map(foods.map((food) => [food.id, food]));
+  let created = false;
+  for (const entry of starterEntries) {
+    const food = byId.get(entry.foodId);
+    if (!food) continue;
+    const normalized = normalizeFood(food);
+    const unit = normalized.servingUnit || 'g';
+    const quantity = normalized.defaultServingSize ?? normalized.servingSize ?? 100;
+    const macros = getMacrosForFood(normalized, quantity, unit);
+    await createLogEntry(userId, logDate, entry.meal || 'breakfast', {
+      food: normalized,
+      quantity,
+      unit,
+      macros,
+    });
+    created = true;
+  }
+  return created;
+}
+
+export async function runNewUserOnboardingIfNeeded(userId, options = {}) {
+  if (!userId) return;
+
+  const {
+    starterFoods = [],
+    starterLogEntries = [],
+    normalizeFood,
+    getMacrosForFood,
+    getTodayDateKey,
+    buildDefaultProfile,
+  } = options;
+
+  const counts = await getCloudDataCounts(userId);
+  const cloudIsEmpty = counts.foods === 0 && counts.logs === 0;
+  if (cloudIsEmpty) {
+    localStorage.removeItem(`${ONBOARDING_PREFIX}${userId}`);
+    localStorage.removeItem(`${STARTER_SEED_PREFIX}${userId}`);
+  } else if (hasCompletedOnboarding(userId)) {
+    return;
+  }
+  const { data: settingsRow, error: settingsError } = await client
+    .from('user_settings')
+    .select('user_profile')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (settingsError && !isMissingUserProfileColumn(settingsError)) {
+    throw new Error(toErrorMessage(settingsError, 'Could not check your profile.'));
+  }
+  const hasCompleteProfile = isProfileComplete(sanitizeProfile(settingsRow?.user_profile));
+
+  if (!cloudIsEmpty && counts.foods > 0 && counts.logs > 0 && hasCompleteProfile) {
+    markOnboardingComplete(userId);
+    return;
+  }
+
+  if (typeof normalizeFood === 'function') {
+    await seedStarterFoodsIfNeeded(userId, starterFoods, normalizeFood);
+  }
+  await seedDefaultProfileIfNeeded(userId, buildDefaultProfile);
+  if (typeof getMacrosForFood === 'function') {
+    const logDate = typeof getTodayDateKey === 'function'
+      ? getTodayDateKey()
+      : new Date().toISOString().slice(0, 10);
+    await seedStarterLogEntriesIfNeeded(
+      userId,
+      logDate,
+      starterLogEntries,
+      normalizeFood,
+      getMacrosForFood,
+    );
+  }
+
+  markOnboardingComplete(userId);
 }
 
 export function legacyHasUploadableData(localState, defaultFoods) {

@@ -129,6 +129,34 @@ export function getDefaultMeasureUnits() {
     : { heightUnit: 'cm', weightUnit: 'kg' };
 }
 
+/** Default personalize targets for new accounts (170 cm / 70 kg baseline, locale-aware units). */
+export function buildDefaultNewUserProfile(activityKey = 'medium') {
+  const units = getDefaultMeasureUnits();
+  const heightCm = 170;
+  const weightKg = 70;
+  const heightValue = units.heightUnit === 'in' ? Math.round(heightCm / 2.54) : heightCm;
+  const weightValue = units.weightUnit === 'lb' ? Math.round(weightKg / 0.453592) : weightKg;
+  const activityLevel = appKeyToProfileLevel(activityKey);
+  const body = {
+    height: { value: heightValue, unit: units.heightUnit },
+    weight: { value: weightValue, unit: units.weightUnit },
+    age: 30,
+    sex: 'F',
+    dietGoal: 'Maintain',
+    activityLevel,
+  };
+  const targetsByLevel = {};
+  ACTIVITY_APP_KEYS.forEach((key) => {
+    targetsByLevel[key] = calculateTargets(body, key);
+  });
+  return sanitizeProfile({
+    ...body,
+    targetsByLevel,
+    targetsOverridden: false,
+    targetFieldLocks: createEmptyTargetFieldLocks(),
+  });
+}
+
 export function convertHeightValue(value, fromUnit, toUnit) {
   if (fromUnit === toUnit) return value;
   const cm = heightToCm(value, fromUnit);

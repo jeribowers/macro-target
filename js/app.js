@@ -12,6 +12,7 @@ import {
   targetsMatchFormula,
   targetsByLevelMatchFormula,
   buildTargetsByLevel,
+  buildDefaultNewUserProfile,
   ACTIVITY_APP_KEYS,
   createEmptyTargetFieldLocks,
   normalizeTargetFieldLocks,
@@ -21,6 +22,7 @@ import {
 import { createMeasureInput } from './components/measure-input.js';
 import { attachClearOnFocus } from './components/clear-on-focus-input.js';
 import { hideAllFieldInfoTips, initFieldInfoTips } from './components/field-info-tip.js';
+import { STARTER_FOODS, STARTER_LOG_ENTRIES } from './starter-foods.js';
 
 const ACTIVITY_LEVELS = {
   low: { calories: 1200, protein: 120, carbs: 115, fat: 45, label: 'Light' },
@@ -40,20 +42,8 @@ const FOOD_SERVING_UNITS = [
   { value: 'piece', label: 'piece' },
 ];
 
-const DEFAULT_FOODS = [
-  { id: 'chicken_breast', name: 'Chicken Breast', servingSize: 100, servingUnit: 'g', calories: 165, carbs: 0, protein: 31, fat: 3.6 },
-  { id: 'brown_rice', name: 'Brown Rice', servingSize: 100, servingUnit: 'g', calories: 111, carbs: 23, protein: 2.6, fat: 0.9 },
-  { id: 'broccoli', name: 'Broccoli', servingSize: 100, servingUnit: 'g', calories: 34, carbs: 7, protein: 2.8, fat: 0.4 },
-  { id: 'egg', name: 'Egg', servingSize: 100, servingUnit: 'g', calories: 155, carbs: 1.1, protein: 13, fat: 11 },
-  { id: 'salmon', name: 'Salmon', servingSize: 100, servingUnit: 'g', calories: 206, carbs: 0, protein: 22, fat: 13 },
-  { id: 'sweet_potato', name: 'Sweet Potato', servingSize: 100, servingUnit: 'g', calories: 86, carbs: 20, protein: 1.6, fat: 0.1 },
-  { id: 'banana', name: 'Banana', servingSize: 100, servingUnit: 'g', calories: 89, carbs: 23, protein: 1.1, fat: 0.3 },
-  { id: 'greek_yogurt', name: 'Greek Yogurt', servingSize: 100, servingUnit: 'g', calories: 59, carbs: 3.3, protein: 10, fat: 0.4 },
-  { id: 'almonds', name: 'Almonds', servingSize: 100, servingUnit: 'g', calories: 579, carbs: 22, protein: 21, fat: 50 },
-  { id: 'oats', name: 'Oats', servingSize: 100, servingUnit: 'g', calories: 389, carbs: 66, protein: 17, fat: 7 },
-  { id: 'apple', name: 'Apple', servingSize: 100, servingUnit: 'g', calories: 52, carbs: 14, protein: 0.3, fat: 0.2 },
-  { id: 'tuna', name: 'Canned Tuna', servingSize: 100, servingUnit: 'g', calories: 98, carbs: 0, protein: 22, fat: 1 },
-];
+/** Built-in foods merged client-side; starter library is seeded per account in Supabase. */
+const DEFAULT_FOODS = [];
 
 let state = {
   currentDate: new Date(),
@@ -61,7 +51,7 @@ let state = {
   defaultActivityLevel: 'medium',
   activityLevelsByDate: {},
   dailyLogs: {},
-  foods: DEFAULT_FOODS.map(normalizeFood), recentSearches: [],
+  foods: [], recentSearches: [],
   currentFoodForLog: null, editingFoodId: null,
   editingLogItem: null, defaultCategory: null, logMeal: 'breakfast',
   userProfile: null,
@@ -813,15 +803,15 @@ function updateProfilePreview() {
 function openPersonalizeModal() {
   profileDraft = state.userProfile
     ? JSON.parse(JSON.stringify(state.userProfile))
-    : {
-      height: { value: 160, unit: 'cm' },
-      weight: { value: 59, unit: 'kg' },
+    : (buildDefaultNewUserProfile(state.defaultActivityLevel) || {
+      height: { value: 170, unit: 'cm' },
+      weight: { value: 70, unit: 'kg' },
       age: 30,
       sex: 'F',
       activityLevel: appKeyToProfileLevel(state.defaultActivityLevel),
       dietGoal: 'Maintain',
       targetsOverridden: false,
-    };
+    });
   fillProfileFormFromDraft(profileDraft);
   updateProfilePreview();
   openModal('personalizeModal');
@@ -1820,6 +1810,14 @@ async function initializeSignedInUser(userId) {
       await sync.uploadLocalState(userId, legacy, DEFAULT_FOODS, normalizeFood);
       sync.markMigrated(userId);
     }
+    await sync.runNewUserOnboardingIfNeeded(userId, {
+      starterFoods: STARTER_FOODS,
+      starterLogEntries: STARTER_LOG_ENTRIES,
+      normalizeFood,
+      getMacrosForFood,
+      getTodayDateKey: () => getDateKey(state.currentDate),
+      buildDefaultProfile: () => buildDefaultNewUserProfile(state.defaultActivityLevel),
+    });
     await reloadSignedInUserState(userId, { renderUi: false });
     bootstrappedUserId = userId;
   } finally {
