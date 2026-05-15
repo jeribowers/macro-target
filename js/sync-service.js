@@ -389,7 +389,7 @@ export function readLegacyLocalState() {
 const VALID_APP_ACTIVITY_LEVELS = new Set(['low', 'medium', 'high']);
 
 function normalizeAppActivityLevel(level) {
-  return VALID_APP_ACTIVITY_LEVELS.has(level) ? level : 'medium';
+  return VALID_APP_ACTIVITY_LEVELS.has(level) ? level : 'low';
 }
 
 export function readLocalPreferences() {
@@ -705,7 +705,7 @@ export async function fetchActivityLevel(userId) {
     .eq('user_id', userId)
     .maybeSingle();
   if (error) throw new Error(toErrorMessage(error, 'Could not load your activity level.'));
-  return data?.activity_level || 'medium';
+  return data?.activity_level || 'low';
 }
 
 export async function fetchUserProfile(userId) {
@@ -722,7 +722,7 @@ export async function fetchUserProfile(userId) {
     throw new Error(toErrorMessage(error, 'Could not load your profile.'));
   }
   const profile = sanitizeProfile(data?.user_profile) || readUserProfile();
-  return { profile, activityLevel: data?.activity_level || 'medium' };
+  return { profile, activityLevel: data?.activity_level || 'low' };
 }
 
 export async function saveActivityLevel(userId, activityLevel) {
@@ -794,12 +794,12 @@ function toAppActivityLevel(level) {
   if (level === 'low' || level === 'medium' || level === 'high') return level;
   if (level === 'Low') return 'low';
   if (level === 'High') return 'high';
-  return 'medium';
+  return 'low';
 }
 
 export async function saveUserProfile(userId, profile, activityLevel) {
   const appLevel = toAppActivityLevel(activityLevel || profile?.activityLevel);
-  const level = ['low', 'medium', 'high'].includes(appLevel) ? appLevel : 'medium';
+  const level = ['low', 'medium', 'high'].includes(appLevel) ? appLevel : 'low';
   if (profile) writeUserProfile(profile);
   const { error } = await client
     .from('user_settings')

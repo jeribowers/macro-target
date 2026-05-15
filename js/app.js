@@ -47,8 +47,8 @@ const DEFAULT_FOODS = [];
 
 let state = {
   currentDate: new Date(),
-  activityLevel: 'medium',
-  defaultActivityLevel: 'medium',
+  activityLevel: 'low',
+  defaultActivityLevel: 'low',
   activityLevelsByDate: {},
   dailyLogs: {},
   foods: [], recentSearches: [],
@@ -354,7 +354,7 @@ function saveState() {
 }
 
 function getActivityLevelForDate(dateKey) {
-  return state.activityLevelsByDate[dateKey] ?? state.defaultActivityLevel ?? 'medium';
+  return state.activityLevelsByDate[dateKey] ?? state.defaultActivityLevel ?? 'low';
 }
 
 function applyActivityLevelForDate(dateKey) {
@@ -743,7 +743,7 @@ function updateProfileTargetsFields() {
 function getProfileActivityLevelKey() {
   if (profileDraft?.activityLevel) return profileLevelToAppKey(profileDraft.activityLevel);
   if (state.userProfile?.activityLevel) return profileLevelToAppKey(state.userProfile.activityLevel);
-  return state.defaultActivityLevel || 'medium';
+  return state.defaultActivityLevel || 'low';
 }
 
 function readProfileDraftFromForm() {
@@ -1772,7 +1772,7 @@ async function reloadSignedInUserState(userId, { renderUi = true } = {}) {
   ]);
   const localProfile = sync.readUserProfile();
   state.userProfile = cloudProfile || localProfile;
-  state.defaultActivityLevel = activityLevel || 'medium';
+  state.defaultActivityLevel = activityLevel || 'low';
   if (state.userProfile && !state.userProfile.activityLevel) {
     state.userProfile.activityLevel = appKeyToProfileLevel(state.defaultActivityLevel);
     sync.writeUserProfile(state.userProfile);

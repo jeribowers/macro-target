@@ -130,7 +130,7 @@ export function getDefaultMeasureUnits() {
 }
 
 /** Default personalize targets for new accounts (170 cm / 70 kg baseline, locale-aware units). */
-export function buildDefaultNewUserProfile(activityKey = 'medium') {
+export function buildDefaultNewUserProfile(activityKey = 'low') {
   const units = getDefaultMeasureUnits();
   const heightCm = 170;
   const weightKg = 70;
