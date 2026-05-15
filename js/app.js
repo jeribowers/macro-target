@@ -23,7 +23,7 @@ import { attachClearOnFocus } from './components/clear-on-focus-input.js';
 import { hideAllFieldInfoTips, initFieldInfoTips } from './components/field-info-tip.js';
 
 const ACTIVITY_LEVELS = {
-  low: { calories: 1200, protein: 120, carbs: 115, fat: 45, label: 'Easy' },
+  low: { calories: 1200, protein: 120, carbs: 115, fat: 45, label: 'Light' },
   medium: { calories: 1700, protein: 121, carbs: 184, fat: 53, label: 'Moderate' },
   high: { calories: 2000, protein: 127, carbs: 234, fat: 61, label: 'Intense' }
 };

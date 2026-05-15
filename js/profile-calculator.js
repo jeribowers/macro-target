@@ -7,7 +7,7 @@ export const ACTIVITY_APP_KEYS = ['low', 'medium', 'high'];
 export const TARGET_MACROS = ['calories', 'fat', 'carbs', 'protein'];
 
 export const ACTIVITY_LEVEL_NAMES = {
-  low: { display: 'Easy', abbrev: 'Low' },
+  low: { display: 'Light', abbrev: 'Low' },
   medium: { display: 'Moderate', abbrev: 'Med' },
   high: { display: 'Intense', abbrev: 'High' },
 };
