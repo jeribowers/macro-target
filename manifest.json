@@ -1,6 +1,6 @@
 {
-  "name": "Macro Tracker",
-  "short_name": "Macros",
+  "name": "Macro Runner",
+  "short_name": "Macro Runner",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
