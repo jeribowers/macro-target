@@ -1100,23 +1100,34 @@ async function saveEditedFood() {
   }
 }
 
-function getSwipeRevealWidth() {
-  const val = getComputedStyle(document.documentElement).getPropertyValue('--swipe-reveal').trim();
+function getSwipeActionGap() {
+  const val = getComputedStyle(document.documentElement).getPropertyValue('--swipe-action-gap').trim();
   const parsed = parseFloat(val);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : 48;
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 8;
+}
+
+function getRowSwipeRevealWidth(row) {
+  if (!row) return 48;
+  return row.offsetHeight + getSwipeActionGap();
+}
+
+function setRowSwipeReveal(row) {
+  if (!row) return;
+  row.style.setProperty('--swipe-row-reveal', `${getRowSwipeRevealWidth(row)}px`);
 }
 
 function initSwipeToDelete(container, onDelete) {
   if (!container || container.dataset.swipeBound === 'true') return;
   container.dataset.swipeBound = 'true';
 
-  const SWIPE_WIDTH = getSwipeRevealWidth();
-  const SWIPE_THRESHOLD = Math.round(SWIPE_WIDTH * 0.45);
   let activeSwipe = null;
 
   function closeOpenRows(except) {
     container.querySelectorAll('.swipe-row.is-open').forEach((row) => {
-      if (row !== except) row.classList.remove('is-open');
+      if (row !== except) {
+        row.classList.remove('is-open');
+        row.style.removeProperty('--swipe-row-reveal');
+      }
     });
   }
 
@@ -1139,13 +1150,16 @@ function initSwipeToDelete(container, onDelete) {
     const content = e.target.closest('.swipe-row[data-deletable="true"] .swipe-content');
     if (!content || e.target.closest('button')) return;
     const row = content.closest('.swipe-row');
+    const revealWidth = getRowSwipeRevealWidth(row);
     activeSwipe = {
       row,
       content,
       pointerId: e.pointerId,
       startX: e.clientX,
       startY: e.clientY,
-      offset: row.classList.contains('is-open') ? -SWIPE_WIDTH : 0,
+      revealWidth,
+      revealThreshold: Math.round(revealWidth * 0.45),
+      offset: row.classList.contains('is-open') ? -revealWidth : 0,
       moved: false,
       dragAxis: null
     };
@@ -1161,24 +1175,27 @@ function initSwipeToDelete(container, onDelete) {
     }
     if (activeSwipe.dragAxis !== 'x') return;
     activeSwipe.moved = true;
-    const offset = Math.max(-SWIPE_WIDTH, Math.min(0, activeSwipe.offset + deltaX));
+    const { revealWidth } = activeSwipe;
+    const offset = Math.max(-revealWidth, Math.min(0, activeSwipe.offset + deltaX));
     activeSwipe.content.style.transform = `translateX(${offset}px)`;
   });
 
   function finishSwipe(e) {
     if (!activeSwipe || e.pointerId !== activeSwipe.pointerId) return;
-    const { row, content, moved, offset, startX, dragAxis } = activeSwipe;
+    const { row, content, moved, offset, startX, dragAxis, revealWidth, revealThreshold } = activeSwipe;
     content.style.transform = '';
     if (content.hasPointerCapture(e.pointerId)) content.releasePointerCapture(e.pointerId);
     if (moved && dragAxis === 'x') {
       row.dataset.swipeMoved = 'true';
       const deltaX = e.clientX - startX;
-      const endOffset = Math.max(-SWIPE_WIDTH, Math.min(0, offset + deltaX));
-      if (endOffset <= -SWIPE_THRESHOLD) {
+      const endOffset = Math.max(-revealWidth, Math.min(0, offset + deltaX));
+      if (endOffset <= -revealThreshold) {
         closeOpenRows(row);
+        setRowSwipeReveal(row);
         row.classList.add('is-open');
       } else {
         row.classList.remove('is-open');
+        row.style.removeProperty('--swipe-row-reveal');
       }
     }
     activeSwipe = null;
