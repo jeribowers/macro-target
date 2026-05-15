@@ -57,6 +57,15 @@ export function hideAllFieldInfoTips() {
   document.querySelectorAll('.field-info-tip.is-tip-open').forEach(hideFieldInfoTip);
 }
 
+function toggleFieldInfoTip(tip) {
+  if (tip.classList.contains('is-tip-open')) {
+    hideFieldInfoTip(tip);
+  } else {
+    hideAllFieldInfoTips();
+    showFieldInfoTip(tip);
+  }
+}
+
 function bindScrollHide(container) {
   if (!container || scrollHideBound.has(container)) return;
   scrollHideBound.add(container);
@@ -73,16 +82,15 @@ function bindGlobalListeners() {
     document.querySelectorAll('.field-info-tip.is-tip-open').forEach(placeFieldInfoTip);
   });
 
-  document.addEventListener('click', (e) => {
+  document.addEventListener('pointerdown', (e) => {
+    if (!document.querySelector('.field-info-tip.is-tip-open')) return;
     if (e.target.closest('.field-info-tip')) return;
     hideAllFieldInfoTips();
-  });
+  }, { capture: true });
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') hideAllFieldInfoTips();
   });
-
-  window.addEventListener('touchmove', hideAllFieldInfoTips, { passive: true, capture: true });
 }
 
 /**
@@ -100,15 +108,25 @@ export function initFieldInfoTips(root = document) {
 
     btn.setAttribute('aria-expanded', 'false');
 
-    btn.addEventListener('click', (e) => {
+    let lastToggleAt = 0;
+
+    const onActivate = (e) => {
+      if (e.type === 'pointerup' && e.pointerType === 'mouse' && e.button !== 0) return;
       e.preventDefault();
       e.stopPropagation();
-      if (tip.classList.contains('is-tip-open')) {
-        hideFieldInfoTip(tip);
-      } else {
-        hideAllFieldInfoTips();
-        showFieldInfoTip(tip);
-      }
+      const now = Date.now();
+      if (now - lastToggleAt < 400) return;
+      lastToggleAt = now;
+      toggleFieldInfoTip(tip);
+    };
+
+    btn.addEventListener('pointerup', onActivate);
+    btn.addEventListener('click', onActivate);
+
+    btn.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      toggleFieldInfoTip(tip);
     });
 
     if (hoverFinePointer) {

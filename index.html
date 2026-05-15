@@ -235,7 +235,7 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 #createFoodReferenceMeasure .measure-input__unit .dropdown-trigger { min-width: 52px; }
 #createFoodReferenceMeasure .measure-input__unit .dropdown-menu { min-width: 7rem; }
 #personalizeModal .modal,
-#backupDataModal .modal { min-height: 0; height: auto; max-height: 100dvh; overflow-x: hidden; overflow-y: hidden; overscroll-behavior: contain; touch-action: none; }
+#backupDataModal .modal { min-height: 0; height: auto; max-height: 100dvh; overflow-x: hidden; overflow-y: hidden; overscroll-behavior: contain; }
 #personalizeModal .modal.modal--scrollable,
 #backupDataModal .modal.modal--scrollable { overflow-y: auto; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
 #personalizeModal .modal-body,
@@ -270,7 +270,7 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 .radio-fieldset-legend { display: inline-flex; align-items: center; gap: 2px; }
 .radio-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .field-info-tip { position: relative; display: inline-flex; align-items: center; flex-shrink: 0; }
-.info-tip-btn { width: 28px; height: 28px; border: none; background: transparent; color: var(--color-text-secondary); cursor: help; display: inline-flex; align-items: center; justify-content: center; padding: 0; border-radius: 50%; font-family: var(--font-sans); }
+.info-tip-btn { width: 28px; height: 28px; border: none; background: transparent; color: var(--color-text-secondary); cursor: help; display: inline-flex; align-items: center; justify-content: center; padding: 0; border-radius: 50%; font-family: var(--font-sans); touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 .info-tip-btn .lucide { width: 16px; height: 16px; }
 .info-tip-btn:focus-visible { outline: none; box-shadow: var(--focus-ring-shadow); }
 .info-tip-content { position: fixed; left: 0; top: 0; width: min(272px, calc(100vw - 16px)); padding: 8px 10px; font-size: var(--text-xs); line-height: 1.45; font-weight: 400; color: var(--color-text-primary); background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); box-shadow: 0 4px 12px rgba(0,0,0,0.12); opacity: 0; visibility: hidden; pointer-events: none; z-index: 1100; text-align: left; }
