@@ -376,6 +376,9 @@ function reportAuthError(error) {
 
 const AUTH_PENDING_KEY = 'macroTrackerAuthPending';
 
+/** When set, closing the Library editor returns to Add to Daily Log with this context. */
+let addToLogResume = null;
+
 let suppressAuthGate = false;
 let initialAuthSettled = false;
 let authListenerRegistered = false;
@@ -996,7 +999,7 @@ function renderFoodLog() {
           </div>`;
       });
     } else {
-      html += `<div class="food-item"><div class="food-info"><p class="food-macros">No foods logged.</p></div></div>`;
+      html += `<div class="food-item"><div class="food-info"><p class="food-macros">No foods in your Daily Log.</p></div></div>`;
     }
     html += '</div></div></div>';
   });
@@ -1029,11 +1032,15 @@ async function deleteFoodById(foodId) {
   }
   const food = state.foods.find(f => f.id === foodId);
   if (!food) return;
-  if (!confirm(`Delete "${food.name}" from food library? Existing foods already logged will stay in your daily logs.`)) return;
+  if (!confirm(`Delete "${food.name}" from Library? Existing foods already added will stay in your Daily Logs.`)) return;
   try {
     await sync.deleteCustomFood(sync.getCurrentUserId(), food);
     state.foods = state.foods.filter(f => f.id !== foodId);
     state.recentSearches = state.recentSearches.filter(id => id !== foodId);
+    if (addToLogResume?.foodId === foodId) {
+      addToLogResume = null;
+      closeAddToLogModal();
+    }
     if (state.editingFoodId === foodId) closeEditFoodModal();
     saveState();
     if (document.getElementById('addFoodModal').classList.contains('active')) {
@@ -1062,7 +1069,7 @@ function searchFoods(query) {
       ${renderFoodItemInfo(food.name, measure, servingMacros)}
       <div class="actions">
         <button class="btn-primary btn-icon" onclick="event.stopPropagation(); selectFoodForLog('${food.id}')" title="Add" aria-label="Add"><i data-lucide="plus"></i></button>
-        <button class="btn-secondary btn-icon" onclick="event.stopPropagation(); editFoodInDB('${food.id}')" title="Edit Food in Library" aria-label="Edit Food in Library"><i data-lucide="pencil"></i></button>
+        <button class="btn-secondary btn-icon" onclick="event.stopPropagation(); editFoodInDB('${food.id}')" title="Edit in Library" aria-label="Edit in Library"><i data-lucide="pencil"></i></button>
       </div>
     </div>`;
     if (isBuiltInFood(food.id)) {
@@ -1095,11 +1102,16 @@ function selectFoodForLog(foodId) {
 
 function updateEditFoodModalActions() {
   const deleteFromDatabaseBtn = document.getElementById('deleteFromDatabase');
-  if (!deleteFromDatabaseBtn) return;
-  deleteFromDatabaseBtn.hidden = !state.editingFoodId || isBuiltInFood(state.editingFoodId);
+  const deleteFooter = document.getElementById('editFoodDeleteFooter');
+  const showDelete = Boolean(state.editingFoodId) && !isBuiltInFood(state.editingFoodId);
+  if (deleteFromDatabaseBtn) deleteFromDatabaseBtn.hidden = !showDelete;
+  if (deleteFooter) deleteFooter.hidden = !showDelete;
 }
 
-function editFoodInDB(foodId) {
+function editFoodInDB(foodId, options = {}) {
+  if (!options.preserveAddToLogReturn) {
+    addToLogResume = null;
+  }
   const food = state.foods.find(f => f.id === foodId);
   if (food) {
     state.editingFoodId = foodId;
@@ -1122,17 +1134,73 @@ function editFoodInDB(foodId) {
 }
 
 function closeEditFoodModal() {
+  const resumeContext = addToLogResume;
+  const shouldResumeAddToLog = resumeContext?.foodId && resumeContext.foodId === state.editingFoodId;
   document.getElementById('editFoodModal').classList.remove('active');
-  syncModalOpenState();
   state.editingFoodId = null;
-  const deleteFromDatabaseBtn = document.getElementById('deleteFromDatabase');
-  if (deleteFromDatabaseBtn) deleteFromDatabaseBtn.hidden = true;
+  updateEditFoodModalActions();
+  if (shouldResumeAddToLog) {
+    resumeAddToLogAfterFoodEdit(resumeContext);
+    return;
+  }
+  addToLogResume = null;
+  syncModalOpenState();
+}
+
+function hideAddToLogModal() {
+  document.getElementById('addToLogModal').classList.remove('active');
+  syncModalOpenState();
+}
+
+function resumeAddToLogAfterFoodEdit(context = addToLogResume) {
+  if (!context) return;
+  addToLogResume = null;
+  const food = state.foods.find((f) => f.id === context.foodId);
+  if (!food) {
+    closeAddToLogModal();
+    return;
+  }
+  state.currentFoodForLog = food;
+  state.editingLogItem = context.editingLogItem
+    ? { category: context.editingLogItem.category, idx: context.editingLogItem.idx }
+    : null;
+  state.logMeal = context.logMeal || 'breakfast';
+  document.getElementById('addToLogModal').classList.add('active');
+  syncModalOpenState();
+  setDropdownValue('logMealDropdown', state.logMeal);
+  updateAddToLogModalActions();
+  setLogServingFields(food, context.quantity, context.unit);
+  updateLogFoodPreview();
+  refreshIcons();
+}
+
+function openEditFoodFromAddToLog() {
+  const food = state.currentFoodForLog;
+  if (!food?.id || isBuiltInFood(food.id)) return;
+  const quantity = parseInputNumber(document.getElementById('foodServingSize').value) || getDefaultServingSize(food);
+  let unit = getFoodServingUnit(food);
+  if (state.editingLogItem) {
+    const item = getCurrentDayLog()[state.editingLogItem.category]?.[state.editingLogItem.idx];
+    if (item?.unit) unit = item.unit;
+  }
+  addToLogResume = {
+    foodId: food.id,
+    editingLogItem: state.editingLogItem
+      ? { category: state.editingLogItem.category, idx: state.editingLogItem.idx }
+      : null,
+    quantity,
+    unit,
+    logMeal: state.logMeal || getDropdownValue('logMealDropdown') || state.defaultCategory || 'breakfast',
+  };
+  hideAddToLogModal();
+  editFoodInDB(food.id, { preserveAddToLogReturn: true });
 }
 
 async function saveEditedFood() {
   const userId = sync.getCurrentUserId();
   if (!userId) {
-    reportError(new Error('Sign in to save changes to your food library.'));
+    // Edit Saved Food: saving persists to the cloud; this runs if there is no active session (signed out or session expired).
+    reportError(new Error('Sign in to save changes to your Food Library.'));
     return;
   }
   const name = document.getElementById('editFoodName').value.trim();
@@ -1170,8 +1238,12 @@ async function saveEditedFood() {
     const mergedFood = sync.replaceFoodInLibrary(state.foods, savedFood, builtInIds, normalizeFood);
     syncFoodSnapshots(mergedFood);
     saveState();
+    const shouldResumeAddToLog = addToLogResume?.foodId === mergedFood.id;
+    if (shouldResumeAddToLog) {
+      state.currentFoodForLog = mergedFood;
+    }
     closeEditFoodModal();
-    if (document.getElementById('addFoodModal').classList.contains('active')) {
+    if (!shouldResumeAddToLog && document.getElementById('addFoodModal').classList.contains('active')) {
       searchFoods(document.getElementById('searchInput').value);
     }
     updateMacroDisplay();
@@ -1361,18 +1433,25 @@ async function saveCreatedFood() {
   }
 }
 
-function setLogServingFields(food, quantity) {
-  const unit = getFoodServingUnit(food);
+function setLogServingFields(food, quantity, unit) {
+  const servingUnit = unit ?? getFoodServingUnit(food);
   document.getElementById('foodServingSize').value = formatInputNumber(quantity ?? getDefaultServingSize(food));
-  document.getElementById('foodServingUnit').textContent = getServingUnitLabel(unit);
+  document.getElementById('foodServingUnit').textContent = getServingUnitLabel(servingUnit);
 }
 
 function updateAddToLogModalActions() {
   const deleteFromLogBtn = document.getElementById('deleteFromLog');
+  const deleteFooter = document.getElementById('addToLogDeleteFooter');
   const confirmBtn = document.getElementById('confirmAddToLog');
+  const editLibraryLink = document.getElementById('editFoodInLibraryLink');
+  const titleEl = document.querySelector('#addToLogModal .modal-header h2');
   const isEditing = Boolean(state.editingLogItem);
+  const foodId = state.currentFoodForLog?.id;
   if (deleteFromLogBtn) deleteFromLogBtn.hidden = !isEditing;
-  if (confirmBtn) confirmBtn.textContent = isEditing ? 'Save Changes' : 'Add to Log';
+  if (deleteFooter) deleteFooter.hidden = !isEditing;
+  if (confirmBtn) confirmBtn.textContent = isEditing ? 'Save Changes' : 'Add to Daily Log';
+  if (titleEl) titleEl.textContent = isEditing ? 'Edit Daily Log' : 'Add to Daily Log';
+  if (editLibraryLink) editLibraryLink.hidden = !foodId || isBuiltInFood(foodId);
 }
 
 function openAddToLogModal() {
@@ -1384,13 +1463,14 @@ function openAddToLogModal() {
   updateAddToLogModalActions();
   if (state.editingLogItem) {
     const item = getCurrentDayLog()[state.editingLogItem.category][state.editingLogItem.idx];
-    setLogServingFields(state.currentFoodForLog, item.quantity);
+    setLogServingFields(state.currentFoodForLog, item.quantity, item.unit);
   } else {
     setLogServingFields(state.currentFoodForLog);
   }
   updateLogFoodPreview();
 }
 function closeAddToLogModal() {
+  addToLogResume = null;
   document.getElementById('addToLogModal').classList.remove('active');
   syncModalOpenState();
   state.currentFoodForLog = null;
@@ -1408,6 +1488,7 @@ function updateLogFoodPreview() {
     `${formatNumber(quantity)}${unit}`,
     macros
   );
+  refreshIcons();
 }
 
 async function addFoodEntryToDailyLog(food, options = {}) {
@@ -1535,7 +1616,6 @@ document.getElementById('addFoodClose').addEventListener('click', closeAddFoodMo
 document.getElementById('addNewFoodBtn').addEventListener('click', () => openCreateFoodModal(document.getElementById('searchInput').value || ''));
 document.getElementById('searchInput').addEventListener('input', (e) => searchFoods(e.target.value));
 document.getElementById('editFoodClose').addEventListener('click', closeEditFoodModal);
-document.getElementById('cancelEditFood').addEventListener('click', closeEditFoodModal);
 document.getElementById('editFoodForm').addEventListener('submit', (e) => { e.preventDefault(); saveEditedFood(); });
 const deleteFromDatabaseBtn = document.getElementById('deleteFromDatabase');
 if (deleteFromDatabaseBtn) {
@@ -1545,7 +1625,6 @@ if (deleteFromDatabaseBtn) {
   });
 }
 document.getElementById('createFoodClose').addEventListener('click', closeCreateFoodModal);
-document.getElementById('cancelCreateFood').addEventListener('click', closeCreateFoodModal);
 document.getElementById('createFoodForm').addEventListener('submit', (e) => { e.preventDefault(); saveCreatedFood(); });
 ['editFoodServingSize', 'editFoodDefaultServingSize', 'editFoodCalories', 'editFoodCarbs', 'editFoodProtein', 'editFoodFat', 'createFoodDefaultServingSize', 'createFoodCalories', 'createFoodCarbs', 'createFoodProtein', 'createFoodFat', 'foodServingSize'].forEach((id) => {
   const input = document.getElementById(id);
@@ -1556,7 +1635,7 @@ document.getElementById('createFoodForm').addEventListener('submit', (e) => { e.
   });
 });
 document.getElementById('addToLogClose').addEventListener('click', closeAddToLogModal);
-document.getElementById('cancelAddToLog').addEventListener('click', closeAddToLogModal);
+document.getElementById('editFoodInLibraryLink')?.addEventListener('click', openEditFoodFromAddToLog);
 const deleteFromLogBtn = document.getElementById('deleteFromLog');
 if (deleteFromLogBtn) {
   deleteFromLogBtn.addEventListener('click', async () => {

@@ -97,7 +97,7 @@ git add . && git commit -m "Add fat tracking" && git push
 
 GitHub Pages redeploys automatically in 30 seconds. **Pull-to-refresh in your iPhone app** (or close and reopen) to get the new version.
 
-Your localStorage data (foods, logs) survives updates as long as the URL stays the same.
+Your localStorage data (Food Library and Daily Logs) survives updates as long as the URL stays the same.
 
 ## Backup your data
 

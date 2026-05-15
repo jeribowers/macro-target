@@ -30,7 +30,7 @@ Use these as the baseline text scale.
 
 The **smallest text in the app** is `textXs` (13px / `--text-xs`).
 
-- Reference: food log serving size (`.food-weight` next to the food name).
+- Reference: Daily Log serving size (`.food-weight` next to the food name).
 - **No UI text may be smaller than 13px.** Do not use 11px, 12px, or other sub-minimum sizes.
 - Form labels, hints, macro badges, tooltips, and supporting metadata use `textXs` or larger.
 
@@ -46,7 +46,7 @@ Examples:
 
 - Daily Targets
 - Reset to Formula Defaults
-- Add to Log
+- Add to Daily Log
 - Sign in with Google
 - Settings
 
@@ -139,7 +139,7 @@ Use this for food lists and other repeated row-based content.
 - Keep row spacing compact and consistent across screens.
 - Keep action controls aligned and visually consistent with icon/button standards.
 - Empty states should live inside the shell and use shared empty-state text styles.
-- Food log row meta: food name `textSm` (15px); serving size `textXs` (13px, minimum); macro line `textXs` or larger.
+- Daily Log row meta: food name `textSm` (15px); serving size `textXs` (13px, minimum); macro line `textXs` or larger.
 
 ## Macro Badge Pattern
 
@@ -149,7 +149,7 @@ Use macro badges to show compact calorie and macro totals in a horizontal row.
 
 - Container: `macro-badge-row` (flex row, 4px gap, wrap allowed).
 - Item: `macro-badge` plus macro class: `cal`, `fat`, `carb`, or `prot`.
-- Order: calories, fat, carbs, protein (matches daily macro cards and food log macro line).
+- Order: calories, fat, carbs, protein (matches daily macro cards and Daily Log macro line).
 
 ### Base Styles
 

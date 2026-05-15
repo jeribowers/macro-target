@@ -345,7 +345,7 @@ export async function getCloudDataCounts(userId) {
     client.from('log_entries').select('id', { count: 'exact', head: true }).eq('user_id', userId),
   ]);
   if (foodsResult.error) throw new Error(toErrorMessage(foodsResult.error, 'Could not check your saved foods.'));
-  if (logsResult.error) throw new Error(toErrorMessage(logsResult.error, 'Could not check your food log.'));
+  if (logsResult.error) throw new Error(toErrorMessage(logsResult.error, 'Could not check your Daily Log.'));
   return { foods: foodsResult.count ?? 0, logs: logsResult.count ?? 0 };
 }
 
@@ -789,7 +789,7 @@ export async function fetchLogEntriesForDate(userId, logDate, foods) {
     .eq('user_id', userId)
     .eq('log_date', logDate)
     .order('created_at');
-  if (error) throw new Error(toErrorMessage(error, 'Could not load your food log.'));
+  if (error) throw new Error(toErrorMessage(error, 'Could not load your Daily Log.'));
   const grouped = { breakfast: [], lunch: [], dinner: [], snack: [] };
   (data || []).forEach((row) => {
     const meal = row.meal || 'breakfast';
@@ -805,18 +805,18 @@ export async function createLogEntry(userId, logDate, meal, item) {
     .insert(logItemToRow(item, userId, logDate, meal))
     .select('*')
     .single();
-  if (error) throw new Error(toErrorMessage(error, 'Could not add that food to your log.'));
+  if (error) throw new Error(toErrorMessage(error, 'Could not add that food to your Daily Log.'));
   return data.id;
 }
 
 export async function updateLogEntry(userId, item, logDate, meal) {
-  if (!item.cloudId) throw new Error('This log entry is not saved to your account yet.');
+  if (!item.cloudId) throw new Error('This Daily Log entry is not saved to your account yet.');
   const { error } = await client
     .from('log_entries')
     .update(logItemToRow(item, userId, logDate, meal))
     .eq('id', item.cloudId)
     .eq('user_id', userId);
-  if (error) throw new Error(toErrorMessage(error, 'Could not update that log entry.'));
+  if (error) throw new Error(toErrorMessage(error, 'Could not update that Daily Log entry.'));
 }
 
 export async function deleteLogEntry(userId, cloudId) {
@@ -826,7 +826,7 @@ export async function deleteLogEntry(userId, cloudId) {
     .delete()
     .eq('id', cloudId)
     .eq('user_id', userId);
-  if (error) throw new Error(toErrorMessage(error, 'Could not delete that log entry.'));
+  if (error) throw new Error(toErrorMessage(error, 'Could not delete that Daily Log entry.'));
 }
 
 export async function clearAllLogs(userId) {
@@ -834,7 +834,7 @@ export async function clearAllLogs(userId) {
     .from('log_entries')
     .delete()
     .eq('user_id', userId);
-  if (error) throw new Error(toErrorMessage(error, 'Could not clear your logs.'));
+  if (error) throw new Error(toErrorMessage(error, 'Could not clear your Daily Logs.'));
 }
 
 export async function exportCloudState(userId, defaultFoods, normalizeFood) {
@@ -845,7 +845,7 @@ export async function exportCloudState(userId, defaultFoods, normalizeFood) {
     fetchActivityLevelsByDate(userId),
     fetchUserProfile(userId),
   ]);
-  if (logsResult.error) throw new Error(toErrorMessage(logsResult.error, 'Could not export your logs.'));
+  if (logsResult.error) throw new Error(toErrorMessage(logsResult.error, 'Could not export your Daily Logs.'));
 
   const mergedFoods = mergeFoodLibrary(defaultFoods, foods, normalizeFood);
   const lookup = buildFoodLookup(mergedFoods);
@@ -876,7 +876,7 @@ export async function importCloudState(userId, payload, defaultFoods, normalizeF
     .from('foods')
     .select('id')
     .eq('user_id', userId);
-  if (existingFoodsError) throw new Error(toErrorMessage(existingFoodsError, 'Could not prepare your food library for import.'));
+  if (existingFoodsError) throw new Error(toErrorMessage(existingFoodsError, 'Could not prepare your Food Library for import.'));
 
   if ((existingFoods || []).length > 0) {
     const { error } = await client.from('foods').delete().eq('user_id', userId);
@@ -910,7 +910,7 @@ export async function importCloudState(userId, payload, defaultFoods, normalizeF
 
   if (rows.length > 0) {
     const { error } = await client.from('log_entries').insert(rows);
-    if (error) throw new Error(toErrorMessage(error, 'Could not import your food logs.'));
+    if (error) throw new Error(toErrorMessage(error, 'Could not import your Food Library.'));
   }
 
   if (payload.userProfile) {

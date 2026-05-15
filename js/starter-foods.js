@@ -30,7 +30,7 @@ const RAW_STARTER_FOODS = [
 /** Default library seeded into a new account's food list (per 100g unless noted). */
 export const STARTER_FOODS = RAW_STARTER_FOODS.filter((food) => !isTestStarterFood(food));
 
-/** Sample log lines for today on first sign-in (food ids from starter library). */
+/** Sample Daily Log lines for today on first sign-in (food ids from starter library). */
 export const STARTER_LOG_ENTRIES = [
   { foodId: 'banana', meal: 'breakfast' },
   { foodId: 'eggs', meal: 'breakfast' },

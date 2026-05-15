@@ -257,7 +257,7 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 #createFoodForm > .form-actions,
 #editFoodForm > .form-group:first-child,
 #editFoodForm > .form-actions,
-#editFoodForm > .add-to-log-delete { grid-column: 1 / -1; }
+#editFoodForm > .modal-delete-footer { grid-column: 1 / -1; }
 #createFoodReferenceMeasure,
 #createFoodForm > .default-serving-size,
 #editFoodReferenceMeasure,
@@ -364,9 +364,21 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 
 .form-actions { display: flex; gap: 6px; margin-top: 0; }
 .form-actions button { flex: 1; min-height: var(--button-md-height); padding: 0 var(--button-md-px); font-size: var(--text-md); }
-.add-to-log-delete { margin: 0.5rem 0 0; padding: 0; border: none; background: none; color: #B42318; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; justify-self: start; align-self: start; text-align: left; }
-.add-to-log-delete[hidden] { display: none; }
-.add-to-log-delete:focus-visible { outline: none; box-shadow: var(--focus-ring-shadow); border-radius: 4px; }
+.form-actions--single { justify-content: stretch; }
+.form-actions--single button { flex: 1 1 auto; width: 100%; }
+.log-food-preview { display: grid; grid-template-columns: 1fr auto; align-items: start; column-gap: 8px; margin-bottom: 0; padding: 8px; border-radius: var(--border-radius-md); background: var(--color-background-targets); border: 0.5px solid var(--color-border-tertiary); }
+.log-food-preview #logFoodPreview { grid-column: 1; grid-row: 1; min-width: 0; }
+.log-food-preview .food-info { gap: 4px; }
+.log-food-preview__edit-library { grid-column: 2; grid-row: 1; align-self: start; justify-self: end; display: inline-flex; align-items: flex-start; gap: 4px; margin: 0; padding: 0; border: none; background: none; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; line-height: 1.2; color: #1E40AF; cursor: pointer; text-decoration: none; white-space: nowrap; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.log-food-preview__edit-library .lucide { width: var(--icon-size); height: var(--icon-size); flex-shrink: 0; stroke: currentColor; }
+.log-food-preview__edit-library[hidden] { display: none; }
+.log-food-preview__edit-library:focus-visible { outline: none; box-shadow: var(--focus-ring-shadow); border-radius: 4px; }
+.modal-delete-footer { margin-top: 16px; padding-top: 12px; border-top: 0.5px solid var(--color-border-secondary); }
+.modal-delete-footer[hidden] { display: none; }
+.modal-delete-action { display: inline-flex; align-items: center; gap: 3px; margin: 0; padding: 0; border: none; background: none; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; color: #B42318; cursor: pointer; text-decoration: none; text-align: left; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.modal-delete-action .lucide { width: var(--icon-size); height: var(--icon-size); flex-shrink: 0; stroke: currentColor; }
+.modal-delete-action[hidden] { display: none; }
+.modal-delete-action:focus-visible { outline: none; box-shadow: var(--focus-ring-shadow); border-radius: 4px; }
 
 .quantity-input-group { display: flex; gap: 6px; margin-bottom: 0; }
 .quantity-input-group .form-group { margin-bottom: 0; flex: 1 1 50%; min-width: 0; }
@@ -385,9 +397,6 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 .serving-size-input:focus-within { border-color: var(--focus-ring); box-shadow: var(--focus-ring-shadow); }
 .serving-size-unit { display: flex; align-items: center; padding: 0 12px; color: var(--color-text-secondary); font-size: var(--text-md); border-left: 0.5px solid var(--color-border-tertiary); white-space: nowrap; }
 .modal-body .form-group > .dropdown { width: 100%; }
-
-.log-food-preview { margin-bottom: 0; padding: 8px; border-radius: var(--border-radius-md); background: var(--color-background-targets); border: 0.5px solid var(--color-border-tertiary); }
-.log-food-preview .food-info { gap: 4px; }
 
 .editable-macros { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 0.5rem; }
 .editable-macro { display: flex; flex-direction: column; }
@@ -433,7 +442,7 @@ html.is-auth-callback .app-container { display: none !important; }
 <div id="authGate" class="auth-gate" hidden>
   <div class="auth-card">
     <h1>Macro Tracker</h1>
-    <p>Sign in with Google to sync your food log across devices.</p>
+    <p>Sign in with Google to sync your Daily Log and Food Library across devices.</p>
     <p id="authError" class="auth-error" role="alert"></p>
     <button type="button" class="btn-primary btn-block" id="googleSignInBtn">Sign in with Google</button>
   </div>
@@ -527,7 +536,7 @@ html.is-auth-callback .app-container { display: none !important; }
     </div>
     <div class="modal-body">
       <div class="search-controls">
-        <input type="text" class="search-input" id="searchInput" placeholder="Search foods...">
+        <input type="text" class="search-input" id="searchInput" placeholder="Search Food Library...">
         <button class="modal-add-new btn-secondary" id="addNewFoodBtn">+ Add New</button>
       </div>
       <div class="search-results" id="searchResults"></div>
@@ -538,7 +547,7 @@ html.is-auth-callback .app-container { display: none !important; }
 <div class="modal-overlay" id="editFoodModal">
   <div class="modal">
     <div class="modal-header">
-      <h2 id="editFoodTitle">Edit Saved Food</h2>
+      <h2 id="editFoodTitle">Edit Food Library</h2>
       <button class="modal-close" id="editFoodClose" aria-label="Close"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body">
@@ -559,11 +568,12 @@ html.is-auth-callback .app-container { display: none !important; }
           </div>
         </div>
 
-        <div class="form-actions">
-          <button type="button" class="btn-secondary" id="cancelEditFood">Cancel</button>
+        <div class="form-actions form-actions--single">
           <button type="submit" class="btn-primary">Save Food</button>
         </div>
-        <button type="button" class="add-to-log-delete" id="deleteFromDatabase" hidden>Delete from Food Library</button>
+        <div class="modal-delete-footer" id="editFoodDeleteFooter" hidden>
+          <button type="button" class="modal-delete-action" id="deleteFromDatabase" hidden><i data-lucide="x" aria-hidden="true"></i><span>Delete from Library</span></button>
+        </div>
       </form>
     </div>
   </div>
@@ -594,10 +604,9 @@ html.is-auth-callback .app-container { display: none !important; }
         </div>
         <label class="form-checkbox" for="createFoodAddToLog">
           <input type="checkbox" id="createFoodAddToLog" checked>
-          <span>Add to Food Log for Today</span>
+          <span>Also Add to Daily Log</span>
         </label>
-        <div class="form-actions">
-          <button type="button" class="btn-secondary" id="cancelCreateFood">Cancel</button>
+        <div class="form-actions form-actions--single">
           <button type="submit" class="btn-primary">Save Food</button>
         </div>
       </form>
@@ -608,11 +617,14 @@ html.is-auth-callback .app-container { display: none !important; }
 <div class="modal-overlay" id="addToLogModal">
   <div class="modal">
     <div class="modal-header">
-      <h2>Add to Food Log</h2>
+      <h2>Add to Daily Log</h2>
       <button class="modal-close" id="addToLogClose" aria-label="Close"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body">
-      <div class="log-food-preview" id="logFoodPreview"></div>
+      <div class="log-food-preview">
+        <button type="button" class="log-food-preview__edit-library" id="editFoodInLibraryLink" hidden><i data-lucide="pencil" aria-hidden="true"></i><span>Edit in Library</span></button>
+        <div id="logFoodPreview"></div>
+      </div>
       <div class="add-to-log-fields">
         <div class="form-group">
           <label>Serving Size</label>
@@ -637,11 +649,12 @@ html.is-auth-callback .app-container { display: none !important; }
           </div>
         </div>
       </div>
-      <div class="form-actions">
-        <button type="button" class="btn-secondary" id="cancelAddToLog">Cancel</button>
-        <button type="button" class="btn-primary" id="confirmAddToLog">Add to Log</button>
+      <div class="form-actions form-actions--single">
+        <button type="button" class="btn-primary" id="confirmAddToLog">Add to Daily Log</button>
       </div>
-      <button type="button" class="add-to-log-delete" id="deleteFromLog" hidden>Delete from Food Log</button>
+      <div class="modal-delete-footer" id="addToLogDeleteFooter" hidden>
+        <button type="button" class="modal-delete-action" id="deleteFromLog" hidden><i data-lucide="x" aria-hidden="true"></i><span>Delete from Daily Log</span></button>
+      </div>
     </div>
   </div>
 </div>
@@ -704,7 +717,7 @@ html.is-auth-callback .app-container { display: none !important; }
             <button type="button" class="info-tip-btn" aria-label="About Daily Targets" aria-describedby="profileTargetsTip">
               <i data-lucide="info" aria-hidden="true"></i>
             </button>
-            <span id="profileTargetsTip" class="info-tip-content" role="tooltip">Activity level estimates your daily calorie burn, which sets your targets. Edit any number to customize. These targets update based on your activity level selection in the food log.</span>
+            <span id="profileTargetsTip" class="info-tip-content" role="tooltip">Activity level estimates your daily calorie burn, which sets your targets. Edit any number to customize. These targets update based on your activity level selection in the daily log.</span>
           </span>
         </div>
         <p class="section-description">Adjust your daily calorie and macro targets by activity level.</p>
@@ -752,11 +765,11 @@ html.is-auth-callback .app-container { display: none !important; }
     <div class="modal-body">
       <div class="settings-section settings-section--first">
         <h4 class="section-heading">Data Management</h4>
-        <p class="section-description">Food logs are automatically cleared after 30 days to keep the app lightweight. Export your data anytime to save a backup before it's cleared.</p>
+        <p class="section-description">Daily Logs are automatically cleared after 30 days to keep the app lightweight. Export your data anytime to save a backup before it's cleared.</p>
       </div>
       <div class="settings-section">
         <h4 class="section-heading">Backup Your Data</h4>
-        <p class="section-description">Export your foods and logs as JSON. Import to restore from a backup file.</p>
+        <p class="section-description">Export your Food Library as a JSON file. Import to restore from a backup file.</p>
         <div class="settings-actions">
           <button type="button" class="btn-secondary btn-with-icon" id="exportBtn"><i data-lucide="download" aria-hidden="true"></i><span>Export</span></button>
           <button type="button" class="btn-secondary btn-with-icon" id="importBtn"><i data-lucide="upload" aria-hidden="true"></i><span>Import</span></button>
