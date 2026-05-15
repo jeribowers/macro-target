@@ -50,7 +50,7 @@
   --button-md-px: 16px;
   --input-md-height: 40px;
   --icon-button-size: var(--button-sm-height);
-  --icon-size: 18px;
+  --icon-size: var(--text-lg);
   --swipe-action-gap: 8px;
   --focus-ring: var(--color-border-info);
   --focus-ring-shadow: 0 0 0 2px var(--color-background-primary), 0 0 0 4px var(--focus-ring);
@@ -149,19 +149,20 @@ button:focus-visible,
 .content { flex: 1; overflow-y: auto; padding: var(--screen-pad-block) var(--screen-pad-inline); }
 .food-category { margin-bottom: var(--screen-pad-block); }
 .food-category-shell { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); overflow: hidden; }
-.food-category-header { display: flex; justify-content: space-between; align-items: flex-start; padding: var(--screen-pad-block) var(--screen-pad-inline); gap: 8px; }
+.food-category-header { display: flex; justify-content: space-between; align-items: flex-start; padding: var(--screen-pad-block) 8px; gap: 8px; }
 .food-category-title { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; flex: 1; min-width: 0; }
 .food-category h3 { margin: 0; font-size: var(--text-lg); font-weight: 600; color: var(--color-text-primary); text-transform: capitalize; flex-shrink: 0; }
 .category-total { font-size: var(--text-xs); color: var(--color-text-secondary); min-width: 0; }
 .add-food-header { padding: 0 var(--button-sm-px); min-height: var(--button-sm-height); font-size: var(--text-md); white-space: nowrap; flex-shrink: 0; }
 
-.food-list { padding: 0 var(--screen-pad-inline); border-top: 0.5px solid var(--color-border-tertiary); }
+.food-list { padding: 0 8px; border-top: 0.5px solid var(--color-border-tertiary); }
 .food-list > .food-item,
-.swipe-row .food-item { padding: var(--screen-pad-block) 0; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.food-info { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.food-name-row { display: flex; gap: 4px; margin: 0; align-items: baseline; }
+.swipe-row .food-item { padding: 0.5rem 0; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.food-info { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.food-name-row { display: flex; gap: 4px; margin: 0; align-items: baseline; min-width: 0; }
 .food-name { font-size: var(--text-md); font-weight: 500; color: var(--color-text-primary); margin: 0; }
-.food-weight { font-size: var(--text-xs); color: var(--color-text-secondary); margin: 0; font-weight: 400; }
+.food-weight { font-size: var(--text-xs); color: var(--color-text-secondary); margin: 0; font-weight: 400; flex-shrink: 0; }
+.food-list .food-name { min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .food-macros { font-size: var(--text-xs); color: var(--color-text-secondary); margin: 0; }
 
 .macro-line .cal { color: #C41E1E; font-weight: 500; }
@@ -267,7 +268,7 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 #appMenuDropdown .dropdown-menu { min-width: 200px; }
 #appMenuDropdown .dropdown-trigger.btn-icon { width: var(--icon-button-size); padding: 0; justify-content: center; }
 #appMenuDropdown .dropdown-trigger .caret { display: none; }
-.menu-item-btn { width: 100%; text-align: left; padding: 11px 14px; font-size: var(--text-md); color: var(--color-text-primary); cursor: pointer; border: none; background: none; font-family: var(--font-sans); }
+.menu-item-btn { width: 100%; text-align: left; padding: 11px 14px; font-size: var(--text-md); color: var(--color-text-primary); cursor: pointer; border: none; background: none; font-family: var(--font-sans); touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 .menu-item-btn:hover { background: var(--color-background-secondary); }
 .profile-measures-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.72fr); gap: 8px; align-items: end; }
 .profile-age-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
@@ -656,7 +657,7 @@ html.is-auth-callback .app-container[hidden] { display: flex !important; }
       </fieldset>
       <section class="targets-section">
         <div class="targets-section__header">
-          <h4>Your Daily Targets Based on Activity Level</h4>
+          <h4>Daily Targets Based on Activity Level</h4>
           <span class="field-info-tip">
             <button type="button" class="info-tip-btn" aria-label="About Daily Targets and Activity Level" aria-describedby="profileTargetsTip">
               <i data-lucide="info" aria-hidden="true"></i>

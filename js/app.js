@@ -436,7 +436,9 @@ function endAuthBootstrap() {
 }
 
 function handleSignedOut() {
-  if (suppressAuthGate) return;
+  suppressAuthGate = false;
+  sessionBootstrapInFlight = false;
+  initialAuthSettled = true;
   sync.setCurrentUserId(null);
   setAuthVisible(true);
   reportAuthError({ message: '' });
@@ -1445,7 +1447,10 @@ initDropdown('logMealDropdown', (value) => { state.logMeal = value; });
 initSwipeToDelete(document.getElementById('searchResults'), (btn) => deleteFoodById(btn.dataset.foodId));
 initSwipeToDelete(document.getElementById('content'), (btn) => deleteFoodLog(btn.dataset.logCategory, Number(btn.dataset.logIndex)));
 
-document.addEventListener('click', () => { document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open')); });
+document.addEventListener('click', (e) => {
+  if (e.target.closest('.dropdown')) return;
+  document.querySelectorAll('.dropdown-menu.open').forEach((m) => m.classList.remove('open'));
+});
 
 document.getElementById('addFoodClose').addEventListener('click', closeAddFoodModal);
 document.getElementById('addNewFoodBtn').addEventListener('click', () => openCreateFoodModal(document.getElementById('searchInput').value || ''));
@@ -1575,14 +1580,16 @@ function initAppMenu() {
     openModal('backupDataModal');
   });
   document.getElementById('menuSignOutBtn')?.addEventListener('click', async (e) => {
+    e.preventDefault();
     e.stopPropagation();
     menu?.classList.remove('open');
     try {
       await sync.signOut();
-      handleSignedOut();
     } catch (error) {
-      reportError(error);
+      reportError(error, 'Sign-out failed.');
+      return;
     }
+    handleSignedOut();
   });
 }
 
@@ -1696,10 +1703,11 @@ function updateDateDisplay() {
   const current = new Date(state.currentDate);
   const today = new Date(); today.setHours(0,0,0,0);
   const cmp = new Date(current); cmp.setHours(0,0,0,0);
+  const dateEl = document.getElementById('dateDisplay');
   if (cmp.getTime() === today.getTime()) {
-    document.getElementById('dateDisplay').textContent = 'Today';
+    dateEl.textContent = 'Today';
   } else {
-    document.getElementById('dateDisplay').textContent = current.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    dateEl.textContent = current.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   }
 }
 

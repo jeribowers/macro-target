@@ -44,7 +44,7 @@ Use **headline-style title case** for all labels, headings, titles, menu items, 
 
 Examples:
 
-- Your Daily Targets Based on Activity Level
+- Daily Targets Based on Activity Level
 - Reset to Formula Defaults
 - Add to Log
 - Sign in with Google
@@ -57,7 +57,7 @@ Use these as shared defaults for all button components.
 - `buttonSm`: min-height 40px, horizontal padding 14px, text 15px
 - `buttonMd` (default): min-height 46px, horizontal padding 18px, text 17px
 - `buttonLg`: min-height 52px, horizontal padding 22px, text 19px
-- `iconButton` (default icon-only): 40px x 40px, icon 18px, border radius 8px
+- `iconButton` (default icon-only): 40px x 40px, icon 19px (`textLg`), border radius 8px
 
 ### Button Usage
 
@@ -72,7 +72,7 @@ Calendar-style icon button is the canonical reference for all icon-only actions.
 
 - Same icon color for all default icon buttons: `colorTextPrimary`
 - Same button chrome: `colorBackgroundPrimary` + `colorBorderSecondary`
-- Same sizing: 40px button, 18px icon
+- Same sizing: 40px button, 19px icon
 - Same alignment: centered icon, no extra side padding
 - Do not mix filled/outline icon button styles in the same surface unless explicitly intentional
 
