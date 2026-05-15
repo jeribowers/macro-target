@@ -235,11 +235,11 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 #createFoodReferenceMeasure .measure-input__unit .dropdown-trigger { min-width: 52px; }
 #createFoodReferenceMeasure .measure-input__unit .dropdown-menu { min-width: 7rem; }
 #personalizeModal .modal,
-#backupDataModal .modal { display: flex; flex-direction: column; height: 100dvh; min-height: 100dvh; max-height: 100dvh; overflow: hidden; padding-bottom: 0; }
-#personalizeModal .modal-header,
-#backupDataModal .modal-header { flex-shrink: 0; }
+#backupDataModal .modal { min-height: 0; height: auto; max-height: 100dvh; overflow-x: hidden; overflow-y: hidden; overscroll-behavior: contain; touch-action: none; }
+#personalizeModal .modal.modal--scrollable,
+#backupDataModal .modal.modal--scrollable { overflow-y: auto; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
 #personalizeModal .modal-body,
-#backupDataModal .modal-body { flex: 1; min-height: 0; max-height: none; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-bottom: calc(var(--screen-pad-block) + var(--safe-bottom)); }
+#backupDataModal .modal-body { overflow: visible; }
 #addToLogModal .modal-body,
 #createFoodModal .modal-body,
 #editFoodModal .modal-body { overflow: visible; }

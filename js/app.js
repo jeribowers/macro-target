@@ -544,19 +544,43 @@ function updateActivityDropdownLabels() {
   if (selected && labelEl) labelEl.textContent = selected.textContent;
 }
 
+const STACKED_MODAL_IDS = ['personalizeModal', 'backupDataModal'];
+
 function syncModalOpenState() {
   const anyOpen = Boolean(document.querySelector('.modal-overlay.active'));
   document.documentElement.classList.toggle('modal-open', anyOpen);
+}
+
+function syncStackedModalScroll(overlayId) {
+  const overlay = document.getElementById(overlayId);
+  if (!overlay?.classList.contains('active')) return;
+  const modal = overlay.querySelector('.modal');
+  if (!modal) return;
+  const needsScroll = modal.scrollHeight > modal.clientHeight + 1;
+  modal.classList.toggle('modal--scrollable', needsScroll);
+}
+
+function scheduleStackedModalScrollSync(overlayId) {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => syncStackedModalScroll(overlayId));
+  });
+}
+
+function syncAllStackedModalScroll() {
+  STACKED_MODAL_IDS.forEach(syncStackedModalScroll);
 }
 
 function openModal(id) {
   document.getElementById(id)?.classList.add('active');
   syncModalOpenState();
   refreshIcons();
+  if (STACKED_MODAL_IDS.includes(id)) scheduleStackedModalScrollSync(id);
 }
 
 function closeModal(id) {
-  document.getElementById(id)?.classList.remove('active');
+  const overlay = document.getElementById(id);
+  overlay?.querySelector('.modal')?.classList.remove('modal--scrollable');
+  overlay?.classList.remove('active');
   syncModalOpenState();
 }
 
@@ -623,6 +647,9 @@ function updateProfileTargetsFields() {
   });
   if (!hasAny) return;
   syncTargetLockIndicators();
+  if (document.getElementById('personalizeModal')?.classList.contains('active')) {
+    scheduleStackedModalScrollSync('personalizeModal');
+  }
 }
 
 function getProfileActivityLevelKey() {
@@ -1506,6 +1533,7 @@ function initAppMenu() {
 }
 
 initAppMenu();
+window.addEventListener('resize', syncAllStackedModalScroll);
 
 document.getElementById('personalizeClose')?.addEventListener('click', () => closeModal('personalizeModal'));
 document.getElementById('backupDataClose')?.addEventListener('click', () => closeModal('backupDataModal'));
