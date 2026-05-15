@@ -54,7 +54,11 @@ const DEFAULT_FOODS = [
 ];
 
 let state = {
-  currentDate: new Date(), activityLevel: 'medium', dailyLogs: {},
+  currentDate: new Date(),
+  activityLevel: 'medium',
+  defaultActivityLevel: 'medium',
+  activityLevelsByDate: {},
+  dailyLogs: {},
   foods: DEFAULT_FOODS.map(normalizeFood), recentSearches: [],
   currentFoodForLog: null, editingFoodId: null,
   editingLogItem: null, defaultCategory: null, logMeal: 'breakfast',
@@ -327,7 +331,21 @@ function getServingUnitLabel(unit) {
 }
 
 function saveState() {
-  sync.saveLocalPreferences({ recentSearches: state.recentSearches });
+  sync.saveLocalPreferences({
+    recentSearches: state.recentSearches,
+    activityLevelsByDate: state.activityLevelsByDate,
+  });
+}
+
+function getActivityLevelForDate(dateKey) {
+  return state.activityLevelsByDate[dateKey] ?? state.defaultActivityLevel ?? 'medium';
+}
+
+function applyActivityLevelForDate(dateKey) {
+  const level = getActivityLevelForDate(dateKey);
+  state.activityLevel = level;
+  setDropdownValue('activityDropdown', level);
+  updateActivityDropdownLabels();
 }
 
 function reportError(error, fallback = 'Something went wrong while saving your data.') {
@@ -415,13 +433,31 @@ function setLoadingVisible(visible) {
 async function loadDayLog(dateKey) {
   const userId = sync.getCurrentUserId();
   if (!userId) return;
-  state.dailyLogs[dateKey] = await sync.fetchLogEntriesForDate(userId, dateKey, state.foods);
+  const [dayLog] = await Promise.all([
+    sync.fetchLogEntriesForDate(userId, dateKey, state.foods),
+    loadDayActivity(dateKey),
+  ]);
+  state.dailyLogs[dateKey] = dayLog;
 }
 
-async function persistActivityLevel(level) {
+async function loadDayActivity(dateKey) {
+  if (!dateKey) return;
+  if (Object.prototype.hasOwnProperty.call(state.activityLevelsByDate, dateKey)) return;
+
   const userId = sync.getCurrentUserId();
   if (!userId) return;
-  await sync.saveActivityLevel(userId, level);
+
+  const level = await sync.fetchActivityLevelForDate(userId, dateKey);
+  if (level) {
+    state.activityLevelsByDate[dateKey] = level;
+    saveState();
+  }
+}
+
+async function persistActivityLevelForDate(level, dateKey) {
+  const userId = sync.getCurrentUserId();
+  if (!userId) return;
+  await sync.saveActivityLevelForDate(userId, dateKey, level);
 }
 
 const UNIT_CONVERSIONS = { g: 1, ml: 1, oz: 28.35, cup: 240, tbsp: 15, tsp: 5, piece: 100 };
@@ -581,10 +617,17 @@ function updateProfileTargetsFields() {
   syncTargetLockIndicators();
 }
 
+function getProfileActivityLevelKey() {
+  if (profileDraft?.activityLevel) return profileLevelToAppKey(profileDraft.activityLevel);
+  if (state.userProfile?.activityLevel) return profileLevelToAppKey(state.userProfile.activityLevel);
+  return state.defaultActivityLevel || 'medium';
+}
+
 function readProfileDraftFromForm() {
   const body = readProfileBodyFromForm();
   const targetsByLevel = readTargetsByLevelFromForm();
-  const activityLevel = appKeyToProfileLevel(state.activityLevel);
+  const profileActivityKey = getProfileActivityLevelKey();
+  const activityLevel = appKeyToProfileLevel(profileActivityKey);
 
   const base = {
     height: { value: body.height.value, unit: body.height.unit },
@@ -594,7 +637,7 @@ function readProfileDraftFromForm() {
     activityLevel,
     dietGoal: body.dietGoal,
     targetsByLevel,
-    calculatedTargets: targetsByLevel[state.activityLevel],
+    calculatedTargets: targetsByLevel[profileActivityKey],
     targetsOverridden: hasAnyTargetFieldLocks(profileTargetLocks),
     targetFieldLocks: profileTargetLocks,
   };
@@ -642,7 +685,7 @@ function openPersonalizeModal() {
       weight: { value: 59, unit: 'kg' },
       age: 30,
       sex: 'F',
-      activityLevel: appKeyToProfileLevel(state.activityLevel),
+      activityLevel: appKeyToProfileLevel(state.defaultActivityLevel),
       dietGoal: 'Maintain',
       targetsOverridden: false,
     };
@@ -678,15 +721,17 @@ async function saveUserProfile(options = {}) {
   const { closeModal: shouldClose = false, showToast = false, auto = false } = options;
   const body = readProfileBodyFromForm();
   const targetsByLevel = readTargetsByLevelFromForm();
-  const activityKey = state.activityLevel;
-  const computed = calculateTargets(body, activityKey);
+  const profileActivityKey = profileDraft?.activityLevel
+    ? profileLevelToAppKey(profileDraft.activityLevel)
+    : (state.userProfile?.activityLevel ? profileLevelToAppKey(state.userProfile.activityLevel) : state.defaultActivityLevel);
+  const computed = calculateTargets(body, profileActivityKey);
   if (!computed) {
     if (!auto) reportError({ message: 'Please enter valid height, weight, age, and gender.' });
     return;
   }
   const profileBody = {
     ...body,
-    activityLevel: appKeyToProfileLevel(state.activityLevel),
+    activityLevel: appKeyToProfileLevel(profileActivityKey),
   };
   const overridden = hasAnyTargetFieldLocks(profileTargetLocks)
     || !targetsByLevelMatchFormula(profileBody, targetsByLevel);
@@ -696,9 +741,9 @@ async function saveUserProfile(options = {}) {
     age: body.age,
     sex: body.sex,
     dietGoal: body.dietGoal,
-    activityLevel: appKeyToProfileLevel(state.activityLevel),
+    activityLevel: appKeyToProfileLevel(profileActivityKey),
     targetsByLevel,
-    calculatedTargets: targetsByLevel[activityKey],
+    calculatedTargets: targetsByLevel[profileActivityKey],
     targetsOverridden: overridden,
     targetFieldLocks: profileTargetLocks,
   });
@@ -708,15 +753,14 @@ async function saveUserProfile(options = {}) {
   }
 
   state.userProfile = profile;
-  state.activityLevel = profileLevelToAppKey(profile.activityLevel);
+  state.defaultActivityLevel = profileLevelToAppKey(profile.activityLevel);
   sync.writeUserProfile(profile);
   profileDraft = profile;
 
   const userId = sync.getCurrentUserId();
   try {
-    if (userId) await sync.saveUserProfile(userId, profile, state.activityLevel);
-    setDropdownValue('activityDropdown', state.activityLevel);
-    updateActivityDropdownLabels();
+    if (userId) await sync.saveUserProfile(userId, profile, state.defaultActivityLevel);
+    applyActivityLevelForDate(getDateKey(state.currentDate));
     updateMacroDisplay();
     if (shouldClose) closeModal('personalizeModal');
     if (showToast) showSaveToast();
@@ -1283,15 +1327,13 @@ function initDropdown(dropdownId, onChange) {
 }
 
 initDropdown('activityDropdown', (value) => {
+  const dateKey = getDateKey(state.currentDate);
+  state.activityLevelsByDate[dateKey] = value;
   state.activityLevel = value;
-  if (state.userProfile) {
-    state.userProfile.activityLevel = appKeyToProfileLevel(value);
-    sync.writeUserProfile(state.userProfile);
-  }
   saveState();
   updateActivityDropdownLabels();
   updateMacroDisplay();
-  persistActivityLevel(value).catch(reportError);
+  persistActivityLevelForDate(value, dateKey).catch(reportError);
 });
 initDropdown('logMealDropdown', (value) => { state.logMeal = value; });
 initDropdown('editFoodServingUnitDropdown');
@@ -1376,7 +1418,9 @@ document.getElementById('prevBtn').addEventListener('click', async () => {
   updateDateDisplay();
   try {
     setLoadingVisible(true);
-    await loadDayLog(getDateKey(state.currentDate));
+    const dateKey = getDateKey(state.currentDate);
+    await loadDayLog(dateKey);
+    applyActivityLevelForDate(dateKey);
     updateMacroDisplay();
     renderFoodLog();
   } catch (error) {
@@ -1390,7 +1434,9 @@ document.getElementById('todayBtn').addEventListener('click', async () => {
   updateDateDisplay();
   try {
     setLoadingVisible(true);
-    await loadDayLog(getDateKey(state.currentDate));
+    const dateKey = getDateKey(state.currentDate);
+    await loadDayLog(dateKey);
+    applyActivityLevelForDate(dateKey);
     updateMacroDisplay();
     renderFoodLog();
   } catch (error) {
@@ -1553,21 +1599,29 @@ function updateDateDisplay() {
 async function reloadSignedInUserState(userId) {
   const cloudFoods = await sync.fetchCustomFoods(userId);
   state.foods = sync.mergeFoodLibrary(DEFAULT_FOODS, cloudFoods, normalizeFood);
-  const { profile: cloudProfile, activityLevel } = await sync.fetchUserProfile(userId);
+  const [{ profile: cloudProfile, activityLevel }, cloudActivityByDate] = await Promise.all([
+    sync.fetchUserProfile(userId),
+    sync.fetchActivityLevelsByDate(userId),
+  ]);
   const localProfile = sync.readUserProfile();
   state.userProfile = cloudProfile || localProfile;
-  state.activityLevel = activityLevel || 'medium';
-  if (state.userProfile) {
-    state.userProfile.activityLevel = appKeyToProfileLevel(state.activityLevel);
+  state.defaultActivityLevel = activityLevel || 'medium';
+  if (state.userProfile && !state.userProfile.activityLevel) {
+    state.userProfile.activityLevel = appKeyToProfileLevel(state.defaultActivityLevel);
     sync.writeUserProfile(state.userProfile);
   } else if (cloudProfile) {
     sync.writeUserProfile(cloudProfile);
   }
   const prefs = sync.readLocalPreferences();
   state.recentSearches = prefs.recentSearches || [];
-  await loadDayLog(getDateKey(state.currentDate));
-  setDropdownValue('activityDropdown', state.activityLevel);
-  updateActivityDropdownLabels();
+  state.activityLevelsByDate = {
+    ...(prefs.activityLevelsByDate || {}),
+    ...cloudActivityByDate,
+  };
+  saveState();
+  const dateKey = getDateKey(state.currentDate);
+  await loadDayLog(dateKey);
+  applyActivityLevelForDate(dateKey);
   updateDateDisplay();
   updateMacroDisplay();
   renderFoodLog();

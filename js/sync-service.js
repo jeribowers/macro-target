@@ -188,20 +188,30 @@ export function readLegacyLocalState() {
   }
 }
 
+const VALID_APP_ACTIVITY_LEVELS = new Set(['low', 'medium', 'high']);
+
+function normalizeAppActivityLevel(level) {
+  return VALID_APP_ACTIVITY_LEVELS.has(level) ? level : 'medium';
+}
+
 export function readLocalPreferences() {
   const saved = localStorage.getItem(PREFERENCES_KEY);
-  if (!saved) return { recentSearches: [] };
+  if (!saved) return { recentSearches: [], activityLevelsByDate: {} };
   try {
     const parsed = JSON.parse(saved);
-    return { recentSearches: parsed.recentSearches || [] };
+    return {
+      recentSearches: parsed.recentSearches || [],
+      activityLevelsByDate: parsed.activityLevelsByDate || {},
+    };
   } catch {
-    return { recentSearches: [] };
+    return { recentSearches: [], activityLevelsByDate: {} };
   }
 }
 
 export function saveLocalPreferences(preferences) {
   localStorage.setItem(PREFERENCES_KEY, JSON.stringify({
     recentSearches: preferences.recentSearches || [],
+    activityLevelsByDate: preferences.activityLevelsByDate || {},
   }));
 }
 
@@ -518,14 +528,68 @@ export async function fetchUserProfile(userId) {
 }
 
 export async function saveActivityLevel(userId, activityLevel) {
+  const level = normalizeAppActivityLevel(activityLevel);
   const { error } = await client
     .from('user_settings')
     .upsert({
       user_id: userId,
-      activity_level: activityLevel,
+      activity_level: level,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'user_id' });
   if (error) throw new Error(toErrorMessage(error, 'Could not save your activity level.'));
+}
+
+export async function fetchActivityLevelForDate(userId, logDate) {
+  const { data, error } = await client
+    .from('daily_activity_levels')
+    .select('activity_level')
+    .eq('user_id', userId)
+    .eq('log_date', logDate)
+    .maybeSingle();
+  if (error) {
+    if (error.code === 'PGRST205' || error.message?.includes('daily_activity_levels')) {
+      return null;
+    }
+    throw new Error(toErrorMessage(error, 'Could not load activity level for this day.'));
+  }
+  return data?.activity_level ? normalizeAppActivityLevel(data.activity_level) : null;
+}
+
+export async function fetchActivityLevelsByDate(userId) {
+  const { data, error } = await client
+    .from('daily_activity_levels')
+    .select('log_date, activity_level')
+    .eq('user_id', userId);
+  if (error) {
+    if (error.code === 'PGRST205' || error.message?.includes('daily_activity_levels')) {
+      return {};
+    }
+    throw new Error(toErrorMessage(error, 'Could not load your activity levels.'));
+  }
+  const byDate = {};
+  (data || []).forEach((row) => {
+    if (!row?.log_date) return;
+    byDate[row.log_date] = normalizeAppActivityLevel(row.activity_level);
+  });
+  return byDate;
+}
+
+export async function saveActivityLevelForDate(userId, logDate, activityLevel) {
+  const level = normalizeAppActivityLevel(activityLevel);
+  const { error } = await client
+    .from('daily_activity_levels')
+    .upsert({
+      user_id: userId,
+      log_date: logDate,
+      activity_level: level,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'user_id,log_date' });
+  if (error) {
+    if (error.code === 'PGRST205' || error.message?.includes('daily_activity_levels')) {
+      return;
+    }
+    throw new Error(toErrorMessage(error, 'Could not save activity level for this day.'));
+  }
 }
 
 function toAppActivityLevel(level) {
@@ -658,10 +722,11 @@ export async function uploadLocalState(userId, localState, defaultFoods, normali
 }
 
 export async function exportCloudState(userId, defaultFoods, normalizeFood) {
-  const [foods, logsResult, activityLevel, profileResult] = await Promise.all([
+  const [foods, logsResult, activityLevel, activityLevelsByDate, profileResult] = await Promise.all([
     fetchCustomFoods(userId),
     client.from('log_entries').select('*').eq('user_id', userId).order('log_date'),
     fetchActivityLevel(userId),
+    fetchActivityLevelsByDate(userId),
     fetchUserProfile(userId),
   ]);
   if (logsResult.error) throw new Error(toErrorMessage(logsResult.error, 'Could not export your logs.'));
@@ -683,6 +748,7 @@ export async function exportCloudState(userId, defaultFoods, normalizeFood) {
     foods: mergedFoods,
     recentSearches: readLocalPreferences().recentSearches,
     activityLevel,
+    activityLevelsByDate,
     userProfile: profileResult.profile || readUserProfile(),
   };
 }
@@ -741,5 +807,15 @@ export async function importCloudState(userId, payload, defaultFoods, normalizeF
     await saveActivityLevel(userId, payload.activityLevel);
   }
 
-  saveLocalPreferences({ recentSearches: payload.recentSearches || [] });
+  const activityLevelsByDate = payload.activityLevelsByDate || {};
+  await Promise.all(
+    Object.entries(activityLevelsByDate).map(([logDate, level]) =>
+      saveActivityLevelForDate(userId, logDate, level),
+    ),
+  );
+
+  saveLocalPreferences({
+    recentSearches: payload.recentSearches || [],
+    activityLevelsByDate,
+  });
 }
