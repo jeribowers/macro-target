@@ -2,6 +2,8 @@
  * Position info tooltips with fixed layout so they are not clipped by scroll containers.
  */
 
+const scrollHideBound = new WeakSet();
+
 function placeFieldInfoTip(tip) {
   const btn = tip.querySelector('.info-tip-btn');
   const content = tip.querySelector('.info-tip-content');
@@ -11,21 +13,15 @@ function placeFieldInfoTip(tip) {
   const gap = 6;
   const maxW = Math.min(272, window.innerWidth - pad * 2);
 
-  const prevVisibility = content.style.visibility;
-  const prevPointerEvents = content.style.pointerEvents;
   content.style.visibility = 'hidden';
   content.style.pointerEvents = 'none';
   content.style.width = `${maxW}px`;
   content.style.maxWidth = `${maxW}px`;
   content.style.display = 'block';
   content.style.position = 'fixed';
-  content.style.left = '0';
-  content.style.top = '0';
 
   const width = content.offsetWidth;
   const height = content.offsetHeight;
-  content.style.visibility = prevVisibility;
-  content.style.pointerEvents = prevPointerEvents;
   content.style.display = '';
 
   const btnRect = btn.getBoundingClientRect();
@@ -40,29 +36,93 @@ function placeFieldInfoTip(tip) {
 
   content.style.left = `${left}px`;
   content.style.top = `${top}px`;
+  content.style.visibility = '';
+  content.style.pointerEvents = '';
+}
+
+function showFieldInfoTip(tip) {
+  placeFieldInfoTip(tip);
+  tip.classList.add('is-tip-open');
+  const btn = tip.querySelector('.info-tip-btn');
+  if (btn) btn.setAttribute('aria-expanded', 'true');
+}
+
+function hideFieldInfoTip(tip) {
+  tip.classList.remove('is-tip-open');
+  const btn = tip.querySelector('.info-tip-btn');
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+
+export function hideAllFieldInfoTips() {
+  document.querySelectorAll('.field-info-tip.is-tip-open').forEach(hideFieldInfoTip);
+}
+
+function bindScrollHide(container) {
+  if (!container || scrollHideBound.has(container)) return;
+  scrollHideBound.add(container);
+  container.addEventListener('scroll', hideAllFieldInfoTips, { passive: true });
+}
+
+let globalListenersBound = false;
+
+function bindGlobalListeners() {
+  if (globalListenersBound) return;
+  globalListenersBound = true;
+
+  window.addEventListener('resize', () => {
+    document.querySelectorAll('.field-info-tip.is-tip-open').forEach(placeFieldInfoTip);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.field-info-tip')) return;
+    hideAllFieldInfoTips();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') hideAllFieldInfoTips();
+  });
+
+  window.addEventListener('touchmove', hideAllFieldInfoTips, { passive: true, capture: true });
 }
 
 /**
  * @param {ParentNode} [root]
  */
 export function initFieldInfoTips(root = document) {
+  const hoverFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
   root.querySelectorAll('.field-info-tip').forEach((tip) => {
     if (tip.dataset.tipInit === 'true') return;
     tip.dataset.tipInit = 'true';
 
-    const place = () => placeFieldInfoTip(tip);
-    tip.addEventListener('mouseenter', place);
-    tip.addEventListener('focusin', place);
+    const btn = tip.querySelector('.info-tip-btn');
+    if (!btn) return;
 
-    const modalBody = tip.closest('.modal-body');
-    if (modalBody) {
-      modalBody.addEventListener('scroll', place, { passive: true });
-    }
-  });
+    btn.setAttribute('aria-expanded', 'false');
 
-  window.addEventListener('resize', () => {
-    document.querySelectorAll('.field-info-tip:hover, .field-info-tip:focus-within').forEach((tip) => {
-      placeFieldInfoTip(tip);
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (tip.classList.contains('is-tip-open')) {
+        hideFieldInfoTip(tip);
+      } else {
+        hideAllFieldInfoTips();
+        showFieldInfoTip(tip);
+      }
     });
+
+    if (hoverFinePointer) {
+      tip.addEventListener('mouseenter', () => {
+        hideAllFieldInfoTips();
+        showFieldInfoTip(tip);
+      });
+      tip.addEventListener('mouseleave', () => hideFieldInfoTip(tip));
+    }
+
+    bindScrollHide(tip.closest('.modal'));
+    bindScrollHide(tip.closest('.modal-body'));
+    bindScrollHide(tip.closest('.content'));
   });
+
+  bindGlobalListeners();
 }

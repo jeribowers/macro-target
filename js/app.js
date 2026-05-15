@@ -20,7 +20,7 @@ import {
 } from './profile-calculator.js';
 import { createMeasureInput } from './components/measure-input.js';
 import { attachClearOnFocus } from './components/clear-on-focus-input.js';
-import { initFieldInfoTips } from './components/field-info-tip.js';
+import { hideAllFieldInfoTips, initFieldInfoTips } from './components/field-info-tip.js';
 
 const ACTIVITY_LEVELS = {
   low: { calories: 1200, protein: 120, carbs: 115, fat: 45, label: 'Easy' },
@@ -417,6 +417,7 @@ function handleSignedOut() {
   ['personalizeModal', 'backupDataModal', 'addFoodModal', 'editFoodModal', 'createFoodModal', 'addToLogModal'].forEach((id) => {
     document.getElementById(id)?.classList.remove('active');
   });
+  hideAllFieldInfoTips();
   syncModalOpenState();
 }
 
@@ -581,6 +582,7 @@ function closeModal(id) {
   const overlay = document.getElementById(id);
   overlay?.querySelector('.modal')?.classList.remove('modal--scrollable');
   overlay?.classList.remove('active');
+  hideAllFieldInfoTips();
   syncModalOpenState();
 }
 
