@@ -383,9 +383,9 @@ html.is-auth-callback #authGate,
 html.is-auth-callback #authGate[hidden] { display: none !important; }
 html.is-auth-callback #appLoading,
 html.is-auth-callback #appLoading[hidden] { display: flex !important; }
-html.is-auth-callback .app-container,
-html.is-auth-callback .app-container[hidden] { display: flex !important; }
+html.is-auth-callback .app-container { display: none !important; }
 .app-loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(250, 250, 247, 0.72); z-index: 1200; font-size: var(--text-sm); color: var(--color-text-secondary); }
+.app-loading--fullscreen { background: var(--color-background-tertiary); }
 .lucide { width: var(--icon-size); height: var(--icon-size); stroke-width: 2; }
 .targets-level-row .profile-target-lock-icon,
 .targets-hint .profile-target-lock-icon,
@@ -403,7 +403,16 @@ html.is-auth-callback .app-container[hidden] { display: flex !important; }
   </div>
 </div>
 
-<div id="appLoading" class="app-loading" hidden>Loading your data…</div>
+<div id="appLoading" class="app-loading app-loading--fullscreen" hidden>Loading your data…</div>
+
+<script>
+(function () {
+  if (!document.documentElement.classList.contains('is-auth-callback')) return;
+  document.getElementById('authGate').hidden = true;
+  document.querySelector('.app-container').hidden = true;
+  document.getElementById('appLoading').hidden = false;
+})();
+</script>
 
 <div class="app-container" hidden>
   <div class="header">

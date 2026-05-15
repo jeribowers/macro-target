@@ -388,6 +388,7 @@ let suppressAuthGate = false;
 let initialAuthSettled = false;
 let authListenerRegistered = false;
 let isSigningOut = false;
+let bootstrappedUserId = null;
 
 function setAuthVisible(showAuth) {
   if (showAuth && (!initialAuthSettled || suppressAuthGate)) return;
@@ -435,13 +436,8 @@ function registerAuthListener() {
 }
 
 function setAuthBootstrapping(active) {
-  const authGate = document.getElementById('authGate');
-  const appContainer = document.querySelector('.app-container');
-  const loading = document.getElementById('appLoading');
   if (!active) return;
-  if (authGate) authGate.hidden = true;
-  if (appContainer) appContainer.hidden = false;
-  if (loading) loading.hidden = false;
+  setLoadingVisible(true, { hideApp: true });
 }
 
 function beginAuthBootstrap() {
@@ -456,8 +452,8 @@ function endAuthBootstrap() {
 }
 
 function handleSignedOut() {
+  bootstrappedUserId = null;
   sync.setCurrentUserId(null);
-  setLoadingVisible(false);
   ['personalizeModal', 'backupDataModal', 'addFoodModal', 'editFoodModal', 'createFoodModal', 'addToLogModal'].forEach((id) => {
     document.getElementById(id)?.classList.remove('active');
   });
@@ -480,15 +476,40 @@ async function performSignOut() {
   }
 }
 
-function setLoadingVisible(visible) {
+function setLoadingVisible(visible, { hideApp = false } = {}) {
   const loading = document.getElementById('appLoading');
   const authGate = document.getElementById('authGate');
   const appContainer = document.querySelector('.app-container');
-  if (loading) loading.hidden = !visible;
+  if (loading) {
+    loading.hidden = !visible;
+    loading.classList.toggle('app-loading--fullscreen', visible && hideApp);
+  }
+  if (visible && hideApp) {
+    if (authGate) authGate.hidden = true;
+    if (appContainer) appContainer.hidden = true;
+    return;
+  }
   if (visible) {
     if (authGate) authGate.hidden = true;
     if (appContainer) appContainer.hidden = false;
+    return;
   }
+  if (loading) loading.classList.remove('app-loading--fullscreen');
+}
+
+function showSignedInApp() {
+  document.documentElement.classList.remove('is-auth-callback', 'show-auth-gate');
+  suppressAuthGate = false;
+  sessionBootstrapInFlight = false;
+  const authGate = document.getElementById('authGate');
+  const appContainer = document.querySelector('.app-container');
+  const loading = document.getElementById('appLoading');
+  if (authGate) authGate.hidden = true;
+  if (loading) {
+    loading.hidden = true;
+    loading.classList.remove('app-loading--fullscreen');
+  }
+  if (appContainer) appContainer.hidden = false;
 }
 
 async function loadDayLog(dateKey) {
@@ -1784,7 +1805,7 @@ function updateDeviceUploadSection() {
 }
 
 async function initializeSignedInUser(userId) {
-  setLoadingVisible(true);
+  setLoadingVisible(true, { hideApp: true });
   try {
     const legacy = sync.readLegacyLocalState();
     if (await sync.shouldUploadLocalState(userId, legacy, DEFAULT_FOODS)) {
@@ -1792,8 +1813,9 @@ async function initializeSignedInUser(userId) {
       sync.markMigrated(userId);
     }
     await reloadSignedInUserState(userId);
+    bootstrappedUserId = userId;
   } finally {
-    setLoadingVisible(false);
+    showSignedInApp();
     updateDeviceUploadSection();
   }
 }
@@ -1803,12 +1825,14 @@ let sessionBootstrapInFlight = false;
 async function handleSession(session) {
   if (!session) return;
   if (sessionBootstrapInFlight) return;
+  if (bootstrappedUserId === session.user.id) return;
   sessionBootstrapInFlight = true;
   suppressAuthGate = true;
   setAuthBootstrapping(true);
   try {
     const allowed = await sync.isAllowedUser(session.user.email);
     if (!allowed) {
+      bootstrappedUserId = null;
       await sync.signOut();
       reportAuthError(new Error('This Google account does not have access yet.'));
       revealAuthGate();
@@ -1816,11 +1840,11 @@ async function handleSession(session) {
     }
     await initializeSignedInUser(session.user.id);
   } catch (error) {
+    bootstrappedUserId = null;
     reportAuthError(error);
     revealAuthGate();
   } finally {
     sessionBootstrapInFlight = false;
-    document.documentElement.classList.remove('is-auth-callback');
   }
 }
 
@@ -1866,7 +1890,7 @@ async function boot() {
 
     const session = await sync.getSession();
     if (session) {
-      setAuthBootstrapping(true);
+      if (!isOAuthReturn) beginAuthBootstrap();
       await handleSession(session);
     } else {
       revealAuthGate();
