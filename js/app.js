@@ -1188,7 +1188,12 @@ function resumeAddToLogAfterFoodEdit(context = addToLogResume) {
   syncModalOpenState();
   setDropdownValue('logMealDropdown', state.logMeal);
   updateAddToLogModalActions();
-  setLogServingFields(food, context.quantity, context.unit);
+  const libraryUnit = getFoodServingUnit(food);
+  let quantity = context.quantity ?? getDefaultServingSize(food);
+  if (context.unit && context.unit !== libraryUnit) {
+    quantity = convertServingQuantity(quantity, context.unit, libraryUnit);
+  }
+  setLogServingFields(food, quantity, libraryUnit);
   updateLogFoodPreview();
   refreshIcons();
 }
