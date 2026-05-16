@@ -1,5 +1,5 @@
 import * as sync from './sync-service.js';
-import { trackDailyLogFoodAdded } from './analytics.js';
+import { trackDailyLogFoodAdded, trackSessionStart } from './analytics.js';
 import {
   calculateTargets,
   convertHeightValue,
@@ -564,6 +564,7 @@ function showSignedInApp() {
   }
   document.documentElement.classList.add('is-app-ready');
   if (appContainer) appContainer.hidden = false;
+  trackSessionStart();
 }
 
 function renderSignedInUi() {
@@ -1548,14 +1549,12 @@ async function addFoodEntryToDailyLog(food, options = {}) {
   updateMacroDisplay();
   renderFoodLog();
 
-  if (analyticsSource) {
-    trackDailyLogFoodAdded({
-      meal: category,
-      source: analyticsSource,
-      dateKey,
-      itemCount: getDailyLogItemCount(dateKey),
-    });
-  }
+  trackDailyLogFoodAdded({
+    meal: category,
+    source: analyticsSource || 'library',
+    dateKey,
+    itemCount: getDailyLogItemCount(dateKey),
+  });
 }
 
 async function addFoodToLog() {

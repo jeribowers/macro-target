@@ -73,12 +73,19 @@ Understand whether people **reach value** (sign in, log food, set targets), **co
 | **Scroll** | Content engagement | GA4 | Automatic (Enhanced measurement → scroll, if enabled) |
 | **Outbound clicks** | Clicks leaving the site | GA4 | Automatic (Enhanced measurement, if enabled) |
 | **Item added to Daily Log** | Core habit | GA4 | `food_logged` | `meal`, `source` (`search` \| `library` \| `new_food`) — via `js/analytics.js` |
-| **Logging day** | Retention (first log per calendar day per session) | GA4 | `logging_day` | `date` (`YYYY-MM-DD`) |
-| **Items per logging day** | Depth on active days | GA4 | `logging_day_summary` | `date`, `item_count` (cumulative count after each add) |
+| **Session started** | Verify custom events pipeline after sign-in | GA4 | `analytics_session_start` | — (once per browser session) |
+| **Logging day** | Retention (first log per calendar day per session) | GA4 | `logging_day` | `log_date` (`YYYY-MM-DD`) |
+| **Items per logging day** | Depth on active days | GA4 | `logging_day_summary` | `log_date`, `item_count` (cumulative count after each add) |
 
 **Not yet tracked:** screens/modals, library CRUD, export/import, targets saves, sign-in funnel. See [Planned tracking](#planned-tracking).
 
-**Verify in GA:** Reports → Realtime (event count by name; can lag a few minutes). Reports → Engagement → **Events** (often **24–48h** for new custom events). While testing, use **https://macrotarget.app/?ga_debug=1**, add food, then **Admin → DebugView** (custom events include `debug_mode` when that query param is set).
+**Verify in GA (testing):**
+
+1. Ad blocker off. Open **https://macrotarget.app/?ga_debug=1** (hard refresh; avoid stale PWA cache).
+2. Sign in → **Admin → DebugView** should show `analytics_session_start` within ~30s.
+3. Add a food to the Daily Log → DebugView should show `food_logged`, `logging_day`, `logging_day_summary`.
+
+**Verify in GA (ongoing):** Reports → Realtime → event count. Reports → Engagement → **Events** may take **24–48h** for new event names to populate.
 
 ---
 
@@ -110,8 +117,9 @@ Implement as **GA4 custom events** from the app (`gtag('event', ...)`). Status: 
 |--------|-----------------|------|----------|------------|--------|
 | **Item added to Daily Log** | Core product value | GA4 | `food_logged` | `meal`, `source`: `search` \| `library` \| `new_food` | **Live** |
 | **Item removed from log** | Editing behavior | GA4 | `food_log_removed` | `meal` | Planned |
-| **Logging day** | Retention (“did they log today?”) | GA4 | `logging_day` | `date` as `YYYY-MM-DD` | **Live** (once per date per browser session) |
-| **Items per logging day** | Depth of use on active days | GA4 | `logging_day_summary` | `date`, `item_count` | **Live** (after each add, cumulative count for that date) |
+| **Session started** | Verify custom events reach GA | GA4 | `analytics_session_start` | — | **Live** (once per session after sign-in) |
+| **Logging day** | Retention (“did they log today?”) | GA4 | `logging_day` | `log_date` as `YYYY-MM-DD` | **Live** (once per date per browser session) |
+| **Items per logging day** | Depth of use on active days | GA4 | `logging_day_summary` | `log_date`, `item_count` | **Live** (after each add, cumulative count for that date) |
 
 **Supabase alternative (optional):**  
 `SELECT date, COUNT(*) FROM daily log entries GROUP BY date` — use for “days with 1+ items” and “items per day” across all users without event design.
