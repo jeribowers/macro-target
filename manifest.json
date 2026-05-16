@@ -1,6 +1,6 @@
 {
-  "name": "Macro Runner",
-  "short_name": "Macro Runner",
+  "name": "Macro Target",
+  "short_name": "Macro Target",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

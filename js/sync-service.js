@@ -235,36 +235,58 @@ export function filterStarterFoods(starterFoods) {
   });
 }
 
-export async function seedStarterFoodsIfNeeded(userId, starterFoods, normalizeFood) {
+/**
+ * @param {{ assumeLibraryEmpty?: boolean }} [options] If true, skips list fetch (caller verified count 0).
+ * @returns {Promise<{ seeded: boolean, foods?: object[] }>}
+ */
+export async function seedStarterFoodsIfNeeded(userId, starterFoods, normalizeFood, options = {}) {
+  const { assumeLibraryEmpty = false } = options;
   const foods = filterStarterFoods(starterFoods);
-  if (!userId || !foods.length) return false;
+  if (!userId || !foods.length || typeof normalizeFood !== 'function') return { seeded: false };
 
-  const existing = await fetchCustomFoods(userId);
-  if (existing.length > 0) {
-    markStarterFoodsSeeded(userId);
-    return false;
+  if (!assumeLibraryEmpty) {
+    const existing = await fetchCustomFoods(userId);
+    if (existing.length > 0) {
+      markStarterFoodsSeeded(userId);
+      return { seeded: false };
+    }
   }
 
-  for (const food of foods) {
-    await upsertFood(userId, normalizeFood(food));
+  const normalized = foods.map((f) => normalizeFood(f));
+  const rows = normalized.map((f) => foodToRow(f, userId));
+  const { error } = await client.from('foods').insert(rows);
+  if (error) {
+    throw new Error(toErrorMessage(error, 'Could not seed your starter foods.'));
   }
   markStarterFoodsSeeded(userId);
-  return true;
+  return { seeded: true, foods: normalized };
 }
 
-export async function seedDefaultProfileIfNeeded(userId, buildDefaultProfile = buildDefaultNewUserProfile) {
+/**
+ * @param {{ skipSettingsFetch?: boolean; userProfileRaw?: unknown }} [options]
+ * When `skipSettingsFetch` is true, uses `userProfileRaw` instead of querying `user_settings`.
+ */
+export async function seedDefaultProfileIfNeeded(userId, buildDefaultProfile = buildDefaultNewUserProfile, options = {}) {
   if (!userId) return false;
 
-  const { data, error } = await client
-    .from('user_settings')
-    .select('user_profile')
-    .eq('user_id', userId)
-    .maybeSingle();
-  if (error && !isMissingUserProfileColumn(error)) {
-    throw new Error(toErrorMessage(error, 'Could not check your profile.'));
+  const { skipSettingsFetch = false, userProfileRaw: profileFromOptions } = options;
+  let rawProfileField;
+
+  if (skipSettingsFetch) {
+    rawProfileField = profileFromOptions;
+  } else {
+    const { data, error } = await client
+      .from('user_settings')
+      .select('user_profile')
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (error && !isMissingUserProfileColumn(error)) {
+      throw new Error(toErrorMessage(error, 'Could not check your profile.'));
+    }
+    rawProfileField = data?.user_profile;
   }
 
-  const existing = sanitizeProfile(data?.user_profile);
+  const existing = sanitizeProfile(rawProfileField);
   if (existing && isProfileComplete(existing)) return false;
 
   const profile = typeof buildDefaultProfile === 'function'
@@ -277,41 +299,61 @@ export async function seedDefaultProfileIfNeeded(userId, buildDefaultProfile = b
   return true;
 }
 
+/**
+ * @param {{ logsCount?: number; libraryFoods?: unknown[] }} [options]
+ * Pass `logsCount` from a prior `getCloudDataCounts` to skip an extra count round-trip.
+ * Pass `libraryFoods` after a bulk starter seed to skip re-fetching the food list.
+ */
 export async function seedStarterLogEntriesIfNeeded(
   userId,
   logDate,
   starterEntries,
   normalizeFood,
   getMacrosForFood,
+  options = {},
 ) {
+  const { logsCount: knownLogsCount, libraryFoods } = options;
   if (!userId || !logDate || !starterEntries?.length || typeof getMacrosForFood !== 'function') {
     return false;
   }
 
-  const { logs } = await getCloudDataCounts(userId);
+  let logs = knownLogsCount;
+  if (logs === undefined) {
+    const c = await getCloudDataCounts(userId);
+    logs = c.logs;
+  }
   if (logs > 0) return false;
 
-  const foods = await fetchCustomFoods(userId);
+  let foods = libraryFoods;
+  if (!foods?.length) {
+    foods = await fetchCustomFoods(userId);
+  }
   if (!foods.length) return false;
 
   const byId = new Map(foods.map((food) => [food.id, food]));
-  let created = false;
+  const rows = [];
   for (const entry of starterEntries) {
     const food = byId.get(entry.foodId);
-    if (!food) continue;
+    if (!food || typeof normalizeFood !== 'function') continue;
     const normalized = normalizeFood(food);
     const unit = normalized.servingUnit || 'g';
     const quantity = normalized.defaultServingSize ?? normalized.servingSize ?? 100;
     const macros = getMacrosForFood(normalized, quantity, unit);
-    await createLogEntry(userId, logDate, entry.meal || 'breakfast', {
-      food: normalized,
-      quantity,
-      unit,
-      macros,
-    });
-    created = true;
+    rows.push(
+      logItemToRow(
+        { food: normalized, quantity, unit, macros },
+        userId,
+        logDate,
+        entry.meal || 'breakfast',
+      ),
+    );
   }
-  return created;
+  if (!rows.length) return false;
+  const { error } = await client.from('log_entries').insert(rows);
+  if (error) {
+    throw new Error(toErrorMessage(error, 'Could not seed your starter Daily Log.'));
+  }
+  return true;
 }
 
 export async function runNewUserOnboardingIfNeeded(userId, options = {}) {
@@ -324,9 +366,10 @@ export async function runNewUserOnboardingIfNeeded(userId, options = {}) {
     getMacrosForFood,
     getTodayDateKey,
     buildDefaultProfile,
+    initialCounts,
   } = options;
 
-  const counts = await getCloudDataCounts(userId);
+  const counts = initialCounts ?? await getCloudDataCounts(userId);
   const cloudIsEmpty = counts.foods === 0 && counts.logs === 0;
   if (cloudIsEmpty) {
     localStorage.removeItem(`${ONBOARDING_PREFIX}${userId}`);
@@ -349,10 +392,19 @@ export async function runNewUserOnboardingIfNeeded(userId, options = {}) {
     return;
   }
 
+  let seededFoodsForLogs = null;
   if (typeof normalizeFood === 'function') {
-    await seedStarterFoodsIfNeeded(userId, starterFoods, normalizeFood);
+    const { foods: seededFoods } = await seedStarterFoodsIfNeeded(userId, starterFoods, normalizeFood, {
+      assumeLibraryEmpty: counts.foods === 0,
+    });
+    if (seededFoods?.length) seededFoodsForLogs = seededFoods;
   }
-  await seedDefaultProfileIfNeeded(userId, buildDefaultProfile);
+
+  await seedDefaultProfileIfNeeded(userId, buildDefaultProfile, {
+    skipSettingsFetch: true,
+    userProfileRaw: settingsRow?.user_profile,
+  });
+
   if (typeof getMacrosForFood === 'function') {
     const logDate = typeof getTodayDateKey === 'function'
       ? getTodayDateKey()
@@ -363,6 +415,10 @@ export async function runNewUserOnboardingIfNeeded(userId, options = {}) {
       starterLogEntries,
       normalizeFood,
       getMacrosForFood,
+      {
+        logsCount: counts.logs,
+        libraryFoods: seededFoodsForLogs || undefined,
+      },
     );
   }
 

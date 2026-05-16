@@ -1,6 +1,6 @@
 {
-  "name": "Jeri's Macro Tracker",
-  "short_name": "Macros",
+  "name": "Macro Target",
+  "short_name": "Macro Target",
   "description": "Personal macro and nutrition tracker",
   "start_url": "/",
   "display": "standalone",

@@ -15,8 +15,8 @@ A personal macro tracking PWA. Install to your iPhone home screen and use it lik
 Open a terminal in a folder where you keep projects (e.g. `~/projects/`) and run:
 
 ```bash
-mkdir macro-tracker
-cd macro-tracker
+mkdir macro-target
+cd macro-target
 ```
 
 Drop `index.html` and `manifest.json` from this conversation into that folder. Then start Claude Code:
@@ -41,7 +41,7 @@ If Claude Code doesn't have an image generation tool available, alternatives:
 
 In Claude Code:
 
-> Initialize this as a git repo and create a public GitHub repo called macro-tracker. Push the current files.
+> Initialize this as a git repo and create a public GitHub repo called macro-target. Push the current files.
 
 Claude Code will use `gh` (GitHub CLI) to do this. If you don't have `gh` installed, it'll walk you through.
 
@@ -51,7 +51,7 @@ If you'd rather do it manually:
 git init
 git add .
 git commit -m "Initial macro tracker"
-gh repo create macro-tracker --public --source=. --push
+gh repo create macro-target --public --source=. --push
 ```
 
 ### Step 4: Enable GitHub Pages
@@ -59,7 +59,7 @@ gh repo create macro-tracker --public --source=. --push
 Two options:
 
 **Via Claude Code:**
-> Enable GitHub Pages on the macro-tracker repo, serving from the main branch root.
+> Enable GitHub Pages on the macro-target repo, serving from the main branch root.
 
 **Manually:**
 1. Go to your repo on github.com
@@ -68,7 +68,7 @@ Two options:
 4. Branch: `main`, folder: `/ (root)`
 5. Save
 
-After ~30 seconds, your app is live at `https://YOUR-USERNAME.github.io/macro-tracker/`
+After ~30 seconds, your app is live at `https://YOUR-USERNAME.github.io/macro-target/`
 
 ### Step 5: Add to your iPhone home screen
 
@@ -85,7 +85,7 @@ Tap the icon. It opens fullscreen with no browser chrome, looks/feels native.
 When you want to update:
 
 ```bash
-cd macro-tracker
+cd macro-target
 claude
 ```
 
@@ -108,7 +108,7 @@ To restore: ⚙ → Import → pick the file. Done.
 ## Troubleshooting
 
 **App icon shows a screenshot instead of the flame icon**
-Your `icon-180.png` isn't loading. Check the file exists, is named exactly that, and the URL `https://YOUR-USERNAME.github.io/macro-tracker/icon-180.png` returns the image.
+Your `icon-180.png` isn't loading. Check the file exists, is named exactly that, and the URL `https://YOUR-USERNAME.github.io/macro-target/icon-180.png` returns the image.
 
 **Changes don't appear on phone**
 Force quit the app and reopen, or pull down to refresh inside Safari first to bust the cache.

@@ -5,38 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Macro Runner">
+<meta name="apple-mobile-web-app-title" content="Macro Target">
 <meta name="theme-color" content="#FAFAF7">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <link rel="apple-touch-icon" sizes="180x180" href="./icon-180x180.png">
 <link rel="apple-touch-icon" sizes="152x152" href="./icon-180x180.png">
 <link rel="icon" type="image/png" sizes="512x512" href="./icon-512x512.png">
 <link rel="manifest" href="./manifest.json">
-<title>Macro Runner</title>
-<script>
-(function () {
-  var params = new URLSearchParams(location.search);
-  var oauth = params.has('code') || params.has('error') || location.hash.indexOf('access_token=') !== -1;
-  var mayHaveSession = false;
-  try {
-    for (var i = 0; i < localStorage.length; i++) {
-      var key = localStorage.key(i);
-      if (key && key.indexOf('sb-') === 0 && key.indexOf('auth-token') !== -1) {
-        mayHaveSession = true;
-        break;
-      }
-    }
-  } catch (e) {}
-  var authPending = false;
-  try { authPending = sessionStorage.getItem('macroTrackerAuthPending') === '1'; } catch (e) {}
-  if (oauth || authPending) {
-    document.documentElement.classList.add('is-auth-callback', 'is-auth-loading');
-  } else if (mayHaveSession) {
-    document.documentElement.classList.add('is-auth-loading');
-  }
-})();
-</script>
+<title>Macro Target</title>
 <style>
+/* Instant first paint: incremental body parsing can paint before #appLoading exists if it’s not the first node. */
+html { background-color: #F5F4EE; }
 :root {
   --color-background-primary: #FFFFFF;
   --color-background-secondary: #EFECE4;
@@ -452,13 +431,28 @@ html.is-auth-callback .app-container { display: none !important; }
 .targets-hint .profile-target-lock-icon,
 .lucide.profile-target-lock-icon { width: 12px; height: 12px; flex-shrink: 0; color: var(--color-text-secondary); }
 </style>
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  var oauth = params.has('code') || params.has('error') || location.hash.indexOf('access_token=') !== -1;
+  var authPending = false;
+  try { authPending = sessionStorage.getItem('macroTrackerAuthPending') === '1'; } catch (e) {}
+  if (oauth || authPending) {
+    document.documentElement.classList.add('is-auth-callback', 'is-auth-loading');
+  } else {
+    document.documentElement.classList.add('is-auth-loading');
+  }
+})();
+</script>
 </head>
 <body>
+
+<div id="appLoading" class="app-loading app-loading--fullscreen" style="position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;background:#F5F4EE;font-size:15px;color:#6B6B6B;font-family:system-ui,-apple-system,sans-serif" role="status" aria-live="polite">Loading…</div>
 
 <div id="authGate" class="auth-gate" hidden>
   <div class="auth-card">
     <div class="auth-card__placeholder" aria-hidden="true"><span class="auth-card__placeholder-x">×</span></div>
-    <h1>Macro Runner</h1>
+    <h1>Macro Target</h1>
     <p class="auth-card__subtitle">Sign in to continue</p>
     <div class="auth-card__divider" role="presentation"></div>
     <p id="authError" class="auth-error" role="alert"></p>
@@ -469,8 +463,6 @@ html.is-auth-callback .app-container { display: none !important; }
     <p class="auth-card__footer">Sync your Daily Log and Food Library across devices. Access is limited to approved Google accounts.</p>
   </div>
 </div>
-
-<div id="appLoading" class="app-loading app-loading--fullscreen" hidden>Loading your data…</div>
 
 <div class="app-container" hidden>
   <div class="header">

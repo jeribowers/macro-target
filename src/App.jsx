@@ -98,7 +98,7 @@ function LoginScreen({ onLogin, error }) {
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, gap: 32 }}>
       <div style={{ textAlign: "center" }}>
         <div style={{ fontSize: 48, marginBottom: 12 }}>🥗</div>
-        <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.03em", marginBottom: 6 }}>Jeri's Macro Tracker</h1>
+        <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.03em", marginBottom: 6 }}>Macro Target</h1>
         <p style={{ color: "#64748b", fontSize: SIZE.textSm }}>Track your nutrition, hit your goals.</p>
       </div>
       <button onClick={handleGoogle} disabled={loading}
@@ -864,7 +864,7 @@ export default function App() {
   return (
     <div style={{ minHeight: "100vh", background: "#020617", color: "#f1f5f9", fontFamily: "'DM Sans', system-ui, sans-serif", display: "flex", flexDirection: "column", alignItems: "center", paddingBottom: 60 }}>
       <div style={{ width: "100%", maxWidth: 540, padding: "24px 20px 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h1 style={{ fontSize: SIZE.textXl, fontWeight: 800, letterSpacing: "-0.03em" }}>Jeri's Macro Tracker</h1>
+        <h1 style={{ fontSize: SIZE.textXl, fontWeight: 800, letterSpacing: "-0.03em" }}>Macro Target</h1>
         <button onClick={handleLogout} style={{ background: "none", border: "1px solid #1e293b", borderRadius: 7, padding: "8px 12px", color: "#475569", fontSize: SIZE.textSm, cursor: "pointer" }}>Sign out</button>
       </div>
       <div style={{ width: "100%", maxWidth: 540, padding: "16px 20px 0" }}>

@@ -440,7 +440,10 @@ function forceShowAuthGate() {
   const loading = document.getElementById('appLoading');
   if (authGate) authGate.hidden = false;
   if (appContainer) appContainer.hidden = true;
-  if (loading) loading.hidden = true;
+  if (loading) {
+    loading.hidden = true;
+    loading.removeAttribute('style');
+  }
 }
 
 function revealAuthGate() {
@@ -523,7 +526,10 @@ function setLoadingVisible(visible, { hideApp = false } = {}) {
     if (appContainer) appContainer.hidden = false;
     return;
   }
-  if (loading) loading.classList.remove('app-loading--fullscreen');
+  if (loading) {
+    loading.classList.remove('app-loading--fullscreen');
+    loading.removeAttribute('style');
+  }
 }
 
 function showSignedInApp() {
@@ -535,13 +541,14 @@ function showSignedInApp() {
   const appContainer = document.querySelector('.app-container');
   const loading = document.getElementById('appLoading');
   if (authGate) authGate.hidden = true;
-  document.documentElement.classList.add('is-app-ready');
-  if (appContainer) appContainer.hidden = false;
   document.documentElement.classList.remove('is-auth-loading', 'is-auth-callback');
   if (loading) {
     loading.hidden = true;
     loading.classList.remove('app-loading--fullscreen');
+    loading.removeAttribute('style');
   }
+  document.documentElement.classList.add('is-app-ready');
+  if (appContainer) appContainer.hidden = false;
 }
 
 function renderSignedInUi() {
@@ -1789,7 +1796,7 @@ document.getElementById('exportBtn').addEventListener('click', async () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `macro-tracker-backup-${getDateKey(new Date())}.json`;
+    a.download = `macro-target-backup-${getDateKey(new Date())}.json`;
     a.click();
     URL.revokeObjectURL(url);
   } catch (error) {
@@ -1877,11 +1884,9 @@ async function initializeSignedInUser(userId) {
   sync.setCurrentUserId(userId);
   setLoadingVisible(true, { hideApp: true });
   try {
-    try {
-      await sync.purgeExpiredDailyLogsRemote();
-    } catch (err) {
-      console.warn('[macro-tracker] Daily Log retention could not run:', err);
-    }
+    void sync.purgeExpiredDailyLogsRemote().catch((err) => {
+      console.warn('[macro-target] Daily Log retention could not run:', err);
+    });
     sync.pruneLocalPreferencesDailyLogMetadata();
 
     const counts = await sync.getCloudDataCounts(userId);
@@ -1898,6 +1903,7 @@ async function initializeSignedInUser(userId) {
       getMacrosForFood,
       getTodayDateKey: () => getDateKey(state.currentDate),
       buildDefaultProfile: () => buildDefaultNewUserProfile(state.defaultActivityLevel),
+      initialCounts: counts,
     });
     await reloadSignedInUserState(userId, { renderUi: false });
     pruneExpiredLocalDailyLogCaches();
