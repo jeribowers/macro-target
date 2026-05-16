@@ -78,7 +78,7 @@ Understand whether people **reach value** (sign in, log food, set targets), **co
 
 **Not yet tracked:** screens/modals, library CRUD, export/import, targets saves, sign-in funnel. See [Planned tracking](#planned-tracking).
 
-**Verify in GA:** Reports → Realtime; Reports → Engagement → **Events** (`food_logged`, `logging_day`, `logging_day_summary`). DebugView with `?ga_debug=1` while testing.
+**Verify in GA:** Reports → Realtime (event count by name; can lag a few minutes). Reports → Engagement → **Events** (often **24–48h** for new custom events). While testing, use **https://macrotarget.app/?ga_debug=1**, add food, then **Admin → DebugView** (custom events include `debug_mode` when that query param is set).
 
 ---
 

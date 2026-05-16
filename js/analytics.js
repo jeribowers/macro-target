@@ -5,6 +5,10 @@ function isTrackingEnabled() {
   return typeof window.gtag === 'function' && !LOCAL_HOSTS.has(location.hostname);
 }
 
+function isDebugMode() {
+  return /(?:^|[?&])ga_debug=1(?:&|$)/.test(location.search);
+}
+
 function track(eventName, params = {}) {
   if (!isTrackingEnabled()) return;
   const safe = {};
@@ -12,6 +16,7 @@ function track(eventName, params = {}) {
     if (value == null) return;
     if (typeof value === 'string' || typeof value === 'number') safe[key] = value;
   });
+  if (isDebugMode()) safe.debug_mode = true;
   window.gtag('event', eventName, safe);
 }
 

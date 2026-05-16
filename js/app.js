@@ -1538,18 +1538,20 @@ async function addFoodEntryToDailyLog(food, options = {}) {
   const macros = getMacrosForFood(food, quantity, unit);
   const log = getCurrentDayLog();
   const entry = { food, quantity, unit, macros };
-  const cloudId = await sync.createLogEntry(sync.getCurrentUserId(), getDateKey(state.currentDate), category, entry);
+  const dateKey = getDateKey(state.currentDate);
+  const analyticsSource = options.analyticsSource || null;
+
+  const cloudId = await sync.createLogEntry(sync.getCurrentUserId(), dateKey, category, entry);
   entry.cloudId = cloudId;
   log[category].push(entry);
   saveState();
   updateMacroDisplay();
   renderFoodLog();
 
-  if (options.analyticsSource) {
-    const dateKey = getDateKey(state.currentDate);
+  if (analyticsSource) {
     trackDailyLogFoodAdded({
       meal: category,
-      source: options.analyticsSource,
+      source: analyticsSource,
       dateKey,
       itemCount: getDailyLogItemCount(dateKey),
     });
