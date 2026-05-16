@@ -117,6 +117,10 @@ See [Divider Tokens](#divider-tokens) for divider usage.
 | `colorDanger` | `--color-danger` | Delete, errors, swipe-delete |
 | `colorLink` | `--color-link` | Text links (aliases action primary) |
 | `colorNegative` | `--color-negative` | Over-target macro values (aliases `macroCal`) |
+| `colorButtonGhostBackground` | `--color-button-ghost-background` | Transparent icon button fill |
+| `colorButtonGhostBorder` | `--color-button-ghost-border` | Transparent icon button border |
+| `colorButtonGhostText` | `--color-button-ghost-text` | Icon color for ghost buttons |
+| `colorButtonGhostHoverBackground` | `--color-button-ghost-hover-background` | Ghost icon button hover fill |
 
 ### Macro palette
 
@@ -174,11 +178,23 @@ Use these as shared defaults for all button components.
 
 Calendar-style icon button is the canonical reference for all icon-only actions.
 
-- Same icon color for all default icon buttons: `colorTextPrimary`
-- Same button chrome: `colorBackgroundPrimary` + `colorBorderSecondary`
-- Same sizing: 40px button, 19px icon
-- Same alignment: centered icon, no extra side padding
-- Do not mix filled/outline icon button styles in the same surface unless explicitly intentional
+**Default (`.btn-icon` + `.btn-secondary` or primary):**
+
+- Icon color: `colorTextPrimary`
+- Chrome: `colorBackgroundPrimary` + `colorBorderSecondary`
+- Sizing: 40px button (`iconButton`), 19px icon (`textLg`)
+- Centered icon, no extra side padding
+
+**Ghost (`.btn-icon.btn-ghost`):**
+
+- Use on inset panels or other tinted surfaces where a bordered icon button feels heavy
+- No visible border or fill: `colorButtonGhostBackground`, `colorButtonGhostBorder` (both transparent)
+- Icon: `colorButtonGhostText` (defaults to primary text)
+- Hover: `colorButtonGhostHoverBackground`
+- Same `iconButton` size and `focus-ring-shadow` as default icon buttons
+- Always pair with `aria-label` (and `title` when helpful)
+
+Do not mix default and ghost icon buttons on the same row unless intentional (e.g. inset preview: ghost edit + primary actions elsewhere).
 
 ## Divider Tokens
 
@@ -275,6 +291,7 @@ All modals share body padding tokens in `index.html`:
 | Modal section | `.settings-section`, `.targets-section`, `.section-heading`, `.section-description` | Personalize, Settings |
 | Inset panel | `.targets-level-row`, `.log-food-preview`, `.auth-card` | Targets, add-to-log, sign-in |
 | Primary / secondary button | `.btn-primary`, `.btn-secondary`, `.btn-icon` | Actions globally |
+| Ghost icon button | `.btn-icon.btn-ghost` | Icon-only on inset panels (e.g. `.log-food-preview__edit-library`) |
 
 HTML fragments for repeated Daily Log / search markup: `js/templates/dom-templates.js`.
 
@@ -285,7 +302,7 @@ HTML fragments for repeated Daily Log / search markup: `js/templates/dom-templat
 - **Radio pill:** `.radio-pill` — checked uses `--color-background-highlight`, `--color-text-highlight`, `--color-border-highlight`.
 - **Checkbox:** `.form-checkbox` — accent `--color-action-primary`.
 - **Serving (create/edit food):** `.serving-size-input`, `.serving-input-group`, `.quantity-input-group`.
-- **Clear value (text only):** `.input-with-clear` + `.input-clear-btn` — when a non-numeric field has a value, show a trailing **X** (Lucide `x`, `aria-label="Clear"`) to empty the field. Wire with `attachInputClearButton()` in `js/components/input-clear-button.js`. After setting `.value` in code, call `syncInputClearButton(input)` so the control appears for pre-filled fields.
+- **Clear value (text only):** `.input-with-clear` + `.input-clear-btn` — show a trailing **X** (Lucide `x`, `aria-label="Clear"`) only while the field is **focused and non-empty** (class `show-clear`). Wire with `attachInputClearButton()` in `js/components/input-clear-button.js`. Call `syncInputClearButton(input)` after programmatic `.value` updates if focus state may have changed.
 - **No clear X on numeric-only fields** — `inputmode="numeric"` or `inputmode="decimal"`, measure inputs (`.measure-input`), serving/quantity groups, and fields using `attachClearOnFocus({ numericOnly })` keep clear-on-focus behavior only.
 - **Errors:** `.inline-error` or `.auth-error` — `--color-danger`, sentence case (see [States](#states)).
 

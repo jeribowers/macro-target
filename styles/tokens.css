@@ -106,6 +106,12 @@
   --icon-size: var(--text-lg);
   --swipe-action-gap: var(--space-2);
 
+  /* Ghost icon button (transparent chrome on inset panels, etc.) */
+  --color-button-ghost-background: transparent;
+  --color-button-ghost-border: transparent;
+  --color-button-ghost-text: var(--color-text-primary);
+  --color-button-ghost-hover-background: rgba(0, 0, 0, 0.06);
+
   /* Focus */
   --focus-ring: var(--color-border-highlight);
   --focus-ring-shadow: 0 0 0 2px var(--color-background-primary), 0 0 0 4px var(--focus-ring);

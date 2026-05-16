@@ -13,6 +13,13 @@
 .btn-icon { width: var(--icon-button-size); height: var(--icon-button-size); min-width: var(--icon-button-size); min-height: var(--icon-button-size); padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: var(--text-md); flex-shrink: 0; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); }
 .btn-icon.btn-primary,
 .btn-icon.btn-secondary { border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); }
+.btn-icon.btn-ghost {
+  background: var(--color-button-ghost-background);
+  border-color: var(--color-button-ghost-border);
+  color: var(--color-button-ghost-text);
+}
+.btn-icon.btn-ghost:hover { background: var(--color-button-ghost-hover-background); }
+.btn-icon.btn-ghost:focus-visible { outline: none; box-shadow: var(--focus-ring-shadow); }
 
 .dropdown { position: relative; display: inline-block; }
 .dropdown-trigger { width: 100%; height: var(--button-sm-height); padding: 0 var(--button-sm-px); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); font-family: var(--font-sans); font-size: var(--text-md); font-weight: 400; cursor: pointer; display: inline-flex; align-items: center; justify-content: space-between; gap: var(--space-2); white-space: nowrap; text-align: left; }

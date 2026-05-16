@@ -13,7 +13,7 @@ function refreshLucideIcons() {
 }
 
 /**
- * Shows an X control to clear non-numeric text inputs when they have a value.
+ * Shows an X control to clear non-numeric text inputs while focused and non-empty.
  * @param {HTMLInputElement} input
  * @param {{ onClear?: (input: HTMLInputElement) => void }} [options]
  */
@@ -40,8 +40,10 @@ export function attachInputClearButton(input, options = {}) {
 
   const sync = () => {
     const hasValue = String(input.value ?? '').length > 0;
-    btn.hidden = !hasValue;
-    wrap.classList.toggle('has-value', hasValue);
+    const isFocused = document.activeElement === input;
+    const showClear = hasValue && isFocused;
+    btn.hidden = !showClear;
+    wrap.classList.toggle('show-clear', showClear);
   };
 
   btn.addEventListener('click', (e) => {
@@ -54,6 +56,8 @@ export function attachInputClearButton(input, options = {}) {
   });
 
   input.addEventListener('input', sync);
+  input.addEventListener('focus', sync);
+  input.addEventListener('blur', sync);
   input.__syncInputClear = sync;
   sync();
 
