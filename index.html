@@ -14,7 +14,23 @@
 <link rel="manifest" href="./manifest.json">
 <title>Macro Target</title>
 <link rel="stylesheet" href="./styles/main.css">
-<script type="module" src="./js/analytics.js"></script>
+<script>
+(function () {
+  var host = location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1') return;
+  var id = 'G-PJX4FZMC5E';
+  var debug = /(?:^|[?&])ga_debug=1(?:&|$)/.test(location.search);
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { window.dataLayer.push(arguments); }
+  window.gtag = gtag;
+  gtag('js', new Date());
+  gtag('config', id, debug ? { debug_mode: true } : {});
+  var s = document.createElement('script');
+  s.async = true;
+  s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(id);
+  document.head.appendChild(s);
+})();
+</script>
 <script>
 (function () {
   var params = new URLSearchParams(location.search);
