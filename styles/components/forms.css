@@ -67,6 +67,7 @@
   position: absolute;
   top: 50%;
   right: 0;
+  z-index: 1;
   transform: translateY(-50%);
   width: var(--icon-button-size);
   height: var(--icon-button-size);
@@ -81,6 +82,10 @@
   justify-content: center;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+}
+.input-clear-btn .lucide,
+.input-clear-btn svg {
+  pointer-events: none;
 }
 .input-clear-btn[hidden] { display: none; }
 .input-clear-btn .lucide { width: var(--text-md); height: var(--text-md); }

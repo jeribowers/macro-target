@@ -151,21 +151,19 @@
       <form id="editFoodForm">
         <div class="modal-body__scroll">
         <div class="form-group"><label>Food Name</label><input type="text" id="editFoodName" required></div>
-        <div class="food-form-inset">
-          <div id="editFoodReferenceMeasure" class="create-food-field-half reference-size"></div>
-          <div class="macro-input-group">
-          <div class="form-group"><label>Calories</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="editFoodCalories" required></div>
-          <div class="form-group"><label>Fat (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="editFoodFat" required></div>
-          <div class="form-group"><label>Carbs (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="editFoodCarbs" required></div>
-          <div class="form-group"><label>Protein (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="editFoodProtein" required></div>
-          </div>
-        </div>
-        <div class="form-group create-food-field-half default-serving-size">
+        <div id="editFoodReferenceMeasure" class="reference-size"></div>
+        <div class="form-group default-serving-size">
           <label>Serving Size</label>
           <div class="serving-size-input">
             <input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="editFoodDefaultServingSize" required>
             <span class="serving-size-unit" id="editFoodServingUnit" aria-hidden="true">g</span>
           </div>
+        </div>
+        <div class="macro-input-group">
+          <div class="form-group"><label>Calories</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="editFoodCalories" required></div>
+          <div class="form-group"><label>Fat (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="editFoodFat" required></div>
+          <div class="form-group"><label>Carbs (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="editFoodCarbs" required></div>
+          <div class="form-group"><label>Protein (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="editFoodProtein" required></div>
         </div>
 
         </div>
@@ -190,21 +188,19 @@
       <form id="createFoodForm">
         <div class="modal-body__scroll">
         <div class="form-group"><label>Food Name</label><input type="text" id="createFoodName" required></div>
-        <div class="food-form-inset">
-          <div id="createFoodReferenceMeasure" class="create-food-field-half reference-size"></div>
-          <div class="macro-input-group">
-          <div class="form-group"><label>Calories</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="createFoodCalories" required></div>
-          <div class="form-group"><label>Fat (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="createFoodFat" required></div>
-          <div class="form-group"><label>Carbs (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="createFoodCarbs" required></div>
-          <div class="form-group"><label>Protein (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="createFoodProtein" required></div>
-          </div>
-        </div>
-        <div class="form-group create-food-field-half default-serving-size">
+        <div id="createFoodReferenceMeasure" class="reference-size"></div>
+        <div class="form-group default-serving-size">
           <label>Serving Size</label>
           <div class="serving-size-input">
             <input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="createFoodDefaultServingSize" required value="100">
             <span class="serving-size-unit" id="createFoodServingUnit" aria-hidden="true">g</span>
           </div>
+        </div>
+        <div class="macro-input-group">
+          <div class="form-group"><label>Calories</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="createFoodCalories" required></div>
+          <div class="form-group"><label>Fat (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="createFoodFat" required></div>
+          <div class="form-group"><label>Carbs (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="createFoodCarbs" required></div>
+          <div class="form-group"><label>Protein (g)</label><input type="text" inputmode="decimal" lang="en-US" autocomplete="off" id="createFoodProtein" required></div>
         </div>
         <label class="form-checkbox" for="createFoodAddToLog">
           <input type="checkbox" id="createFoodAddToLog" checked>

@@ -40,31 +40,12 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 #createFoodForm .modal-body__scroll > .form-group:first-child,
 #createFoodForm .modal-body__scroll > .form-checkbox,
 #editFoodForm .modal-body__scroll > .form-group:first-child { grid-column: 1 / -1; }
+#createFoodForm .modal-body__scroll > #createFoodReferenceMeasure,
+#editFoodForm .modal-body__scroll > #editFoodReferenceMeasure { grid-column: 1 / 3; min-width: 0; }
 #createFoodForm .modal-body__scroll > .default-serving-size,
-#editFoodForm .modal-body__scroll > .default-serving-size { grid-column: 1 / 3; min-width: 0; width: auto; max-width: none; }
-#createFoodForm .modal-body__scroll > .food-form-inset,
-#editFoodForm .modal-body__scroll > .food-form-inset {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  column-gap: var(--space-2);
-  row-gap: var(--space-2);
-  padding: var(--space-2) var(--inset-pad-inline);
-  border-radius: var(--border-radius-md);
-  background: var(--color-background-inset);
-  border: 0.5px solid var(--color-divider-strong);
-  box-sizing: border-box;
-}
-#createFoodForm .food-form-inset #createFoodReferenceMeasure,
-#editFoodForm .food-form-inset #editFoodReferenceMeasure { grid-column: 1 / 3; min-width: 0; width: auto; max-width: none; }
-#createFoodForm .food-form-inset .macro-input-group,
-#editFoodForm .food-form-inset .macro-input-group {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  column-gap: var(--space-2);
-  margin-bottom: 0;
-}
+#editFoodForm .modal-body__scroll > .default-serving-size { grid-column: 3 / 5; min-width: 0; }
+#createFoodForm .modal-body__scroll > .macro-input-group,
+#editFoodForm .modal-body__scroll > .macro-input-group { grid-column: 1 / -1; margin-bottom: 0; }
 #createFoodForm .macro-input-group .form-group,
 #editFoodForm .macro-input-group .form-group { margin-bottom: 0; min-width: 0; }
 #createFoodReferenceMeasure .measure-input,

@@ -46,18 +46,30 @@ export function attachInputClearButton(input, options = {}) {
     wrap.classList.toggle('show-clear', showClear);
   };
 
-  btn.addEventListener('click', (e) => {
-    e.preventDefault();
+  const clearValue = () => {
     input.value = '';
     sync();
     input.dispatchEvent(new Event('input', { bubbles: true }));
     input.focus();
     if (options.onClear) options.onClear(input);
+  };
+
+  // Keep focus on the input so blur does not hide the button before click/tap lands.
+  btn.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+  });
+
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    clearValue();
   });
 
   input.addEventListener('input', sync);
   input.addEventListener('focus', sync);
-  input.addEventListener('blur', sync);
+  input.addEventListener('blur', () => {
+    requestAnimationFrame(sync);
+  });
   input.__syncInputClear = sync;
   sync();
 
