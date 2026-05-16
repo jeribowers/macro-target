@@ -1,26 +1,9 @@
-import { GA_MEASUREMENT_ID } from '../config.js';
-
-const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1']);
 const LOGGING_DAY_PREFIX = 'macroGaLoggingDay:';
 const SESSION_START_KEY = 'macroGaSessionStart:';
 
-function isTrackingEnabled() {
-  return typeof window.gtag === 'function' && !LOCAL_HOSTS.has(location.hostname) && Boolean(GA_MEASUREMENT_ID);
-}
-
-function isDebugMode() {
-  return /(?:^|[?&])ga_debug=1(?:&|$)/.test(location.search);
-}
-
 function track(eventName, params = {}) {
-  if (!isTrackingEnabled()) return;
-  const safe = { send_to: GA_MEASUREMENT_ID };
-  Object.entries(params).forEach(([key, value]) => {
-    if (value == null) return;
-    if (typeof value === 'string' || typeof value === 'number') safe[key] = value;
-  });
-  if (isDebugMode()) safe.debug_mode = true;
-  window.gtag('event', eventName, safe);
+  if (typeof window.__macroTrack !== 'function') return;
+  window.__macroTrack(eventName, params);
 }
 
 /** Fires once per browser session after sign-in — use to verify custom events reach GA. */

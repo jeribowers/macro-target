@@ -25,6 +25,17 @@
   window.gtag = gtag;
   gtag('js', new Date());
   gtag('config', id, debug ? { debug_mode: true } : {});
+  window.__macroTrack = function (eventName, params) {
+    var safe = { send_to: id };
+    if (params && typeof params === 'object') {
+      Object.keys(params).forEach(function (key) {
+        var val = params[key];
+        if (val != null && (typeof val === 'string' || typeof val === 'number')) safe[key] = val;
+      });
+    }
+    if (debug) safe.debug_mode = true;
+    gtag('event', eventName, safe);
+  };
   var s = document.createElement('script');
   s.async = true;
   s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(id);
@@ -411,6 +422,6 @@
 
 <div class="save-toast" id="saveToast" role="status" aria-live="polite">Targets Saved</div>
 <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
-<script type="module" src="./js/app.js?v=20260517"></script>
+<script type="module" src="./js/app.js?v=20260518"></script>
 </body>
 </html>

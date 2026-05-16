@@ -81,9 +81,12 @@ Understand whether people **reach value** (sign in, log food, set targets), **co
 
 **Verify in GA (testing):**
 
-1. Ad blocker off. Open **https://macrotarget.app/?ga_debug=1** (hard refresh; avoid stale PWA cache).
-2. Sign in → **Admin → DebugView** should show `analytics_session_start` within ~30s.
-3. Add a food to the Daily Log → DebugView should show `food_logged`, `logging_day`, `logging_day_summary`.
+1. Ad blocker off. Open **https://macrotarget.app/?ga_debug=1** (hard refresh; avoid stale PWA cache). The `?ga_debug=1` part is required — custom events do not appear in DebugView without it.
+2. Sign in → **Admin → DebugView** → open the **Debug Device** dropdown (top of timeline) and select your device (not `0`).
+3. Within ~30s you should see `analytics_session_start` on the timeline.
+4. Add a food to the Daily Log → `food_logged`, `logging_day`, `logging_day_summary`.
+
+Custom events are sent via `window.__macroTrack` in `index.html` (same gtag loader as page views).
 
 **Verify in GA (ongoing):** Reports → Realtime → event count. Reports → Engagement → **Events** may take **24–48h** for new event names to populate.
 
