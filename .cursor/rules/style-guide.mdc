@@ -1,0 +1,26 @@
+---
+description: Keep STYLEGUIDE.md in sync with visual changes; no one-off styling in the app.
+alwaysApply: true
+---
+
+# Style Guide and Visual Changes
+
+## Source of truth
+
+- Shared styles, components, and visual patterns are documented in `STYLEGUIDE.md`.
+- Read `STYLEGUIDE.md` before building or modifying shared UI.
+- **Component lifecycle:** document in `STYLEGUIDE.md` → implement in canonical styles/components → add gallery entry when `src/pages/ComponentsGallery.tsx` exists. All in the same change when introducing or changing a shared pattern.
+
+## When the user requests design or UI changes
+
+1. **Update documentation in the same change** — Any request that changes appearance, tokens, or patterns must update `STYLEGUIDE.md` in that same change, not only the app.
+2. **CSS variables and shared patterns** — Changes to `styles/tokens.css`, `styles/components/*.css`, or any reused class/pattern must update `STYLEGUIDE.md` in the same change. No hex/rgba literals outside `styles/tokens.css`; components use `var(--token)` only. Run `npm run check:tokens` before finishing.
+3. **No one-off app changes** — Do not add per-screen colors, sizes, inline styles, or ad hoc `className` overrides unless the user explicitly asks for a documented one-off exception. Implement via shared tokens and existing classes; extend the guide and shared CSS when needed.
+4. **Conflicts** — If a design request conflicts with `STYLEGUIDE.md` or project rules, **stop and tell the user** before implementing. Propose aligning with the guide or updating the guide first.
+
+## What still may skip the style guide
+
+- Copy-only changes with no visual/token impact.
+- Pure behavior or data logic with no UI pattern change.
+
+When unsure whether a change belongs in the guide, include it or ask the user.

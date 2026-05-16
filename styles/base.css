@@ -1,0 +1,32 @@
+html { background-color: var(--color-background-secondary); }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; font-family: var(--font-sans); background: var(--color-background-secondary); -webkit-tap-highlight-color: transparent; font-size: var(--text-md); min-height: 100%; min-height: 100dvh; }
+
+input:focus,
+.search-input:focus,
+.form-group input:focus,
+.quantity-input-group input:focus,
+.editable-macro input:focus,
+.form-select:focus,
+button:focus,
+.dropdown-trigger:focus {
+  outline: none;
+}
+
+input:focus,
+.search-input:focus,
+.form-group input:focus,
+.quantity-input-group input:focus,
+.editable-macro input:focus,
+.form-select:focus {
+  border-color: var(--focus-ring);
+  box-shadow: var(--focus-ring-shadow);
+}
+
+button:focus-visible,
+.dropdown-trigger:focus-visible {
+  border-color: var(--focus-ring);
+  box-shadow: var(--focus-ring-shadow);
+}
+

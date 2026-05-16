@@ -1,0 +1,25 @@
+.app-container { width: 100%; max-width: var(--app-max-width); margin: 0 auto; background: var(--color-background-secondary); min-height: 100dvh; display: flex; flex-direction: column; padding-bottom: var(--safe-bottom); }
+
+.header { background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-divider); padding: var(--screen-pad-block) var(--screen-pad-inline); padding-top: calc(var(--screen-pad-block) + var(--safe-top)); position: sticky; top: 0; z-index: 100; }
+.header-controls { display: flex; gap: var(--space-2); justify-content: space-between; align-items: center; }
+.date-nav { display: flex; gap: var(--space-2); align-items: center; }
+.header-actions { display: flex; gap: var(--space-2); align-items: center; }
+.date-nav button { padding: 0; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); cursor: pointer; white-space: nowrap; height: var(--button-sm-height); width: var(--button-sm-height); display: inline-flex; align-items: center; justify-content: center; font-size: var(--text-md); }
+.date-display { font-size: var(--text-md); font-weight: 500; color: var(--color-text-primary); min-width: 84px; text-align: center; flex-shrink: 0; }
+
+.btn-primary { background: var(--color-action-primary); color: var(--color-on-primary); border: 0.5px solid var(--color-action-primary); cursor: pointer; font-family: var(--font-sans); font-weight: 500; border-radius: var(--border-radius-md); min-height: var(--button-md-height); padding: 0 var(--button-md-px); font-size: var(--text-md); }
+.btn-secondary { background: var(--color-background-primary); color: var(--color-text-primary); border: 0.5px solid var(--color-border-secondary); cursor: pointer; font-family: var(--font-sans); font-weight: 500; border-radius: var(--border-radius-md); min-height: var(--button-md-height); padding: 0 var(--button-md-px); font-size: var(--text-md); }
+.btn-block { width: 100%; }
+.btn-icon { width: var(--icon-button-size); height: var(--icon-button-size); min-width: var(--icon-button-size); min-height: var(--icon-button-size); padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: var(--text-md); flex-shrink: 0; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); }
+.btn-icon.btn-primary,
+.btn-icon.btn-secondary { border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); }
+
+.dropdown { position: relative; display: inline-block; }
+.dropdown-trigger { width: 100%; height: var(--button-sm-height); padding: 0 var(--button-sm-px); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); font-family: var(--font-sans); font-size: var(--text-md); font-weight: 400; cursor: pointer; display: inline-flex; align-items: center; justify-content: space-between; gap: var(--space-2); white-space: nowrap; text-align: left; }
+.dropdown-trigger .caret { display: inline-block; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--color-text-secondary); flex-shrink: 0; }
+.dropdown-menu { display: none; position: absolute; top: calc(100% + var(--space-1)); left: 0; right: 0; background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); box-shadow: 0 4px 12px var(--color-shadow-sm); min-width: 100%; z-index: 200; overflow: hidden; max-height: 240px; overflow-y: auto; }
+.dropdown-menu.right-aligned { left: auto; right: 0; min-width: max-content; }
+.dropdown-menu.open { display: block; }
+.dropdown-item { padding: var(--space-3); font-size: var(--text-md); font-family: var(--font-sans); color: var(--color-text-primary); cursor: pointer; white-space: nowrap; }
+.dropdown-item.selected { background: var(--color-background-highlight); color: var(--color-text-highlight); }
+

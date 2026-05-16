@@ -1,0 +1,15 @@
+.food-actions { display: flex; gap: var(--space-1); flex-shrink: 0; }
+.food-actions button { padding: 0; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); cursor: pointer; border-radius: var(--border-radius-md); font-size: var(--text-sm); min-width: var(--icon-button-size); min-height: var(--icon-button-size); display: inline-flex; align-items: center; justify-content: center; }
+
+#searchResults > * + * { border-top: 0.5px solid var(--color-divider); }
+.swipe-row { position: relative; overflow: hidden; }
+.swipe-row + .swipe-row { border-top: 0.5px solid var(--color-divider); }
+.swipe-delete { position: absolute; top: 0; right: 0; bottom: 0; width: auto; aspect-ratio: 1; border: none; padding: 0; background: var(--color-danger); color: var(--color-on-primary); font-size: 0; line-height: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.swipe-delete-icon { width: var(--icon-size); height: var(--icon-size); display: block; flex-shrink: 0; }
+.swipe-row .swipe-content { position: relative; z-index: 1; transition: transform 0.2s ease; background: var(--color-background-primary); touch-action: pan-y; }
+.swipe-row.is-open .swipe-content { transform: translateX(calc(-1 * var(--swipe-row-reveal, 48px))); }
+.food-option { padding: var(--space-2) 0; background: transparent; display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); cursor: pointer; }
+.food-option + .food-option { border-top: 0.5px solid var(--color-divider); }
+.food-option .food-info { flex: 1; min-width: 0; }
+.food-option .actions { display: flex; gap: var(--space-2); flex-shrink: 0; }
+.search-empty { text-align: center; color: var(--color-text-secondary); padding: var(--space-4) 0; margin: 0; }

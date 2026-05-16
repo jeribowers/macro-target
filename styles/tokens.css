@@ -1,0 +1,117 @@
+/* Design tokens — hex/rgba literals allowed only in this file. */
+:root {
+  /* Spacing scale (4px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Layout spacing (aliases) */
+  --screen-pad-inline: var(--space-3);
+  --screen-pad-block: var(--space-2);
+  --inset-pad-inline: var(--space-3);
+  --modal-gap-after-header: var(--space-4);
+  --modal-pad-bottom: var(--space-6);
+  --modal-section-gap-above-divider: var(--space-5);
+  --modal-section-pad-below-divider: var(--space-3);
+  --section-title-description-gap: var(--space-1);
+  --section-description-content-gap: var(--space-5);
+
+  /* Surfaces */
+  --color-background-primary: #FFFFFF;
+  --color-background-secondary: #F5F4EE;
+  --color-background-highlight: #E6F1FB;
+  --color-background-inset: #E6E4DC;
+
+  /* Text */
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #6B6B6B;
+  --color-text-tertiary: #999999;
+  --color-text-highlight: #0C447C;
+
+  /* Borders */
+  --color-border-primary: rgba(0, 0, 0, 0.4);
+  --color-border-secondary: rgba(0, 0, 0, 0.3);
+  --color-border-tertiary: rgba(0, 0, 0, 0.15);
+  --color-border-highlight: #B5D4F4;
+  --color-divider: rgba(0, 0, 0, 0.4);
+  --color-divider-strong: rgba(0, 0, 0, 0.55);
+
+  /* Actions & semantic */
+  --color-action-primary: #1E40AF;
+  --color-on-primary: #FFFFFF;
+  --color-danger: #B42318;
+  --color-link: var(--color-action-primary);
+  --color-negative: var(--macro-cal);
+
+  /* Overlays & shadows */
+  --color-overlay-scrim: rgba(0, 0, 0, 0.5);
+  --color-shadow-sm: rgba(0, 0, 0, 0.1);
+  --color-shadow-md: rgba(0, 0, 0, 0.12);
+  --color-progress-tick: rgba(0, 0, 0, 0.18);
+  --color-loading-scrim: rgba(250, 250, 247, 0.72);
+
+  /* Macro palette */
+  --macro-cal: #C41E1E;
+  --macro-carb: #1E40AF;
+  --macro-prot: #166534;
+  --macro-fat: #7C3AED;
+  --macro-cal-bg: #F8E7E7;
+  --macro-carb-bg: #EFF4FF;
+  --macro-prot-bg: #EDF7EF;
+  --macro-fat-bg: #F3E8FF;
+  --macro-cal-border: rgba(196, 30, 30, 0.35);
+  --macro-carb-border: rgba(30, 64, 175, 0.35);
+  --macro-prot-border: rgba(22, 101, 52, 0.35);
+  --macro-fat-border: rgba(124, 58, 237, 0.35);
+
+  /* Google sign-in */
+  --color-google-text: #3c4043;
+  --color-google-surface: #ffffff;
+  --color-google-border: #dadce0;
+  --color-google-surface-hover: #f8f9fa;
+  --color-google-surface-active: #f1f3f4;
+  --color-google-shadow: rgba(0, 0, 0, 0.04);
+  --color-google-brand-blue: #4285F4;
+  --color-google-brand-green: #34A853;
+  --color-google-brand-yellow: #FBBC05;
+  --color-google-brand-red: #EA4335;
+
+  /* Auth placeholder */
+  --color-auth-placeholder: #BDBDB7;
+  --color-auth-placeholder-fg: #6B6B6B;
+
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --text-xs: 13px;
+  --text-sm: 15px;
+  --text-md: 17px;
+  --text-lg: 19px;
+  --text-xl: 22px;
+
+  /* Radius */
+  --border-radius-md: var(--space-2);
+  --border-radius-lg: var(--space-3);
+
+  /* Controls */
+  --button-sm-height: 40px;
+  --button-md-height: 42px;
+  --button-sm-px: 14px;
+  --button-md-px: var(--space-4);
+  --input-md-height: 40px;
+  --icon-button-size: var(--button-sm-height);
+  --icon-size: var(--text-lg);
+  --swipe-action-gap: var(--space-2);
+
+  /* Focus */
+  --focus-ring: var(--color-border-highlight);
+  --focus-ring-shadow: 0 0 0 2px var(--color-background-primary), 0 0 0 4px var(--focus-ring);
+
+  /* Layout */
+  --app-max-width: 480px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}

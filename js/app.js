@@ -23,6 +23,13 @@ import { createMeasureInput } from './components/measure-input.js';
 import { attachClearOnFocus } from './components/clear-on-focus-input.js';
 import { hideAllFieldInfoTips, initFieldInfoTips } from './components/field-info-tip.js';
 import { STARTER_FOODS, STARTER_LOG_ENTRIES } from './starter-foods.js';
+import {
+  renderFoodCategoryBlock,
+  renderFoodItemInfo,
+  renderFoodLogEmptyRow,
+  renderFoodSearchOption,
+  renderSwipeRowLogEntry,
+} from './templates/dom-templates.js';
 
 const ACTIVITY_LEVELS = {
   low: { calories: 1200, protein: 120, carbs: 115, fat: 45, label: 'Light' },
@@ -975,15 +982,12 @@ function renderFoodLogMacroLine(calories, carbs, protein, fat) {
   return `<span class="macro-line"><span class="cal">${formatNumber(Math.round(calories))} cal</span><span class="sep">•</span><span class="fat">${formatNumber(Math.round(fat))}g fat</span><span class="sep">•</span><span class="carb">${formatNumber(Math.round(carbs))}g carb</span><span class="sep">•</span><span class="prot">${formatNumber(Math.round(protein))}g pro</span></span>`;
 }
 
-function renderFoodItemInfo(name, weightLabel, macros) {
-  return `
-    <div class="food-info">
-      <div class="food-name-row">
-        <p class="food-name">${name}</p>
-        <p class="food-weight">${weightLabel}</p>
-      </div>
-      <p class="food-macros">${renderFoodLogMacroLine(macros.calories, macros.carbs, macros.protein, macros.fat || 0)}</p>
-    </div>`;
+function renderFoodItemInfoBlock(name, weightLabel, macros) {
+  return renderFoodItemInfo(
+    name,
+    weightLabel,
+    renderFoodLogMacroLine(macros.calories, macros.carbs, macros.protein, macros.fat || 0),
+  );
 }
 
 function refreshIcons() {
@@ -998,33 +1002,25 @@ function renderFoodLog() {
   let html = '';
   ['breakfast', 'lunch', 'dinner', 'snack'].forEach(category => {
     const catTotals = getCategoryTotals(category);
-    html += `<div class="food-category">
-      <div class="food-category-shell">
-        <div class="food-category-header">
-          <div class="food-category-title">
-            <h3>${category}</h3>
-            <div class="category-total">${renderMacroBadges(catTotals.calories, catTotals.carbs, catTotals.protein, catTotals.fat, true)}</div>
-          </div>
-          <button class="add-food-header btn-secondary" onclick="openAddFoodModal('${category}')">+ Add</button>
-        </div>
-        <div class="food-list">`;
+    let listBodyHtml = '';
     if (log[category].length > 0) {
-      log[category].forEach((item, idx) => {
-        html += `
-          <div class="swipe-row" data-deletable="true" data-log-category="${category}" data-log-index="${idx}">
-            <button type="button" class="swipe-delete" data-log-category="${category}" data-log-index="${idx}" aria-label="Delete ${item.food.name}">${SWIPE_DELETE_ICON}</button>
-            <div class="food-item swipe-content">
-              ${renderFoodItemInfo(item.food.name, `${formatNumber(item.quantity)}${item.unit}`, item.macros)}
-              <div class="food-actions">
-                <button onclick="editFoodLog('${category}', ${idx})" title="Edit" aria-label="Edit"><i data-lucide="pencil"></i></button>
-              </div>
-            </div>
-          </div>`;
-      });
+      listBodyHtml = log[category].map((item, idx) =>
+        renderSwipeRowLogEntry({
+          category,
+          index: idx,
+          foodName: item.food.name,
+          foodInfoHtml: renderFoodItemInfoBlock(item.food.name, `${formatNumber(item.quantity)}${item.unit}`, item.macros),
+          deleteIconHtml: SWIPE_DELETE_ICON,
+        }),
+      ).join('');
     } else {
-      html += `<div class="food-item"><div class="food-info"><p class="food-macros">No foods in your Daily Log.</p></div></div>`;
+      listBodyHtml = renderFoodLogEmptyRow();
     }
-    html += '</div></div></div>';
+    html += renderFoodCategoryBlock({
+      category,
+      categoryTotalsHtml: renderMacroBadges(catTotals.calories, catTotals.carbs, catTotals.protein, catTotals.fat, true),
+      listBodyHtml,
+    });
   });
   content.innerHTML = html;
   refreshIcons();
@@ -1088,21 +1084,13 @@ function searchFoods(query) {
     const servingSize = displayFood.defaultServingSize;
     const measure = `${formatNumber(servingSize)}${unit}`;
     const servingMacros = getMacrosForFood(displayFood, servingSize, unit);
-    const optionBody = `<div class="food-option swipe-content" onclick="selectFoodForLog('${food.id}')">
-      ${renderFoodItemInfo(food.name, measure, servingMacros)}
-      <div class="actions">
-        <button class="btn-primary btn-icon" onclick="event.stopPropagation(); selectFoodForLog('${food.id}')" title="Add" aria-label="Add"><i data-lucide="plus"></i></button>
-        <button class="btn-secondary btn-icon" onclick="event.stopPropagation(); editFoodInDB('${food.id}')" title="Edit in Library" aria-label="Edit in Library"><i data-lucide="pencil"></i></button>
-      </div>
-    </div>`;
-    if (isBuiltInFood(food.id)) {
-      html += optionBody;
-    } else {
-      html += `<div class="swipe-row" data-food-id="${food.id}" data-deletable="true">
-        <button type="button" class="swipe-delete" data-food-id="${food.id}" aria-label="Delete ${food.name}">${SWIPE_DELETE_ICON}</button>
-        ${optionBody}
-      </div>`;
-    }
+    html += renderFoodSearchOption({
+      foodId: food.id,
+      foodName: food.name,
+      foodInfoHtml: renderFoodItemInfoBlock(food.name, measure, servingMacros),
+      deleteIconHtml: SWIPE_DELETE_ICON,
+      isBuiltIn: isBuiltInFood(food.id),
+    });
   });
   document.getElementById('searchResults').innerHTML = html || '<p class="search-empty">No foods found</p>';
   refreshIcons();
@@ -1506,7 +1494,7 @@ function updateLogFoodPreview() {
   const quantity = parseInputNumber(document.getElementById('foodServingSize').value) || 0;
   const unit = getFoodServingUnit(food);
   const macros = getMacrosForFood(food, quantity, unit);
-  document.getElementById('logFoodPreview').innerHTML = renderFoodItemInfo(
+  document.getElementById('logFoodPreview').innerHTML = renderFoodItemInfoBlock(
     food.name,
     `${formatNumber(quantity)}${unit}`,
     macros

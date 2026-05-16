@@ -1,0 +1,37 @@
+.auth-gate { width: 100%; max-width: var(--app-max-width); margin-left: auto; margin-right: auto; min-height: 100dvh; display: none; align-items: center; justify-content: center; padding: var(--space-6); padding-top: calc(var(--space-6) + var(--safe-top)); padding-bottom: calc(var(--space-6) + var(--safe-bottom)); background: var(--color-background-secondary); }
+html.show-auth-gate:not(.is-auth-loading):not(.is-auth-callback) .auth-gate:not([hidden]) { display: flex; }
+.auth-card { width: 100%; max-width: 400px; background: var(--color-background-inset); border: 0.5px solid var(--color-divider-strong); border-radius: var(--border-radius-md); padding: var(--space-8) var(--space-5); text-align: center; box-shadow: none; }
+.auth-card__placeholder { width: 72px; height: 72px; margin: 0 auto 1.25rem; border-radius: var(--border-radius-md); background: var(--color-auth-placeholder); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.auth-card__placeholder-x { font-size: 2rem; font-weight: 300; line-height: 1; color: var(--color-auth-placeholder-fg); user-select: none; }
+.auth-card h1 { margin: 0 0 0.5rem 0; font-size: 1.375rem; font-weight: 600; letter-spacing: -0.02em; color: var(--color-text-primary); line-height: 1.25; }
+.auth-card__subtitle { margin: 0 0 1.25rem 0; font-size: var(--text-sm); color: var(--color-text-secondary); line-height: 1.4; font-weight: 400; }
+.auth-card__divider { height: 1px; margin: 0 0 var(--space-5) 0; background: var(--color-divider-strong); border: none; }
+.inline-error,
+.auth-error { min-height: 1.25rem; margin: 0 0 1rem 0; font-size: var(--text-sm); color: var(--color-danger); text-align: center; }
+.auth-error:empty { display: none; margin: 0; min-height: 0; }
+.auth-card__footer { margin: 1.25rem 0 0 0; font-size: var(--text-xs); color: var(--color-text-secondary); line-height: 1.45; }
+.btn-google-sign-in { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 48px; padding: 0 16px; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; color: var(--color-google-text); background: var(--color-google-surface); border: 1px solid var(--color-google-border); border-radius: 10px; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; box-shadow: 0 1px 2px var(--color-google-shadow); }
+.btn-google-sign-in:hover { background: var(--color-google-surface-hover); }
+.btn-google-sign-in:active { background: var(--color-google-surface-active); }
+.btn-google-sign-in .btn-google-sign-in__icon { flex-shrink: 0; width: 18px; height: 18px; }
+.btn-google-sign-in:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--color-background-inset), 0 0 0 4px var(--color-action-primary); }
+.auth-gate[hidden],
+.app-loading[hidden],
+.app-container[hidden] { display: none !important; }
+html:not(.is-app-ready) .app-container { display: none !important; visibility: hidden !important; }
+html.is-auth-loading #authGate,
+html.is-auth-loading #authGate[hidden],
+html.is-auth-callback #authGate,
+html.is-auth-callback #authGate[hidden] { display: none !important; }
+html.is-auth-loading #appLoading,
+html.is-auth-loading #appLoading[hidden],
+html.is-auth-callback #appLoading,
+html.is-auth-callback #appLoading[hidden] { display: flex !important; }
+html.is-auth-loading .app-container,
+html.is-auth-callback .app-container { display: none !important; }
+.app-loading { position: fixed; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: var(--app-max-width); display: flex; align-items: center; justify-content: center; background: var(--color-loading-scrim); z-index: 1200; font-size: var(--text-sm); color: var(--color-text-secondary); }
+.app-loading--fullscreen { background: var(--color-background-secondary); }
+.lucide { width: var(--icon-size); height: var(--icon-size); stroke-width: 2; }
+.targets-level-row .profile-target-lock-icon,
+.targets-hint .profile-target-lock-icon,
+.lucide.profile-target-lock-icon { width: 12px; height: 12px; flex-shrink: 0; color: var(--color-text-secondary); }
