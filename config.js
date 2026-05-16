@@ -1,2 +1,4 @@
 export const SUPABASE_URL = 'https://crhpnplqqwfgkmmulvuz.supabase.co';
 export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyaHBucGxxcXdmZ2ttbXVsdnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNTgzNjcsImV4cCI6MjA5MTczNDM2N30.iEVgvrta2IUAjhbxjGXRJqhhBvprTGYnC_2Bt09VAfM';
+
+export const GA_MEASUREMENT_ID = 'G-PJX4FZMC5E';
