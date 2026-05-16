@@ -23,6 +23,8 @@
   /* Surfaces */
   --color-background-primary: #FFFFFF;
   --color-background-secondary: #F5F4EE;
+  /* Solid equivalent of overlay scrim over secondary — wide-viewport gutters (Daily Log, auth). */
+  --color-background-canvas: color-mix(in srgb, var(--color-background-secondary) 50%, black);
   --color-background-highlight: #E6F1FB;
   --color-background-inset: #E6E4DC;
 
