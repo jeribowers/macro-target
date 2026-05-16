@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GA verify — Macro Target</title>
+<script>
+(function () {
+  var host = location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1') {
+    document.documentElement.classList.add('ga-verify--local');
+    return;
+  }
+  var id = 'G-PJX4FZMC5E';
+  var debug = true;
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { window.dataLayer.push(arguments); }
+  window.gtag = gtag;
+  gtag('js', new Date());
+  gtag('config', id, { debug_mode: true });
+  window.__macroTrack = function (eventName, params) {
+    var safe = { send_to: id, debug_mode: true };
+    if (params && typeof params === 'object') {
+      Object.keys(params).forEach(function (key) {
+        var val = params[key];
+        if (val != null && (typeof val === 'string' || typeof val === 'number')) safe[key] = val;
+      });
+    }
+    gtag('event', eventName, safe);
+  };
+  var s = document.createElement('script');
+  s.async = true;
+  s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(id);
+  s.onload = function () {
+    var today = new Date().toISOString().slice(0, 10);
+    __macroTrack('analytics_session_start');
+    __macroTrack('food_logged', { meal: 'breakfast', source: 'library' });
+    __macroTrack('logging_day', { log_date: today });
+    __macroTrack('logging_day_summary', { log_date: today, item_count: 1 });
+  };
+  document.head.appendChild(s);
+})();
+</script>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 28rem; margin: 2rem auto; line-height: 1.5; padding: 0 1rem; }
+  .ga-verify--local body::before { content: 'GA disabled on localhost.'; }
+</style>
+</head>
+<body>
+  <h1>GA verification</h1>
+  <p>This page fires all P0 test events with <strong>debug_mode</strong> (production only).</p>
+  <ol>
+    <li>Ad blocker off</li>
+    <li>GA → <strong>Admin → DebugView</strong></li>
+    <li>Select your <strong>Debug Device</strong> (not 0)</li>
+    <li>Within ~30s: <code>analytics_session_start</code>, <code>food_logged</code>, <code>logging_day</code>, <code>logging_day_summary</code></li>
+  </ol>
+  <p><a href="https://macrotarget.app/?ga_debug=1">Open main app (debug)</a></p>
+</body>
+</html>
