@@ -5,12 +5,37 @@
 .log-food-preview .food-info { gap: var(--space-1); }
 .log-food-preview__edit-library { grid-column: 2; grid-row: 1; justify-self: end; flex-shrink: 0; }
 .log-food-preview__edit-library[hidden] { display: none; }
-.modal-delete-footer { margin-top: var(--space-4); padding-top: var(--space-3); border-top: 0.5px solid var(--color-divider-strong); }
-.modal-delete-footer[hidden] { display: none; }
-.modal-delete-action { display: inline-flex; align-items: center; gap: var(--space-1); margin: 0; padding: 0; border: none; background: none; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; color: var(--color-danger); cursor: pointer; text-decoration: none; text-align: left; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-.modal-delete-action .lucide { width: var(--icon-size); height: var(--icon-size); flex-shrink: 0; stroke: currentColor; }
-.modal-delete-action[hidden] { display: none; }
-.modal-delete-action:focus-visible { outline: none; box-shadow: var(--focus-ring-shadow); border-radius: 4px; }
+.modal-secondary-actions { margin-top: var(--space-2); padding-top: var(--space-2); }
+.modal-secondary-actions[hidden] { display: none; }
+.modal-text-action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  text-align: left;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.modal-text-action span {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.modal-text-action .lucide {
+  width: var(--text-xs);
+  height: var(--text-xs);
+  flex-shrink: 0;
+}
+.modal-text-action[hidden] { display: none; }
+.modal-text-action:focus-visible { outline: none; box-shadow: var(--focus-ring-shadow); border-radius: 4px; }
 
 .quantity-input-group { display: flex; gap: var(--space-2); margin-bottom: 0; }
 .quantity-input-group .form-group { margin-bottom: 0; flex: 1 1 50%; min-width: 0; }

@@ -292,6 +292,8 @@ All modals share body padding tokens in `index.html`:
 | Inset panel | `.targets-level-row`, `.log-food-preview`, `.auth-card` | Targets, add-to-log, sign-in |
 | Primary / secondary button | `.btn-primary`, `.btn-secondary`, `.btn-icon` | Actions globally |
 | Ghost icon button | `.btn-icon.btn-ghost` | Icon-only on inset panels (e.g. `.log-food-preview__edit-library`) |
+| Modal primary footer | `.modal--primary-footer`, `.modal-footer` | Fixed bottom bar for primary action (Add/Save) on add-to-log and food forms |
+| Modal secondary action | `.modal-secondary-actions`, `.modal-text-action` | `textXs`, `colorTextSecondary`, Lucide `x` + underlined label; strip sits **above** fixed `.modal-footer`, outside `.modal-body__scroll` |
 
 HTML fragments for repeated Daily Log / search markup: `js/templates/dom-templates.js`.
 
@@ -304,6 +306,7 @@ HTML fragments for repeated Daily Log / search markup: `js/templates/dom-templat
 - **Serving (create/edit food):** `.serving-size-input`, `.serving-input-group`, `.quantity-input-group`.
 - **Clear value (text only):** `.input-with-clear` + `.input-clear-btn` — show a trailing **X** (Lucide `x`, `aria-label="Clear"`) only while the field is **focused and non-empty** (class `show-clear`). Wire with `attachInputClearButton()` in `js/components/input-clear-button.js`. Call `syncInputClearButton(input)` after programmatic `.value` updates if focus state may have changed.
 - **No clear X on numeric-only fields** — `inputmode="numeric"` or `inputmode="decimal"`, measure inputs (`.measure-input`), serving/quantity groups, and fields using `attachClearOnFocus({ numericOnly })` keep clear-on-focus behavior only.
+- **Modal layout (primary action):** `.modal--primary-footer` — `.modal-body` is a flex column: `.modal-body__scroll` (fields, `overflow-y: auto`) + `.modal-secondary-actions` (remove/delete link, pinned above footer). Primary button in fixed `.modal-footer` (`btn-primary btn-block`, use `form="…"` when submit is outside the form).
 - **Errors:** `.inline-error` or `.auth-error` — `--color-danger`, sentence case (see [States](#states)).
 
 ## States

@@ -142,13 +142,14 @@
 </div>
 
 <div class="modal-overlay" id="editFoodModal">
-  <div class="modal">
+  <div class="modal modal--primary-footer">
     <div class="modal-header">
       <h2 id="editFoodTitle">Edit Food Library</h2>
       <button class="modal-close" id="editFoodClose" aria-label="Close"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body">
       <form id="editFoodForm">
+        <div class="modal-body__scroll">
         <div class="form-group"><label>Food Name</label><input type="text" id="editFoodName" required></div>
         <div class="food-form-inset">
           <div id="editFoodReferenceMeasure" class="create-food-field-half reference-size"></div>
@@ -167,25 +168,27 @@
           </div>
         </div>
 
-        <div class="form-actions form-actions--single">
-          <button type="submit" class="btn-primary">Save Food</button>
-        </div>
-        <div class="modal-delete-footer" id="editFoodDeleteFooter" hidden>
-          <button type="button" class="modal-delete-action" id="deleteFromDatabase" hidden><i data-lucide="x" aria-hidden="true"></i><span>Delete from Library</span></button>
         </div>
       </form>
+      <div class="modal-secondary-actions" id="editFoodDeleteFooter" hidden>
+        <button type="button" class="modal-text-action" id="deleteFromDatabase" hidden><i data-lucide="x" aria-hidden="true"></i><span>Delete from Library</span></button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn-primary btn-block" form="editFoodForm">Save Food</button>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="createFoodModal">
-  <div class="modal">
+  <div class="modal modal--primary-footer">
     <div class="modal-header">
       <h2>Create New Food</h2>
       <button class="modal-close" id="createFoodClose" aria-label="Close"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body">
       <form id="createFoodForm">
+        <div class="modal-body__scroll">
         <div class="form-group"><label>Food Name</label><input type="text" id="createFoodName" required></div>
         <div class="food-form-inset">
           <div id="createFoodReferenceMeasure" class="create-food-field-half reference-size"></div>
@@ -207,21 +210,23 @@
           <input type="checkbox" id="createFoodAddToLog" checked>
           <span>Also add to Daily Log</span>
         </label>
-        <div class="form-actions form-actions--single">
-          <button type="submit" class="btn-primary">Save Food</button>
         </div>
       </form>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn-primary btn-block" form="createFoodForm">Save Food</button>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="addToLogModal">
-  <div class="modal">
+  <div class="modal modal--primary-footer">
     <div class="modal-header">
       <h2>Add to Daily Log</h2>
       <button class="modal-close" id="addToLogClose" aria-label="Close"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body">
+      <div class="modal-body__scroll">
       <div class="log-food-preview">
         <div id="logFoodPreview"></div>
         <button type="button" class="btn-icon btn-ghost log-food-preview__edit-library" id="editFoodInLibraryLink" hidden aria-label="Edit in Library" title="Edit in Library"><i data-lucide="pencil" aria-hidden="true"></i></button>
@@ -250,12 +255,13 @@
           </div>
         </div>
       </div>
-      <div class="form-actions form-actions--single">
-        <button type="button" class="btn-primary" id="confirmAddToLog">Add to Daily Log</button>
       </div>
-      <div class="modal-delete-footer" id="addToLogDeleteFooter" hidden>
-        <button type="button" class="modal-delete-action" id="deleteFromLog" hidden><i data-lucide="x" aria-hidden="true"></i><span>Remove from Daily Log</span></button>
+      <div class="modal-secondary-actions" id="addToLogDeleteFooter" hidden>
+        <button type="button" class="modal-text-action" id="deleteFromLog" hidden><i data-lucide="x" aria-hidden="true"></i><span>Remove from Daily Log</span></button>
       </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-primary btn-block" id="confirmAddToLog">Add to Daily Log</button>
     </div>
   </div>
 </div>
