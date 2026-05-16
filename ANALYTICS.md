@@ -72,10 +72,13 @@ Understand whether people **reach value** (sign in, log food, set targets), **co
 | **Engagement time** | Rough time on site | GA4 | Automatic (if Enhanced measurement → engagement enabled in stream) |
 | **Scroll** | Content engagement | GA4 | Automatic (Enhanced measurement → scroll, if enabled) |
 | **Outbound clicks** | Clicks leaving the site | GA4 | Automatic (Enhanced measurement, if enabled) |
+| **Item added to Daily Log** | Core habit | GA4 | `food_logged` | `meal`, `source` (`search` \| `library` \| `new_food`) — via `js/analytics.js` |
+| **Logging day** | Retention (first log per calendar day per session) | GA4 | `logging_day` | `date` (`YYYY-MM-DD`) |
+| **Items per logging day** | Depth on active days | GA4 | `logging_day_summary` | `date`, `item_count` (cumulative count after each add) |
 
-**Not yet tracked:** screens/modals as separate pages, food logging, library adds, export/import, targets saves, sign-in funnel. See [Planned tracking](#planned-tracking).
+**Not yet tracked:** screens/modals, library CRUD, export/import, targets saves, sign-in funnel. See [Planned tracking](#planned-tracking).
 
-**Verify in GA:** Reports → Realtime, Reports → Engagement → Pages and screens (page title **Macro Target** = main app).
+**Verify in GA:** Reports → Realtime; Reports → Engagement → **Events** (`food_logged`, `logging_day`, `logging_day_summary`). DebugView with `?ga_debug=1` while testing.
 
 ---
 
@@ -101,14 +104,14 @@ Implement as **GA4 custom events** from the app (`gtag('event', ...)`). Status: 
 | **Sign-in error** | Auth friction | GA4 | `login_error` | `error_type` (coarse, no message text) |
 | **Profile / targets complete** | Onboarding quality | GA4 | `profile_complete` | — |
 
-### Core habit — Daily Log (high priority)
+### Core habit — Daily Log
 
-| Metric | Why it’s useful | Tool | GA event | Parameters |
-|--------|-----------------|------|----------|------------|
-| **Item added to Daily Log** | Core product value | GA4 | `food_logged` | `meal`, `source`: `search` \| `library` \| `new_food` |
-| **Item removed from log** | Editing behavior | GA4 | `food_log_removed` | `meal` |
-| **Logging day** | Retention (“did they log today?”) | GA4 | `logging_day` | `date` as `YYYY-MM-DD` (date only, not user id) |
-| **Items per logging day** | Depth of use on active days | GA4 | `logging_day_summary` | `date`, `item_count` (fire once per day per device session or on last log of day) |
+| Metric | Why it’s useful | Tool | GA event | Parameters | Status |
+|--------|-----------------|------|----------|------------|--------|
+| **Item added to Daily Log** | Core product value | GA4 | `food_logged` | `meal`, `source`: `search` \| `library` \| `new_food` | **Live** |
+| **Item removed from log** | Editing behavior | GA4 | `food_log_removed` | `meal` | Planned |
+| **Logging day** | Retention (“did they log today?”) | GA4 | `logging_day` | `date` as `YYYY-MM-DD` | **Live** (once per date per browser session) |
+| **Items per logging day** | Depth of use on active days | GA4 | `logging_day_summary` | `date`, `item_count` | **Live** (after each add, cumulative count for that date) |
 
 **Supabase alternative (optional):**  
 `SELECT date, COUNT(*) FROM daily log entries GROUP BY date` — use for “days with 1+ items” and “items per day” across all users without event design.
@@ -192,7 +195,7 @@ Register custom events as **key events** in GA only if you use them as goals (e.
 
 - **Config:** `GA_MEASUREMENT_ID` in `config.js` / `config.example.js`.  
 - **Loader:** Inline gtag bootstrap in `index.html` (skips localhost).  
-- **Helper:** Prefer a small `js/analytics.js` (or similar) with `trackEvent(name, params)` that no-ops on localhost and sanitizes parameters.  
+- **Helper:** `js/analytics.js` — `trackDailyLogFoodAdded()` for P0 events; no-ops on localhost; sanitizes parameters.  
 - **SPA:** Fire `screen_view` when opening modals (Personalize, Settings) and major UI states—not only initial load.  
 - **Do not** duplicate Supabase row data in GA; send **counts and action types** only.
 
@@ -202,7 +205,7 @@ Register custom events as **key events** in GA only if you use them as goals (e.
 
 | Priority | Track in GA4 |
 |----------|----------------|
-| **P0 (habit)** | `food_logged`, `logging_day`, `logging_day_summary` |
+| **P0 (habit)** | `food_logged`, `logging_day`, `logging_day_summary` — **live** |
 | **P1 (activation)** | `login`, `profile_complete`, `screen_view` |
 | **P2 (features)** | `library_food_*`, `data_export`, `data_import`, `targets_saved` |
 | **P3 (quality)** | `sync_error`, `login_error`, scroll/time via enhanced measurement |

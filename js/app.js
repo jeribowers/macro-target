@@ -1,4 +1,5 @@
 import * as sync from './sync-service.js';
+import { trackDailyLogFoodAdded } from './analytics.js';
 import {
   calculateTargets,
   convertHeightValue,
@@ -630,6 +631,15 @@ function getCurrentDayLog() {
   return state.dailyLogs[key];
 }
 
+function getDailyLogItemCount(dateKey) {
+  const log = state.dailyLogs[dateKey];
+  if (!log) return 0;
+  return ['breakfast', 'lunch', 'dinner', 'snack'].reduce(
+    (sum, category) => sum + (log[category]?.length || 0),
+    0,
+  );
+}
+
 function getTodayTotals() {
   const log = getCurrentDayLog();
   let totals = { calories: 0, carbs: 0, protein: 0, fat: 0 };
@@ -1106,6 +1116,8 @@ function searchFoods(query) {
 function selectFoodForLog(foodId) {
   const food = state.foods.find(f => f.id === foodId);
   if (food) {
+    const searchQuery = document.getElementById('searchInput')?.value?.trim() || '';
+    state.pendingLogAnalyticsSource = searchQuery ? 'search' : 'library';
     state.currentFoodForLog = food;
     state.editingLogItem = null;
     if (!state.recentSearches.includes(foodId)) {
@@ -1444,7 +1456,10 @@ async function saveCreatedFood() {
     closeCreateFoodModal();
 
     if (addToLog) {
-      await addFoodEntryToDailyLog(normalized, { category: state.defaultCategory || 'breakfast' });
+      await addFoodEntryToDailyLog(normalized, {
+        category: state.defaultCategory || 'breakfast',
+        analyticsSource: 'new_food',
+      });
     } else {
       const searchQuery = document.getElementById('searchInput')?.value?.trim() || '';
       openAddFoodModal(state.defaultCategory);
@@ -1529,6 +1544,16 @@ async function addFoodEntryToDailyLog(food, options = {}) {
   saveState();
   updateMacroDisplay();
   renderFoodLog();
+
+  if (options.analyticsSource) {
+    const dateKey = getDateKey(state.currentDate);
+    trackDailyLogFoodAdded({
+      meal: category,
+      source: options.analyticsSource,
+      dateKey,
+      itemCount: getDailyLogItemCount(dateKey),
+    });
+  }
 }
 
 async function addFoodToLog() {
@@ -1541,7 +1566,9 @@ async function addFoodToLog() {
       quantity,
       unit,
       category: state.logMeal || state.defaultCategory || 'breakfast',
+      analyticsSource: state.pendingLogAnalyticsSource || 'library',
     });
+    state.pendingLogAnalyticsSource = null;
     closeAddToLogModal();
   } catch (error) {
     reportError(error);
