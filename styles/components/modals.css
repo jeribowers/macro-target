@@ -101,8 +101,10 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 .profile-section .radio-fieldset + .radio-fieldset { margin-top: 8px; }
 .targets-section { display: flex; flex-direction: column; gap: 0; margin-top: var(--modal-section-gap-above-divider); padding-top: var(--modal-section-pad-below-divider); border-top: 0.5px solid var(--color-divider-strong); }
 .targets-section .targets-hint { margin-top: 8px; }
+.profile-section__header,
 .targets-section__header { display: flex; align-items: center; gap: 2px; margin: 0; }
 .section-heading,
+.profile-section__header h4,
 .targets-section__header h4,
 .settings-section h4 { margin: 0; font-size: var(--text-md); font-weight: 600; color: var(--color-text-primary); }
 .section-description { margin: var(--section-title-description-gap) 0 var(--section-description-content-gap); font-size: var(--text-sm); line-height: 1.45; color: var(--color-text-primary); }

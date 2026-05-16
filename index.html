@@ -259,13 +259,21 @@
 <div class="modal-overlay" id="personalizeModal">
   <div class="modal">
     <div class="modal-header">
-      <h2>Personalize Targets</h2>
+      <h2>Your Calorie &amp; Macro Targets</h2>
       <button type="button" class="modal-close" id="personalizeClose" aria-label="Close"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body">
       <section class="profile-section">
+      <div class="profile-section__header">
       <h4 class="section-heading">Profile Details</h4>
-      <p class="section-description">Set your height, weight, age, and goal to calculate personalized targets.</p>
+      <span class="field-info-tip">
+        <button type="button" class="info-tip-btn" aria-label="About BMR Calculation" aria-describedby="profileBmrTip">
+          <i data-lucide="info" aria-hidden="true"></i>
+        </button>
+        <span id="profileBmrTip" class="info-tip-content" role="tooltip">We use the Mifflin-St Jeor formula to estimate your baseline.</span>
+      </span>
+      </div>
+      <p class="section-description">Your details calculate your baseline calorie burn. Your activity level applies a multiplier to this baseline to set your daily targets.</p>
       <div class="profile-measures-row">
         <div id="profileHeightMeasure"></div>
         <div id="profileWeightMeasure"></div>
@@ -281,7 +289,7 @@
             <button type="button" class="info-tip-btn" aria-label="How We Calculate Targets by Gender" aria-describedby="profileSexOtherTip">
               <i data-lucide="info" aria-hidden="true"></i>
             </button>
-            <span id="profileSexOtherTip" class="info-tip-content" role="tooltip">We calculate targets based on Mifflin-St Jeor male and female formulas due to metabolic differences. &quot;Other&quot; uses an average of both. You can adjust final targets manually.</span>
+            <span id="profileSexOtherTip" class="info-tip-content" role="tooltip">Male and female formulas differ slightly due to metabolism differences.</span>
           </span>
         </legend>
         <div class="radio-row">
@@ -297,7 +305,7 @@
             <button type="button" class="info-tip-btn" aria-label="About Diet Goal Calorie Adjustments" aria-describedby="profileDietGoalTip">
               <i data-lucide="info" aria-hidden="true"></i>
             </button>
-            <span id="profileDietGoalTip" class="info-tip-content" role="tooltip">Based on a 300 calorie adjustment: Maintain uses your baseline, Lose targets <span id="profileDietGoalLossRate">~0.5 lb</span>/week loss, Gain targets <span id="profileDietGoalGainRate">~0.5 lb</span>/week gain.</span>
+            <span id="profileDietGoalTip" class="info-tip-content" role="tooltip">We adjust your daily calorie target based on this: Maintain (no change) • Lose (–300 cal/day, <span id="profileDietGoalLossRate">~0.2 kg</span>/week) • Gain (+300 cal/day, <span id="profileDietGoalGainRate">~0.2 kg</span>/week).</span>
           </span>
         </legend>
         <div class="radio-row">
@@ -309,15 +317,15 @@
       </section>
       <section class="targets-section">
         <div class="targets-section__header">
-          <h4 class="section-heading">Daily Targets</h4>
+          <h4 class="section-heading">Activity Level</h4>
           <span class="field-info-tip">
-            <button type="button" class="info-tip-btn" aria-label="About Daily Targets" aria-describedby="profileTargetsTip">
+            <button type="button" class="info-tip-btn" aria-label="About Activity Levels" aria-describedby="profileTargetsTip">
               <i data-lucide="info" aria-hidden="true"></i>
             </button>
-            <span id="profileTargetsTip" class="info-tip-content" role="tooltip">Activity level estimates your daily calorie burn, which sets your targets. Edit any number to customize. These targets update based on your activity level selection in the daily log.</span>
+            <span id="profileTargetsTip" class="info-tip-content" role="tooltip">Light (1.2×) • Moderate (1.55×) • Intense (1.725×) — each multiplies your baseline calorie burn.</span>
           </span>
         </div>
-        <p class="section-description">Adjust your daily calorie and macro targets by activity level.</p>
+        <p class="section-description">Your activity level sets how many calories you burn daily. We use this to calculate your macro targets for the Daily Log.</p>
         <div id="profileTargetsLevels" class="targets-levels-list" aria-live="polite">
         <div class="targets-level-row" data-level="low">
           <span class="targets-level-row__name">Light Activity</span>

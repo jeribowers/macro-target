@@ -187,7 +187,7 @@ Use divider tokens for horizontal rules and row separators — not `colorBorderT
 | Token | CSS variable | Value | Use |
 | --- | --- | --- | --- |
 | `colorDivider` | `--color-divider` | `rgba(0,0,0,0.4)` | Rows on primary surfaces: food list, swipe rows, header/footer rules, modal title bar |
-| `colorDividerStrong` | `--color-divider-strong` | `rgba(0,0,0,0.55)` | On `colorBackgroundInset`, modal section breaks, delete footer, auth card divider |
+| `colorDividerStrong` | `--color-divider-strong` | `rgba(0,0,0,0.22)` | On `colorBackgroundInset`, modal section breaks, delete footer, auth card divider |
 
 ### Divider Rules
 
