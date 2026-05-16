@@ -1,117 +1,214 @@
-# Macro Tracker — Claude Code Setup Guide
+# Macro Target
 
-A personal macro tracking PWA. Install to your iPhone home screen and use it like a native app.
+A personal macro-tracking PWA. Log meals, manage a Food Library, set targets, and sync data across devices. Install it on your iPhone home screen for a native-like experience.
 
-## What's in this repo
+## URLs
 
-- `index.html` — the entire app, single self-contained file
-- `manifest.json` — makes it installable as a PWA
-- `icon-180.png`, `icon-512.png` — app icons (you'll generate these — see below)
 
-## Walkthrough with Claude Code
+| What                             | URL                                                                                                                        |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **Production app**               | [https://macrotarget.app/](https://macrotarget.app/)                                                                       |
+| **GitHub repository**            | [https://github.com/jeribowers/macro-target](https://github.com/jeribowers/macro-target)                                   |
+| **Supabase project** (dashboard) | [https://supabase.com/dashboard/project/crhpnplqqwfgkmmulvuz](https://supabase.com/dashboard/project/crhpnplqqwfgkmmulvuz) |
+| **Supabase API**                 | `https://crhpnplqqwfgkmmulvuz.supabase.co`                                                                                 |
+| **Local dev**                    | [http://localhost:5173/](http://localhost:5173/) (Vite; use port **5173**)                                                 |
 
-### Step 1: Get the files onto your machine
 
-Open a terminal in a folder where you keep projects (e.g. `~/projects/`) and run:
+## Tech stack
 
-```bash
-mkdir macro-target
-cd macro-target
+
+| Layer                        | Technology                                                                           |
+| ---------------------------- | ------------------------------------------------------------------------------------ |
+| **Production UI**            | Vanilla HTML, CSS, ES modules (`index.html`, `js/`, `styles/`)                       |
+| **PWA**                      | `manifest.json`, Apple touch icons, standalone display                               |
+| **Icons**                    | [Lucide](https://lucide.dev/) (CDN)                                                  |
+| **Backend**                  | [Supabase](https://supabase.com/) — Postgres, Row Level Security (RLS), Google OAuth |
+| **Hosting**                  | [GitHub Pages](https://pages.github.com/) — deploys from `main` at repo root         |
+| **Dev server**               | [Vite](https://vitejs.dev/) — serves the static app locally on port 5173             |
+| **In repo (not production)** | React 18 + Recharts under `src/` — experimental rewrite; not wired to `index.html`   |
+
+
+Shared UI tokens and patterns: see [STYLEGUIDE.md](./STYLEGUIDE.md).
+
+## What the app does
+
+- **Daily Log** — log foods by meal; navigate by date; activity level per day.
+- **Food Library** — saved foods with macros; starter foods for new users.
+- **Targets** — calorie and macro goals from profile/settings.
+- **Sync** — signed-in users sync to Supabase; access is limited to emails in `allowed_users`.
+- **Export / import** — JSON backup from Settings (⚙).
+- **Retention** — Daily Log entries and per-day activity are purged after **30 days** (server-side); Food Library is kept.
+
+## Repository layout
+
+```
+macro-target/
+├── index.html              # Production app shell
+├── manifest.json           # PWA manifest
+├── config.js               # Supabase URL + anon key (see Configuration)
+├── config.example.js       # Template for config.js
+├── js/
+│   ├── app.js              # Main app logic
+│   ├── sync-service.js     # Supabase auth + data sync
+│   └── …                   # Components, templates, profile helpers
+├── styles/                 # CSS (tokens in styles/tokens.css)
+├── public/                 # Static assets (e.g. manifest copy)
+├── supabase/migrations/    # SQL migrations (schema + RLS)
+├── src/                    # React rewrite (not used in production)
+├── package.json            # Vite dev tooling + token check script
+└── STYLEGUIDE.md           # Design system
 ```
 
-Drop `index.html` and `manifest.json` from this conversation into that folder. Then start Claude Code:
+## Prerequisites
+
+- **Node.js** 18+ and npm
+- **Git**
+- **Supabase CLI** (optional, for migrations): [install guide](https://supabase.com/docs/guides/cli)
+- **GitHub CLI** (`gh`) — optional, for repo/Pages management
+- Access to the Supabase project and an **allowed** Google account (email must exist in `allowed_users`)
+
+## Configuration
+
+1. Copy the example config:
+  ```bash
+   cp config.example.js config.js
+  ```
+2. In the [Supabase dashboard](https://supabase.com/dashboard/project/crhpnplqqwfgkmmulvuz) → **Project Settings** → **API**, copy:
+  - **Project URL** → `SUPABASE_URL`
+  - **anon public** key → `SUPABASE_ANON_KEY`
+3. Never put the **service role** key in client code or `config.js`. It belongs only in server-side/Edge Function environments.
+
+The anon key is designed to be public in the browser; security comes from RLS policies, not hiding the anon key.
+
+## Local development
 
 ```bash
-claude
+npm install
+npm run dev
 ```
 
-### Step 2: Generate the app icons
+Open [http://localhost:5173/](http://localhost:5173/)
 
-You need two PNG icons for the app to install properly. Ask Claude Code:
+Vite serves `index.html` and ES modules from the repo root. No production build step is required for the shipped app.
 
-> Generate a simple flat icon for a macro tracker app — a flame emoji on a cream background (#FAFAF7), centered, no text. Make two sizes: 180×180 and 512×512, saved as icon-180.png and icon-512.png.
+### Supabase auth (Google) for localhost
 
-If Claude Code doesn't have an image generation tool available, alternatives:
+In Supabase → **Authentication** → **URL configuration**, ensure **Redirect URLs** includes:
 
-- Use any flame emoji screenshot, resize in Preview (Mac) or any image editor to 180×180 and 512×512
-- Use [favicon.io/emoji-favicons](https://favicon.io/emoji-favicons/) — pick the flame, download, rename the 192×192 to icon-180.png and use the same for icon-512.png
-- Skip icons entirely for the MVP — iOS will use a screenshot fallback
+- `http://localhost:5173/`
+- `http://127.0.0.1:5173/` (if you use that host)
 
-### Step 3: Initialize git and push to GitHub
+For production, include:
 
-In Claude Code:
+- `https://macrotarget.app/`
 
-> Initialize this as a git repo and create a public GitHub repo called macro-target. Push the current files.
+Google OAuth must be enabled under **Authentication** → **Providers** → **Google**, with credentials from Google Cloud Console.
 
-Claude Code will use `gh` (GitHub CLI) to do this. If you don't have `gh` installed, it'll walk you through.
+Sign-in uses **Google only**. After OAuth, the app checks `allowed_users` for the signed-in email; others see an access-denied message.
 
-If you'd rather do it manually:
+## Database and migrations
+
+Schema and RLS live in `supabase/migrations/`. Main tables:
+
+
+| Table                   | Purpose                                        |
+| ----------------------- | ---------------------------------------------- |
+| `allowed_users`         | Emails permitted to use the app                |
+| `foods`                 | Food Library per user                          |
+| `log_entries`           | Daily Log lines                                |
+| `user_settings`         | Profile JSON, default activity level           |
+| `daily_activity_levels` | Per-date activity (light / moderate / intense) |
+
+
+Apply migrations to the linked project:
 
 ```bash
-git init
-git add .
-git commit -m "Initial macro tracker"
-gh repo create macro-target --public --source=. --push
+supabase login
+supabase link --project-ref crhpnplqqwfgkmmulvuz
+supabase db push
 ```
 
-### Step 4: Enable GitHub Pages
+To allow a new user, insert their email into `allowed_users` (via SQL editor or a new migration). Example:
 
-Two options:
-
-**Via Claude Code:**
-> Enable GitHub Pages on the macro-target repo, serving from the main branch root.
-
-**Manually:**
-1. Go to your repo on github.com
-2. Settings → Pages
-3. Source: "Deploy from a branch"
-4. Branch: `main`, folder: `/ (root)`
-5. Save
-
-After ~30 seconds, your app is live at `https://YOUR-USERNAME.github.io/macro-target/`
-
-### Step 5: Add to your iPhone home screen
-
-1. Open Safari on your iPhone (must be Safari, not Chrome)
-2. Visit your GitHub Pages URL
-3. Tap the Share button (square with arrow up)
-4. Scroll down → "Add to Home Screen"
-5. Name it "Macros" → Add
-
-Tap the icon. It opens fullscreen with no browser chrome, looks/feels native.
-
-## Making future changes
-
-When you want to update:
-
-```bash
-cd macro-target
-claude
+```sql
+insert into public.allowed_users (email) values ('person@example.com')
+on conflict (email) do nothing;
 ```
 
-Then describe what you want changed. Claude Code will edit `index.html`, you commit and push:
+## Deployment (production)
 
-```bash
-git add . && git commit -m "Add fat tracking" && git push
-```
+The live app is **static files on GitHub Pages**, not a Vite `dist/` build.
 
-GitHub Pages redeploys automatically in 30 seconds. **Pull-to-refresh in your iPhone app** (or close and reopen) to get the new version.
+1. Commit and push to `main` on [https://github.com/jeribowers/macro-target](https://github.com/jeribowers/macro-target)
+2. GitHub Pages redeploys automatically (usually within ~30 seconds)
+3. Public URL: [https://macrotarget.app/](https://macrotarget.app/)
 
-Your localStorage data (Food Library and Daily Logs) survives updates as long as the URL stays the same.
+**Pages settings:** Repository → **Settings** → **Pages** → Source: deploy from branch `**main`**, folder `**/ (root)**`.
 
-## Backup your data
+After deploy, pull-to-refresh on the installed PWA (or close and reopen) to pick up changes.
 
-Tap the ⚙ icon → Export. Save the JSON file somewhere safe (iCloud Drive, email it to yourself).
+## Install on iPhone (PWA)
 
-To restore: ⚙ → Import → pick the file. Done.
+1. Open **Safari** (required for Add to Home Screen)
+2. Go to [https://macrotarget.app/](https://macrotarget.app/)
+3. Share → **Add to Home Screen**
+4. Name it (e.g. “Macro Target”) → **Add**
+
+The app opens standalone without browser chrome.
+
+## npm scripts
+
+
+| Script        | Command                | Purpose                                                                    |
+| ------------- | ---------------------- | -------------------------------------------------------------------------- |
+| Dev server    | `npm run dev`          | Vite on [http://localhost:5173/](http://localhost:5173/)                   |
+| Preview build | `npm run preview`      | Preview Vite production build (`dist/`) — not used for GitHub Pages deploy |
+| Build         | `npm run build`        | Vite build to `dist/` — for React/experiments only                         |
+| Design tokens | `npm run check:tokens` | Ensures no raw colors outside `styles/tokens.css`                          |
+
+
+## Backup and restore
+
+1. In the app, open **Settings** (⚙)
+2. **Export** — save the JSON file (iCloud, email, etc.)
+3. **Import** — choose a previously exported file
+
+Cloud-synced data also lives in Supabase for signed-in users.
 
 ## Troubleshooting
 
-**App icon shows a screenshot instead of the flame icon**
-Your `icon-180.png` isn't loading. Check the file exists, is named exactly that, and the URL `https://YOUR-USERNAME.github.io/macro-target/icon-180.png` returns the image.
+**“Supabase is not configured”**  
+Copy `config.example.js` to `config.js` and set real `SUPABASE_URL` and `SUPABASE_ANON_KEY`.
 
-**Changes don't appear on phone**
-Force quit the app and reopen, or pull down to refresh inside Safari first to bust the cache.
+**Google sign-in fails or redirects to a blank page**  
+Check Supabase redirect URLs match exactly how you open the app (localhost vs production path).
 
-**Lost my data after switching to a new domain**
-localStorage is scoped per-domain. Always use the same URL. If you must move, export first, import after.
+**“This Google account does not have access yet”**  
+Add the account email to `allowed_users` in Supabase.
+
+**Changes not visible on phone**  
+Force-quit the PWA and reopen, or refresh in Safari first to bust cache.
+
+**Data missing after changing URL**  
+Browser storage is per-origin. Stay on the same URL, or export before switching hosts.
+
+**App icon is a screenshot**  
+Confirm `icon-180x180.png` and `icon-512x512.png` exist and load at  
+[https://macrotarget.app/icon-180x180.png](https://macrotarget.app/icon-180x180.png)
+
+## React code in `src/`
+
+`src/App.jsx` and `src/main.jsx` are a separate React + Supabase experiment. Production still runs `index.html` + `js/app.js`. Do not point GitHub Pages at `dist/` unless you intentionally migrate the stack.
+
+## Security notes
+
+- All Supabase tables use **RLS**; users only read/write their own rows (except `allowed_users`, which authenticated users can read for their own email check).
+- Auth is enforced by Supabase; the client checks `allowed_users` for product access control.
+- Do not commit service role keys or Google OAuth client secrets to the repo.
+
+## Related docs
+
+- [STYLEGUIDE.md](./STYLEGUIDE.md) — typography, colors, components, UI rules
+- [Supabase docs](https://supabase.com/docs)
+- [Vite docs](https://vitejs.dev/)
+
