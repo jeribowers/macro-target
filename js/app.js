@@ -21,6 +21,7 @@ import {
 } from './profile-calculator.js';
 import { createMeasureInput } from './components/measure-input.js';
 import { attachClearOnFocus } from './components/clear-on-focus-input.js';
+import { attachInputClearButton, syncInputClearButton } from './components/input-clear-button.js';
 import { hideAllFieldInfoTips, initFieldInfoTips } from './components/field-info-tip.js';
 import { STARTER_FOODS, STARTER_LOG_ENTRIES } from './starter-foods.js';
 import {
@@ -167,6 +168,12 @@ let profileHeightInput = null;
 let profileWeightInput = null;
 let createFoodReferenceInput = null;
 let editFoodReferenceInput = null;
+
+function initInputClearButtons() {
+  ['searchInput', 'editFoodName', 'createFoodName'].forEach((id) => {
+    attachInputClearButton(document.getElementById(id));
+  });
+}
 
 function initClearOnFocusInputs() {
   const foodNumericIds = [
@@ -1127,6 +1134,7 @@ function editFoodInDB(foodId, options = {}) {
   if (food) {
     state.editingFoodId = foodId;
     document.getElementById('editFoodName').value = food.name;
+    syncInputClearButton(document.getElementById('editFoodName'));
     editFoodReferenceInput?.setMeasurement({
       value: food.servingSize || 100,
       unit: food.servingUnit || 'g',
@@ -1372,6 +1380,7 @@ function initSwipeToDelete(container, onDelete) {
 function openCreateFoodModal(prefillName = '') {
   closeAddFoodModal();
   document.getElementById('createFoodName').value = prefillName.trim();
+  syncInputClearButton(document.getElementById('createFoodName'));
   createFoodReferenceInput?.setMeasurement({ value: 100, unit: 'g' });
   syncCreateFoodServingUnitLabel();
   document.getElementById('createFoodDefaultServingSize').value = '100';
@@ -1762,6 +1771,7 @@ document.getElementById('personalizeClose')?.addEventListener('click', () => clo
 document.getElementById('backupDataClose')?.addEventListener('click', () => closeModal('backupDataModal'));
 
 initClearOnFocusInputs();
+initInputClearButtons();
 initProfileMeasureInputs();
 initCreateFoodReferenceMeasure();
 initEditFoodReferenceMeasure();

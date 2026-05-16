@@ -37,6 +37,34 @@
 .editable-macro label { font-size: var(--text-xs); color: var(--color-text-secondary); margin-bottom: var(--space-1); font-weight: 500; }
 .editable-macro input { width: 100%; padding: 0 var(--space-3); height: var(--input-md-height); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-md); font-family: var(--font-sans); background: var(--color-background-primary); color: var(--color-text-primary); }
 
+.input-with-clear { position: relative; display: block; width: 100%; min-width: 0; }
+.input-with-clear > input { width: 100%; box-sizing: border-box; }
+.input-with-clear.has-value > input { padding-right: calc(var(--icon-button-size) + var(--space-1)); }
+.input-clear-btn {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  width: var(--icon-button-size);
+  height: var(--icon-button-size);
+  padding: 0;
+  border: none;
+  border-radius: var(--border-radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.input-clear-btn[hidden] { display: none; }
+.input-clear-btn .lucide { width: var(--text-md); height: var(--text-md); }
+.input-clear-btn:focus-visible { outline: none; box-shadow: var(--focus-ring-shadow); }
+.search-controls .input-with-clear { flex: 1; min-width: 0; }
+.search-controls .input-with-clear.has-value .search-input { padding-right: calc(var(--icon-button-size) + var(--space-1)); }
+
 .settings-section { margin-top: var(--modal-section-gap-above-divider); padding-top: var(--modal-section-pad-below-divider); border-top: 0.5px solid var(--color-divider-strong); display: flex; flex-direction: column; gap: 0; }
 .settings-section--first { margin-top: 0; padding-top: 0; border-top: none; }
 .settings-notice { display: flex; align-items: flex-start; gap: var(--space-2); margin: 0 0 var(--space-4); font-size: var(--text-xs); line-height: 1.45; color: var(--color-text-secondary); }

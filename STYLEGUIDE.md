@@ -285,6 +285,8 @@ HTML fragments for repeated Daily Log / search markup: `js/templates/dom-templat
 - **Radio pill:** `.radio-pill` — checked uses `--color-background-highlight`, `--color-text-highlight`, `--color-border-highlight`.
 - **Checkbox:** `.form-checkbox` — accent `--color-action-primary`.
 - **Serving (create/edit food):** `.serving-size-input`, `.serving-input-group`, `.quantity-input-group`.
+- **Clear value (text only):** `.input-with-clear` + `.input-clear-btn` — when a non-numeric field has a value, show a trailing **X** (Lucide `x`, `aria-label="Clear"`) to empty the field. Wire with `attachInputClearButton()` in `js/components/input-clear-button.js`. After setting `.value` in code, call `syncInputClearButton(input)` so the control appears for pre-filled fields.
+- **No clear X on numeric-only fields** — `inputmode="numeric"` or `inputmode="decimal"`, measure inputs (`.measure-input`), serving/quantity groups, and fields using `attachClearOnFocus({ numericOnly })` keep clear-on-focus behavior only.
 - **Errors:** `.inline-error` or `.auth-error` — `--color-danger`, sentence case (see [States](#states)).
 
 ## States
