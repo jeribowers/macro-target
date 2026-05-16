@@ -23,6 +23,7 @@ A personal macro-tracking PWA. Log meals, manage a Food Library, set targets, an
 | **PWA**                      | `manifest.json`, Apple touch icons, standalone display                               |
 | **Icons**                    | [Lucide](https://lucide.dev/) (CDN)                                                  |
 | **Backend**                  | [Supabase](https://supabase.com/) — Postgres, Row Level Security (RLS), Google OAuth |
+| **Analytics**                | [Google Analytics 4](https://analytics.google.com/) — production only (see [ANALYTICS.md](./ANALYTICS.md)) |
 | **Hosting**                  | [GitHub Pages](https://pages.github.com/) — deploys from `main` at repo root         |
 | **Dev server**               | [Vite](https://vitejs.dev/) — serves the static app locally on port 5173             |
 | **In repo (not production)** | React 18 + Recharts under `src/` — experimental rewrite; not wired to `index.html`   |
@@ -45,8 +46,9 @@ Shared UI tokens and patterns: see [STYLEGUIDE.md](./STYLEGUIDE.md).
 macro-target/
 ├── index.html              # Production app shell
 ├── manifest.json           # PWA manifest
-├── config.js               # Supabase URL + anon key (see Configuration)
+├── config.js               # Supabase URL + anon key, GA measurement ID (see Configuration)
 ├── config.example.js       # Template for config.js
+├── ANALYTICS.md            # What we track, planned events, GA vs Supabase
 ├── js/
 │   ├── app.js              # Main app logic
 │   ├── sync-service.js     # Supabase auth + data sync
@@ -76,7 +78,8 @@ macro-target/
 2. In the [Supabase dashboard](https://supabase.com/dashboard/project/crhpnplqqwfgkmmulvuz) → **Project Settings** → **API**, copy:
   - **Project URL** → `SUPABASE_URL`
   - **anon public** key → `SUPABASE_ANON_KEY`
-3. Never put the **service role** key in client code or `config.js`. It belongs only in server-side/Edge Function environments.
+3. Set `GA_MEASUREMENT_ID` to your GA4 web stream measurement ID (`G-…`), or leave empty to disable analytics locally and on production.
+4. Never put the **service role** key in client code or `config.js`. It belongs only in server-side/Edge Function environments.
 
 The anon key is designed to be public in the browser; security comes from RLS policies, not hiding the anon key.
 
@@ -209,6 +212,7 @@ Confirm `icon-180x180.png` and `icon-512x512.png` exist and load at
 ## Related docs
 
 - [STYLEGUIDE.md](./STYLEGUIDE.md) — typography, colors, components, UI rules
+- [ANALYTICS.md](./ANALYTICS.md) — GA4 setup, what is tracked today, planned events, privacy, GA vs Supabase
 - [Supabase docs](https://supabase.com/docs)
 - [Vite docs](https://vitejs.dev/)
 
