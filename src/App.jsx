@@ -238,7 +238,7 @@ function EntryModal({ foods, meal, editEntry, onSave, onClose, onSaveToLibrary }
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(2,6,23,0.88)", zIndex: 100, display: "flex", alignItems: "flex-end", justifyContent: "center" }} onClick={onClose}>
       <div onClick={e => e.stopPropagation()}
-        style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 540, padding: 20, maxHeight: "92vh", overflowY: "auto", display: "flex", flexDirection: "column", gap: 14 }}>
+        style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 480, padding: 20, maxHeight: "92vh", overflowY: "auto", display: "flex", flexDirection: "column", gap: 14 }}>
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ fontWeight: 700, fontSize: 17, color: "#f1f5f9" }}>{isEdit ? "Edit Entry" : `Add to ${meal}`}</div>
@@ -863,11 +863,11 @@ export default function App() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#020617", color: "#f1f5f9", fontFamily: "'DM Sans', system-ui, sans-serif", display: "flex", flexDirection: "column", alignItems: "center", paddingBottom: 60 }}>
-      <div style={{ width: "100%", maxWidth: 540, padding: "24px 20px 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ width: "100%", maxWidth: 480, padding: "24px 20px 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <h1 style={{ fontSize: SIZE.textXl, fontWeight: 800, letterSpacing: "-0.03em" }}>Macro Target</h1>
         <button onClick={handleLogout} style={{ background: "none", border: "1px solid #1e293b", borderRadius: 7, padding: "8px 12px", color: "#475569", fontSize: SIZE.textSm, cursor: "pointer" }}>Sign out</button>
       </div>
-      <div style={{ width: "100%", maxWidth: 540, padding: "16px 20px 0" }}>
+      <div style={{ width: "100%", maxWidth: 480, padding: "16px 20px 0" }}>
         <div style={{ display: "flex", background: "#0f172a", borderRadius: 12, padding: 4, border: "1px solid #1e293b" }}>
           {tabs.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
@@ -877,7 +877,7 @@ export default function App() {
           ))}
         </div>
       </div>
-      <div style={{ width: "100%", maxWidth: 540, padding: "18px 20px 0" }}>
+      <div style={{ width: "100%", maxWidth: 480, padding: "18px 20px 0" }}>
         {tab === "log"     && <DailyLog userId={userId} foods={foods} setFoods={setFoods} />}
         {tab === "library" && <FoodLibrary userId={userId} foods={foods} setFoods={setFoods} />}
         {tab === "goals"   && <GoalsPanel userId={userId} />}

@@ -48,6 +48,7 @@ html { background-color: #F5F4EE; }
   --swipe-action-gap: 8px;
   --focus-ring: var(--color-border-info);
   --focus-ring-shadow: 0 0 0 2px var(--color-background-primary), 0 0 0 4px var(--focus-ring);
+  --app-max-width: 480px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --screen-pad-inline: 0.875rem;
@@ -99,7 +100,7 @@ button:focus-visible,
   box-shadow: var(--focus-ring-shadow);
 }
 
-.app-container { width: 100%; max-width: 480px; margin: 0 auto; background: var(--color-background-tertiary); min-height: 100dvh; display: flex; flex-direction: column; padding-bottom: var(--safe-bottom); }
+.app-container { width: 100%; max-width: var(--app-max-width); margin: 0 auto; background: var(--color-background-tertiary); min-height: 100dvh; display: flex; flex-direction: column; padding-bottom: var(--safe-bottom); }
 
 .header { background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary); padding: var(--screen-pad-block) var(--screen-pad-inline); padding-top: calc(var(--screen-pad-block) + var(--safe-top)); position: sticky; top: 0; z-index: 100; }
 .header-controls { display: flex; gap: 8px; justify-content: space-between; align-items: center; }
@@ -194,10 +195,11 @@ button:focus-visible,
 
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: stretch; justify-content: center; overscroll-behavior: contain; }
 .modal-overlay.active { display: flex; overscroll-behavior: none; }
+.modal-overlay .modal { width: 100%; max-width: var(--app-max-width); margin-left: auto; margin-right: auto; }
 html.modal-open,
 html.modal-open body { overflow: hidden; height: 100%; overscroll-behavior: none; }
 html.modal-open .app-container { overflow: hidden; touch-action: none; }
-.modal { background: var(--color-background-tertiary); width: 100%; min-height: 100dvh; border-radius: 0; overflow-y: auto; padding-bottom: 0; }
+.modal { background: var(--color-background-tertiary); min-height: 100dvh; border-radius: 0; overflow-y: auto; padding-bottom: 0; }
 .modal-header { padding: calc(var(--screen-pad-block) + var(--safe-top)) var(--screen-pad-inline) calc(var(--screen-pad-block) + 4px); border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--color-background-primary); z-index: 10; }
 .modal-header h2 { margin: 0; font-size: var(--text-xl); font-weight: 600; line-height: 1.2; color: var(--color-text-primary); text-transform: capitalize; flex-shrink: 0; }
 .modal-header-left { display: flex; gap: 8px; align-items: center; }
@@ -394,7 +396,7 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 .settings-actions button { flex: 1; min-height: var(--button-md-height); padding: 0 var(--button-md-px); font-size: var(--text-md); }
 .btn-with-icon { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
 .btn-with-icon .lucide { width: var(--icon-size); height: var(--icon-size); flex-shrink: 0; }
-.auth-gate { min-height: 100dvh; display: none; align-items: center; justify-content: center; padding: 1.5rem; padding-top: calc(1.5rem + var(--safe-top)); padding-bottom: calc(1.5rem + var(--safe-bottom)); background: var(--color-background-tertiary); }
+.auth-gate { width: 100%; max-width: var(--app-max-width); margin-left: auto; margin-right: auto; min-height: 100dvh; display: none; align-items: center; justify-content: center; padding: 1.5rem; padding-top: calc(1.5rem + var(--safe-top)); padding-bottom: calc(1.5rem + var(--safe-bottom)); background: var(--color-background-tertiary); }
 html.show-auth-gate:not(.is-auth-loading):not(.is-auth-callback) .auth-gate:not([hidden]) { display: flex; }
 .auth-card { width: 100%; max-width: 400px; background: var(--color-background-targets); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 2rem 1.75rem 1.75rem; text-align: center; box-shadow: none; }
 .auth-card__placeholder { width: 72px; height: 72px; margin: 0 auto 1.25rem; border-radius: var(--border-radius-md); background: var(--color-auth-placeholder); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -424,7 +426,7 @@ html.is-auth-callback #appLoading,
 html.is-auth-callback #appLoading[hidden] { display: flex !important; }
 html.is-auth-loading .app-container,
 html.is-auth-callback .app-container { display: none !important; }
-.app-loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(250, 250, 247, 0.72); z-index: 1200; font-size: var(--text-sm); color: var(--color-text-secondary); }
+.app-loading { position: fixed; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: var(--app-max-width); display: flex; align-items: center; justify-content: center; background: rgba(250, 250, 247, 0.72); z-index: 1200; font-size: var(--text-sm); color: var(--color-text-secondary); }
 .app-loading--fullscreen { background: var(--color-background-tertiary); }
 .lucide { width: var(--icon-size); height: var(--icon-size); stroke-width: 2; }
 .targets-level-row .profile-target-lock-icon,
@@ -447,7 +449,7 @@ html.is-auth-callback .app-container { display: none !important; }
 </head>
 <body>
 
-<div id="appLoading" class="app-loading app-loading--fullscreen" style="position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;background:#F5F4EE;font-size:15px;color:#6B6B6B;font-family:system-ui,-apple-system,sans-serif" role="status" aria-live="polite">Loading…</div>
+<div id="appLoading" class="app-loading app-loading--fullscreen" style="z-index:1200;display:flex;align-items:center;justify-content:center;background:#F5F4EE;font-size:15px;color:#6B6B6B;font-family:system-ui,-apple-system,sans-serif" role="status" aria-live="polite">Loading…</div>
 
 <div id="authGate" class="auth-gate" hidden>
   <div class="auth-card">
