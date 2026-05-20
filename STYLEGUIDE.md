@@ -330,7 +330,7 @@ HTML fragments for repeated Daily Log / search markup: `js/templates/dom-templat
 
 | State | Pattern | Notes |
 | --- | --- | --- |
-| Loading | `.app-loading`, `.app-loading--fullscreen` | Fullscreen during auth boot; scrim variant uses `--color-loading-scrim` |
+| Loading | `.app-loading`, `.app-loading-spinner`, `.app-loading--fullscreen` | Circular branded spinner; fullscreen during auth boot; scrim variant uses `--color-loading-scrim`; static ring under `prefers-reduced-motion` |
 | Empty | `.food-item` + `.food-macros` inside `.food-list` | Sentence case, e.g. “No foods added.” |
 | Error | `.inline-error`, `.auth-error` | Danger text; empty node hidden via `:empty` |
 | Locked field | `.profile-target-field.is-locked`, `.profile-target-lock-icon` | Targets hint with lock icon + text link |
