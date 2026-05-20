@@ -1798,7 +1798,23 @@ function initAppMenu() {
 }
 
 initAppMenu();
+initStickyMacroSummary();
 window.addEventListener('resize', syncAllStackedModalScroll);
+
+function initStickyMacroSummary() {
+  const summary = document.querySelector('.macros-summary');
+  if (!summary || !('IntersectionObserver' in window)) return;
+
+  const sentinel = document.createElement('div');
+  sentinel.className = 'macros-summary__sentinel';
+  sentinel.setAttribute('aria-hidden', 'true');
+  summary.before(sentinel);
+
+  const observer = new IntersectionObserver(([entry]) => {
+    summary.classList.toggle('is-stuck', !entry.isIntersecting);
+  }, { threshold: 0 });
+  observer.observe(sentinel);
+}
 
 document.getElementById('personalizeClose')?.addEventListener('click', () => closeModal('personalizeModal'));
 document.getElementById('backupDataClose')?.addEventListener('click', () => closeModal('backupDataModal'));

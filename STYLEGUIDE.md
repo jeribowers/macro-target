@@ -243,6 +243,7 @@ Phone-first: selection and focus, not hover.
 
 - No `:hover`-only affordances; use selected/checked/focus states.
 - Safe areas: `--safe-top`, `--safe-bottom` on full-bleed shells (header, modals, toasts).
+- Daily Log shell: the date/activity header scrolls with content; `.macros-summary` is the sticky top summary and owns top safe-area padding while pinned. When pinned (`.macros-summary.is-stuck`), each card collapses to label + remaining number only — progress bars and used/target meta animate to `max-height: 0` (with `opacity` and margin), while `.value` keeps its full `--text-lg` size. Use `--macro-compact-transition` for the animation. A 1px `.macros-summary__sentinel` above the summary drives `is-stuck` via IntersectionObserver; the sentinel sits above the bar so its position is unaffected by the bar's resizing (no flicker).
 - `touch-action: manipulation` on tappable controls; `-webkit-tap-highlight-color: transparent` where custom focus applies.
 
 ## Touch Targets and Accessibility

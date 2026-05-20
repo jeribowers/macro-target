@@ -1,6 +1,6 @@
 .app-container { width: 100%; max-width: var(--app-max-width); margin: 0 auto; background: var(--color-background-secondary); min-height: 100dvh; display: flex; flex-direction: column; padding-bottom: var(--safe-bottom); }
 
-.header { background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-divider); padding: var(--screen-pad-block) var(--screen-pad-inline); padding-top: calc(var(--screen-pad-block) + var(--safe-top)); position: sticky; top: 0; z-index: 100; }
+.header { background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-divider); padding: var(--screen-pad-block) var(--screen-pad-inline); padding-top: calc(var(--screen-pad-block) + var(--safe-top)); }
 .header-controls { display: flex; gap: var(--space-2); justify-content: space-between; align-items: center; }
 .date-nav { display: flex; gap: var(--space-2); align-items: center; }
 .header-actions { display: flex; gap: var(--space-2); align-items: center; }

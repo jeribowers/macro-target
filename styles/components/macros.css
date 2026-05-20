@@ -1,15 +1,15 @@
-.macros-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-1); padding: var(--screen-pad-block) var(--screen-pad-inline); background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-divider); }
+.macros-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-1); padding: var(--screen-pad-block) var(--screen-pad-inline); padding-top: calc(var(--screen-pad-block) + var(--safe-top)); background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-divider); position: sticky; top: 0; z-index: 100; }
 .macro-card { padding: 6px 5px; border-radius: var(--border-radius-md); min-width: 0; }
 .macro-card.calories { border: 0.5px solid var(--macro-cal-border); background: var(--macro-cal-bg); }
 .macro-card.carbs { border: 0.5px solid var(--macro-carb-border); background: var(--macro-carb-bg); }
 .macro-card.protein { border: 0.5px solid var(--macro-prot-border); background: var(--macro-prot-bg); }
 .macro-card.fat { border: 0.5px solid var(--macro-fat-border); background: var(--macro-fat-bg); }
 .macro-card .label { font-size: var(--text-xs); line-height: 1.2; margin-bottom: 2px; text-align: center; color: var(--color-text-primary); font-weight: 600; }
-.macro-card .remainder { display: flex; justify-content: center; align-items: baseline; gap: var(--space-1); margin-bottom: var(--space-1); }
+.macro-card .remainder { display: flex; justify-content: center; align-items: baseline; gap: var(--space-1); margin-bottom: var(--space-1); transition: margin var(--macro-compact-transition); }
 .macro-card .value { font-size: var(--text-lg); line-height: 1.2; font-weight: 600; color: var(--color-text-primary); text-align: center; }
 .macro-card .remainder-suffix { font-size: var(--text-xs); line-height: 1.2; color: var(--color-text-secondary); font-weight: 400; }
 .macro-card .value.is-negative { color: var(--color-negative); }
-.macro-card .progress { position: relative; height: 7px; background: var(--color-background-primary); border-radius: 999px; overflow: hidden; margin-bottom: var(--space-1); }
+.macro-card .progress { position: relative; height: 7px; max-height: 7px; background: var(--color-background-primary); border-radius: 999px; overflow: hidden; margin-bottom: var(--space-1); transition: max-height var(--macro-compact-transition), margin var(--macro-compact-transition), opacity var(--macro-compact-transition); }
 .macro-card.calories .progress-bar { background: var(--macro-cal); }
 .macro-card.carbs .progress-bar { background: var(--macro-carb); }
 .macro-card.protein .progress-bar { background: var(--macro-prot); }
@@ -21,8 +21,13 @@
 .macro-card .progress-bar { position: relative; z-index: 0; height: 100%; border-radius: 999px 0 0 999px; transition: width 0.2s; }
 .macro-card .progress-ticks { position: absolute; inset: 0; display: flex; justify-content: space-between; box-sizing: border-box; padding: 0 25%; pointer-events: none; z-index: 1; }
 .macro-card .progress-ticks span { width: 1px; height: 100%; background: var(--color-progress-tick); }
-.macro-card .meta { display: flex; justify-content: center; align-items: baseline; gap: var(--space-1); font-size: var(--text-xs); line-height: 1.2; color: var(--color-text-secondary); }
+.macro-card .meta { display: flex; justify-content: center; align-items: baseline; gap: var(--space-1); font-size: var(--text-xs); line-height: 1.2; max-height: calc(var(--text-xs) * 1.2); overflow: hidden; color: var(--color-text-secondary); transition: max-height var(--macro-compact-transition), opacity var(--macro-compact-transition); }
 .macro-card .target { text-align: center; }
+
+.macros-summary__sentinel { height: 1px; width: 100%; margin: 0; padding: 0; pointer-events: none; }
+.macros-summary.is-stuck .macro-card .remainder { margin-bottom: 0; }
+.macros-summary.is-stuck .macro-card .progress,
+.macros-summary.is-stuck .macro-card .meta { max-height: 0; margin-bottom: 0; opacity: 0; pointer-events: none; }
 
 .content { flex: 1; overflow-y: auto; padding: var(--screen-pad-block) var(--screen-pad-inline); }
 .food-category { margin-bottom: var(--screen-pad-block); }
