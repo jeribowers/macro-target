@@ -87,8 +87,8 @@ All colors live in `styles/tokens.css` (`:root`). **Do not use hex/rgba literals
 
 | Token | CSS variable | Use |
 | --- | --- | --- |
-| `colorBackgroundPrimary` | `--color-background-primary` | Cards, inputs, header, macro summary strip |
-| `colorBackgroundSecondary` | `--color-background-secondary` | Centered app column (`.app-container`), modal sheet/body/header, auth card area |
+| `colorBackgroundPrimary` | `--color-background-primary` | Cards, inputs, header, macro summary strip, modal title bar |
+| `colorBackgroundSecondary` | `--color-background-secondary` | Centered app column (`.app-container`), modal sheet/body, auth card area |
 | `colorBackgroundCanvas` | `--color-background-canvas` | Wide-viewport gutters when signed in (`html.is-app-ready`) and modal backdrop; matches `colorBackgroundSecondary` |
 | `colorBackgroundHighlight` | `--color-background-highlight` | Selected controls: radio pills, dropdown selection |
 | `colorBackgroundInset` | `--color-background-inset` | Inset panels: activity level rows, auth card, food previews |
