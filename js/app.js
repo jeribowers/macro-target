@@ -459,6 +459,7 @@ function forceShowAuthGate() {
     loading.hidden = true;
     loading.removeAttribute('style');
   }
+  refreshIcons();
 }
 
 function revealAuthGate() {

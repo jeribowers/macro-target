@@ -56,6 +56,13 @@
   --color-progress-tick: rgba(0, 0, 0, 0.18);
   --color-loading-scrim: rgba(250, 250, 247, 0.72);
 
+  /* Brand accents sampled from app icon */
+  --brand-green: #4E713D;
+  --brand-green-bg: #E8EFE0;
+  --brand-green-border: rgba(78, 113, 61, 0.3);
+  --brand-brown: #573214;
+  --brand-brown-bg: #F1E6D6;
+
   /* Macro palette */
   --macro-cal: #C41E1E;
   --macro-carb: #1E40AF;
@@ -82,10 +89,6 @@
   --color-google-brand-yellow: #FBBC05;
   --color-google-brand-red: #EA4335;
 
-  /* Auth placeholder */
-  --color-auth-placeholder: #BDBDB7;
-  --color-auth-placeholder-fg: #6B6B6B;
-
   /* Typography */
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --text-xs: 13px;
@@ -93,6 +96,8 @@
   --text-md: 17px;
   --text-lg: 19px;
   --text-xl: 22px;
+  --text-2xl: 28px;
+  --text-3xl: 36px;
 
   /* Radius */
   --border-radius-md: var(--space-2);
@@ -106,6 +111,7 @@
   --input-md-height: 40px;
   --icon-button-size: var(--button-sm-height);
   --icon-size: var(--text-lg);
+  --feature-icon-chip-size: 36px;
   --swipe-action-gap: var(--space-2);
 
   /* Ghost icon button (transparent chrome on inset panels, etc.) */

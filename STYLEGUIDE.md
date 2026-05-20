@@ -16,8 +16,9 @@ Use these as the baseline text scale.
 - `textSm` (`--text-sm`): 15px
 - `textMd` (default body): 17px
 - `textLg`: 19px
-- `textXl`: 22px
-- `text2xl`: 28px
+- `textXl`: 22px — auth landing primary tagline
+- `text2xl` (`--text-2xl`): 28px — reserved
+- `text3xl` (`--text-3xl`): 36px — auth landing title only
 
 ### Typography Usage
 
@@ -139,6 +140,18 @@ Background tints (cards, meal totals): `#F8E7E7`, `#EFF4FF`, `#EDF7EF`, `#F3E8FF
 
 Use foreground tokens for progress bars, macro lines, and badge text. Use background + border tokens for macro cards and filled meal-total badges.
 
+### Brand accent palette
+
+Brand accent tokens are sampled from `icon-512x512.png` and used sparingly on the signed-out landing page.
+
+| Token | CSS variable | Use |
+| --- | --- | --- |
+| `brandGreen` | `--brand-green` | Install note text and inline iOS share icon |
+| `brandGreenBg` | `--brand-green-bg` | Install note background |
+| `brandGreenBorder` | `--brand-green-border` | Install note border |
+| `brandBrown` | `--brand-brown` | Auth feature icons |
+| `brandBrownBg` | `--brand-brown-bg` | Auth feature icon chips |
+
 ### Overlays and shadows
 
 | Token | CSS variable |
@@ -151,7 +164,7 @@ Use foreground tokens for progress bars, macro lines, and badge text. Use backgr
 
 ### Third-party (Google sign-in)
 
-Use `--color-google-*` tokens for the sign-in button and `--color-google-brand-*` for the logo SVG paths only.
+Use `--color-google-*` chrome tokens for the sign-in button surface and `--color-google-brand-*` for the logo SVG paths only.
 
 ### Color rules
 
@@ -167,6 +180,7 @@ Use these as shared defaults for all button components.
 - `buttonMd` (default): min-height 46px, horizontal padding 18px, text 17px
 - `buttonLg`: min-height 52px, horizontal padding 22px, text 19px
 - `iconButton` (default icon-only): 40px x 40px, icon 19px (`textLg`), border radius 8px
+- `googleSigninButton`: `.btn-google-sign-in` — full-width white surface (`--color-google-*` chrome), Google "G" mark + label; reserved for OAuth sign-in
 
 ### Button Usage
 
@@ -204,11 +218,11 @@ Use divider tokens for horizontal rules and row separators — not `colorBorderT
 | Token | CSS variable | Value | Use |
 | --- | --- | --- | --- |
 | `colorDivider` | `--color-divider` | `rgba(0,0,0,0.4)` | Rows on primary surfaces: food list, swipe rows, header/footer rules, modal title bar |
-| `colorDividerStrong` | `--color-divider-strong` | `rgba(0,0,0,0.22)` | On `colorBackgroundInset`, modal section breaks, delete footer, auth card divider |
+| `colorDividerStrong` | `--color-divider-strong` | `rgba(0,0,0,0.22)` | On `colorBackgroundInset`, modal section breaks, delete footer |
 
 ### Divider Rules
 
-- Weight: `0.5px solid` for horizontal borders; `1px` height for standalone rules (e.g. `.auth-card__divider`).
+- Weight: `0.5px solid` for horizontal borders.
 - **Row lists:** `* + *` gets `border-top` with `colorDivider` only.
 - **Section breaks:** `colorDividerStrong` + `--modal-section-gap-above-divider` / `--modal-section-pad-below-divider`.
 - **Inset panels:** outer border and internal rules use `colorDividerStrong` so lines read on `--color-background-inset`.
@@ -291,7 +305,8 @@ All modals share body padding tokens in `index.html`:
 | Dropdown | `.dropdown`, `.dropdown-item.selected` | Activity, units, menu |
 | Measure input | `.measure-input`, `.measure-input__control` | Height, weight, reference serving |
 | Modal section | `.settings-section`, `.targets-section`, `.section-heading`, `.section-description` | Personalize, Settings |
-| Inset panel | `.targets-level-row`, `.log-food-preview`, `.auth-card` | Targets, add-to-log, sign-in |
+| Inset panel | `.targets-level-row`, `.log-food-preview` | Targets, add-to-log |
+| Auth landing | `.auth-landing`, `.auth-feature-list`, `.auth-feature`, `.auth-feature__icon-chip`, `.auth-install-note`, `.btn-google-sign-in` | Signed-out landing / sign-in screen |
 | Primary / secondary button | `.btn-primary`, `.btn-secondary`, `.btn-icon` | Actions globally |
 | Ghost icon button | `.btn-icon.btn-ghost` | Icon-only on inset panels (e.g. `.log-food-preview__edit-library`) |
 | Modal primary footer | `.modal--primary-footer`, `.modal-footer` | Fixed bottom bar for primary action (Add/Save) on add-to-log and food forms |
@@ -320,6 +335,16 @@ HTML fragments for repeated Daily Log / search markup: `js/templates/dom-templat
 | Error | `.inline-error`, `.auth-error` | Danger text; empty node hidden via `:empty` |
 | Locked field | `.profile-target-field.is-locked`, `.profile-target-lock-icon` | Targets hint with lock icon + text link |
 | Selected | `.dropdown-item.selected`, `.radio-pill:has(input:checked)` | Highlight tokens |
+
+## Auth Landing (Signed Out)
+
+- **Layout:** `.auth-gate` is a phone-width column on `colorBackgroundSecondary`. The earlier `.auth-card` wrapper is retired — content stacks directly in `.auth-landing` with `--space-5` gaps.
+- **Intro block:** `.auth-landing__intro` — app icon (`./icon-180x180.png`, 64px, rounded), title `.auth-landing__title` (`text3xl`, weight 700, tight letter-spacing), `.auth-landing__tagline--primary` (`textXl`, weight 600, primary text) and a secondary `.auth-landing__tagline` (`textMd`, muted).
+- **Feature shell:** `.auth-feature-list` is one `colorBackgroundPrimary` container (rounded, hairline border). Each `.auth-feature` row is separated by `colorDivider` (`* + *` border-top). The leading mark is `.auth-feature__icon-chip` — `--feature-icon-chip-size` square (`--brand-brown-bg` background, `--brand-brown` icon). Title `.auth-feature__title` (`textMd`, weight 600) + `.auth-feature__description` (`textXs`, secondary).
+- **Install note:** `.auth-install-note` — `--brand-green-bg` with `--brand-green-border`. Eyebrow `.auth-install-note__eyebrow` (uppercase `textXs`, `--brand-green`). Body `.auth-install-note__body` (`textSm`, primary) uses `<strong>` for the literal home-screen action label and embeds `.auth-install-note__inline-icon` — a hairline-outlined inline iOS share glyph (`--brand-green`).
+- **Primary action:** `.btn-google-sign-in` — full-width white branded sign-in button (Google chrome tokens). The only auth provider is Google.
+- **Footer:** `.auth-landing__footer` — centered `textXs`, secondary; carries the approved-accounts notice.
+- **Icons:** `data-lucide="database" | "list-checks" | "sliders-horizontal"` for the three rows; rendered by `refreshIcons()`, which `forceShowAuthGate()` calls after the gate is shown.
 
 ## List Pattern Standard (Daily Log)
 
