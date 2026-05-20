@@ -88,8 +88,8 @@ All colors live in `styles/tokens.css` (`:root`). **Do not use hex/rgba literals
 | Token | CSS variable | Use |
 | --- | --- | --- |
 | `colorBackgroundPrimary` | `--color-background-primary` | Cards, inputs, header, macro summary strip |
-| `colorBackgroundSecondary` | `--color-background-secondary` | Centered app column (`.app-container`, modal sheet, auth card area) |
-| `colorBackgroundCanvas` | `--color-background-canvas` | Wide-viewport gutters when signed in (`html.is-app-ready`) and modal backdrop — solid `color-mix` of secondary + overlay scrim (one layer, not stacked transparency) |
+| `colorBackgroundSecondary` | `--color-background-secondary` | Centered app column (`.app-container`), modal sheet/body/header, auth card area |
+| `colorBackgroundCanvas` | `--color-background-canvas` | Wide-viewport gutters when signed in (`html.is-app-ready`) and modal backdrop; matches `colorBackgroundSecondary` |
 | `colorBackgroundHighlight` | `--color-background-highlight` | Selected controls: radio pills, dropdown selection |
 | `colorBackgroundInset` | `--color-background-inset` | Inset panels: activity level rows, auth card, food previews |
 | `colorTextPrimary` | `--color-text-primary` | Body, headings |
@@ -143,7 +143,7 @@ Use foreground tokens for progress bars, macro lines, and badge text. Use backgr
 
 | Token | CSS variable |
 | --- | --- |
-| `colorOverlayScrim` | `--color-overlay-scrim` | Source for `colorBackgroundCanvas` mix only — do not layer on canvas |
+| `colorOverlayScrim` | `--color-overlay-scrim` | Reserved for future dimmed overlays; do not layer on the app canvas |
 | `colorShadowSm` | `--color-shadow-sm` |
 | `colorShadowMd` | `--color-shadow-md` |
 | `colorProgressTick` | `--color-progress-tick` |
@@ -323,7 +323,7 @@ HTML fragments for repeated Daily Log / search markup: `js/templates/dom-templat
 
 ## List Pattern Standard (Daily Log)
 
-- **Wide layout:** when signed in (`html.is-app-ready`), outer `html` / `body` use `colorBackgroundCanvas` for left/right gutters; sign-in keeps `colorBackgroundSecondary`. Modal overlay uses the same canvas token (not `colorOverlayScrim` on top). The Daily Log column stays `colorBackgroundSecondary`.
+- **Wide layout:** when signed in (`html.is-app-ready`), outer `html` / `body` use `colorBackgroundCanvas` for left/right gutters; sign-in keeps `colorBackgroundSecondary`. Modal overlay uses the same canvas token, and both match `colorBackgroundSecondary` so the gutters, modal sheet, and Daily Log column share one surface color.
 - `food-category-shell`: one container per meal (background, border, radius).
 - `food-list`: rows inside the shell; top border `colorDivider`.
 - `swipe-row + swipe-row` or rows in list: `border-top` with `colorDivider` only.

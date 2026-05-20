@@ -5,7 +5,7 @@ html.modal-open,
 html.modal-open body { overflow: hidden; height: 100%; overscroll-behavior: none; }
 html.modal-open .app-container { overflow: hidden; touch-action: none; }
 .modal { background: var(--color-background-secondary); min-height: 100dvh; border-radius: 0; overflow-y: auto; padding-bottom: 0; }
-.modal-header { padding: calc(var(--screen-pad-block) + var(--safe-top)) var(--screen-pad-inline) calc(var(--screen-pad-block) + var(--space-1)); border-bottom: 0.5px solid var(--color-divider); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--color-background-primary); z-index: 10; }
+.modal-header { padding: calc(var(--screen-pad-block) + var(--safe-top)) var(--screen-pad-inline) calc(var(--screen-pad-block) + var(--space-1)); border-bottom: 0.5px solid var(--color-divider); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--color-background-secondary); z-index: 10; }
 .modal-header h2 { margin: 0; font-size: var(--text-xl); font-weight: 600; line-height: 1.2; color: var(--color-text-primary); text-transform: capitalize; flex-shrink: 0; }
 .modal-header-left { display: flex; gap: var(--space-2); align-items: center; }
 .modal-add-new { padding: 0 var(--button-sm-px); min-height: var(--button-sm-height); font-size: var(--text-md); white-space: nowrap; }
