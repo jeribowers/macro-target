@@ -112,6 +112,7 @@
   --icon-button-size: var(--button-sm-height);
   --icon-size: var(--text-lg);
   --feature-icon-chip-size: 36px;
+  --empty-state-illustration-size: 160px;
   --swipe-action-gap: var(--space-2);
 
   /* Ghost icon button (transparent chrome on inset panels, etc.) */

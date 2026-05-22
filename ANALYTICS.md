@@ -102,6 +102,9 @@ Read these before interpreting GA numbers.
 | **Session started** | Pipeline check after sign-in | GA4 | `analytics_session_start` (once per browser session) |
 | **Logging day** | Retention | GA4 | `logging_day` (`log_date`) — once per date per session |
 | **Items per logging day** | Depth on active days | GA4 | `logging_day_summary` (`log_date`, `item_count`) — after each add |
+| **Feedback modal opened** | Qualitative input volume | GA4 | `feedback_opened` via `trackFeedbackOpened()` in `js/analytics.js` |
+| **Feedback submitted** | Volume + sentiment + opt-in rate | GA4 | `feedback_submitted` (`recommend`: `true`/`false`/`skipped`, `share_email`: `true`/`false`) via `trackFeedbackSubmitted()` |
+| **Feedback failed** | Catch errors during submission | GA4 | `feedback_failed` (`reason`) via `trackFeedbackFailed()` |
 
 **Not yet tracked:** screens/modals, library CRUD, export/import, targets saves, sign-in funnel. See [Planned tracking](#planned-tracking).
 

@@ -187,17 +187,6 @@ export async function signOut() {
   }, 0);
 }
 
-export async function isAllowedUser(email) {
-  if (!email) return false;
-  const { data, error } = await client
-    .from('allowed_users')
-    .select('email')
-    .ilike('email', email.trim())
-    .maybeSingle();
-  if (error) throw new Error(toErrorMessage(error, 'Could not verify account access.'));
-  return Boolean(data);
-}
-
 export function hasStarterFoodsSeeded(userId) {
   return localStorage.getItem(`${STARTER_SEED_PREFIX}${userId}`) === '1';
 }

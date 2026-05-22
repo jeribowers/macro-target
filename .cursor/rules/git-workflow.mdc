@@ -1,0 +1,27 @@
+---
+description: Git workflow for this single-developer project
+alwaysApply: true
+---
+
+# Git Workflow
+
+This is a solo-developer project. The global "never commit directly to main" rule does **not** apply here.
+
+## Commit and push directly to `main`
+
+- Commit changes directly to `main` and push.
+- Do **not** create feature/topic branches for routine changes.
+- Do **not** open pull requests for routine changes.
+
+## Standard git safety still applies
+
+- Use descriptive commit messages.
+- Never run destructive/irreversible git commands (`push --force`, `reset --hard` on shared history, etc.) unless explicitly requested.
+- Never skip hooks (`--no-verify`, `--no-gpg-sign`, etc.) unless explicitly requested.
+- Never modify `.git/config`.
+- Do not commit secrets (`.env`, credentials, service-role keys, OAuth secrets).
+- Do not commit local/generated cruft (`.DS_Store`, `node_modules/.vite/*`, `supabase/.temp/*`).
+
+## When unsure
+
+If a change could lose data, touch auth, modify migrations that have already been pushed to a remote DB, or rewrite shared history, **stop and confirm before pushing**.

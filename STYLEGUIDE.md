@@ -280,7 +280,7 @@ Phone-first: selection and focus, not hover.
 Use shared classes for titled blocks inside modals (settings, personalize, backup).
 
 - **Heading:** `section-heading` — `textMd` (17px), font-weight 600, `colorTextPrimary`. Matches “Daily Targets Based on Activity Level”.
-- **Description:** `section-description` — `textSm` (15px), line-height 1.45, `colorTextPrimary`. Body copy below the heading; not secondary/muted. Vertical rhythm: `--section-title-description-gap` (4px) above the description, `--section-description-content-gap` (20px) below it before controls or content.
+- **Description:** `section-description` — `textMd` (17px), line-height 1.45, `colorTextPrimary`. Body copy below the heading; not secondary/muted. Vertical rhythm: `--section-title-description-gap` (4px) above the description, `--section-description-content-gap` (20px) below it before controls or content.
 - **Hint / footnote:** `targets-hint` — `textXs`, `colorTextSecondary` (e.g. override lock message with actions).
 
 Wrap heading + description + controls in a flex column with 8px gap (`settings-section`, `targets-section`). Section dividers use `colorDividerStrong`. Space **above** the divider: `--modal-section-gap-above-divider`. Space **below** the line before the heading: `--modal-section-pad-below-divider`.
@@ -311,6 +311,9 @@ All modals share body padding tokens in `index.html`:
 | Ghost icon button | `.btn-icon.btn-ghost` | Icon-only on inset panels (e.g. `.log-food-preview__edit-library`) |
 | Modal primary footer | `.modal--primary-footer`, `.modal-footer` | Fixed bottom bar for primary action (Add/Save) on add-to-log and food forms |
 | Modal secondary action | `.modal-secondary-actions`, `.modal-text-action` | `textXs`, `colorTextSecondary`, Lucide `x` + underlined label; strip sits **above** fixed `.modal-footer`, outside `.modal-body__scroll` |
+| Feedback modal | `#feedbackModal` (uses `.modal--primary-footer`), `.feedback-form`, `.feedback-fields`, `.feedback-share`, `.feedback-share__hint`, `.feedback-share__email`, `.feedback-error`, `.feedback-success` | Native in-app form for "Send Feedback" → Supabase `public.feedback`. Textarea, optional Yes/No `radio-pill`, opt-in "share email" `form-checkbox` with hint + revealed email chip, inline `.feedback-error`. Success state reuses the shared `.empty-state` pattern with `well-done.png` illustration. |
+| Empty state | `.empty-state`, `.empty-state__illustration`, `.empty-state__title`, `.empty-state__body`, `.empty-state__action` | Reusable zero / success / error state with illustration above text and an optional primary CTA. **Structure:** illustration → `textLg` bold title (`colorTextPrimary`) → `textSm` description (`colorTextSecondary`, max-width 32ch) → optional `.btn-primary` action. **Spacing:** image → title = `space-2` (8px); title → description = `space-1` (4px); description → action = `space-4` (16px). **Copy:** sentence case for both title and description; one sentence each. **Illustration source:** PNGs in `assets/empty-states/`, all flat-vector style, **cropped tight to the visible artwork** (no transparent or near-white padding) so the rendered size is consistent across uses. New illustrations added to this folder must be cropped the same way before commit. **Rendering:** `--empty-state-illustration-size` (160px) sets both width and height; `object-fit: contain` preserves the artwork's native aspect ratio inside that box. `alt=""` when text below carries the meaning. **In use:** Add Food search results (`search.png`, no action) and Send Feedback success (`well-done.png`, no action). |
+| Textarea | `.form-textarea` | Multiline text input (e.g. Send Feedback message). Vertical resize, same border + radius as `.form-group input`. |
 
 HTML fragments for repeated Daily Log / search markup: `js/templates/dom-templates.js`.
 
@@ -330,8 +333,9 @@ HTML fragments for repeated Daily Log / search markup: `js/templates/dom-templat
 
 | State | Pattern | Notes |
 | --- | --- | --- |
-| Loading | `.app-loading`, `.app-loading-spinner`, `.app-loading--fullscreen` | Circular branded spinner; fullscreen during auth boot; scrim variant uses `--color-loading-scrim`; static ring under `prefers-reduced-motion` |
-| Empty | `.food-item` + `.food-macros` inside `.food-list` | Sentence case, e.g. “No foods added.” |
+| Loading | `.app-loading`, `.app-loading-spinner`, `.app-loading--fullscreen` | Circular branded spinner; fullscreen during auth boot; scrim variant uses `--color-loading-scrim`. Spins via `app-loading-spin`; under `prefers-reduced-motion` switches to gentle `app-loading-pulse` opacity animation instead of going static. |
+| Empty (list row) | `.food-item` + `.food-macros` inside `.food-list` | Sentence case, e.g. “No foods added.” Used as a row inside an otherwise empty meal list. |
+| Empty (illustration) | `.empty-state`, `.empty-state__illustration`, `.empty-state__title`, `.empty-state__body` | See Component Catalog. Use for full-area zero / success states (search results, feedback success). |
 | Error | `.inline-error`, `.auth-error` | Danger text; empty node hidden via `:empty` |
 | Locked field | `.profile-target-field.is-locked`, `.profile-target-lock-icon` | Targets hint with lock icon + text link |
 | Selected | `.dropdown-item.selected`, `.radio-pill:has(input:checked)` | Highlight tokens |

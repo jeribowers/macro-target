@@ -36,7 +36,7 @@ Shared UI tokens and patterns: see [STYLEGUIDE.md](./STYLEGUIDE.md).
 - **Daily Log** — log foods by meal; navigate by date; activity level per day.
 - **Food Library** — saved foods with macros; starter foods for new users.
 - **Targets** — calorie and macro goals from profile/settings.
-- **Sync** — signed-in users sync to Supabase; access is limited to emails in `allowed_users`.
+- **Sync** — signed-in users sync to Supabase. Anyone with a Google account can sign in.
 - **Export / import** — JSON backup from Settings (⚙).
 - **Retention** — Daily Log entries and per-day activity are purged after **30 days** (server-side); Food Library is kept.
 
@@ -67,7 +67,7 @@ macro-target/
 - **Git**
 - **Supabase CLI** (optional, for migrations): [install guide](https://supabase.com/docs/guides/cli)
 - **GitHub CLI** (`gh`) — optional, for repo/Pages management
-- Access to the Supabase project and an **allowed** Google account (email must exist in `allowed_users`)
+- Access to the Supabase project and a Google account to sign in
 
 ## Configuration
 
@@ -107,20 +107,20 @@ For production, include:
 
 Google OAuth must be enabled under **Authentication** → **Providers** → **Google**, with credentials from Google Cloud Console.
 
-Sign-in uses **Google only**. After OAuth, the app checks `allowed_users` for the signed-in email; others see an access-denied message.
+Sign-in uses **Google only**. Any Google account can sign in; abusive users can be blocked via the Supabase dashboard (Authentication → Users → Ban user).
 
 ## Database and migrations
 
 Schema and RLS live in `supabase/migrations/`. Main tables:
 
 
-| Table                   | Purpose                                        |
-| ----------------------- | ---------------------------------------------- |
-| `allowed_users`         | Emails permitted to use the app                |
-| `foods`                 | Food Library per user                          |
-| `log_entries`           | Daily Log lines                                |
-| `user_settings`         | Profile JSON, default activity level           |
-| `daily_activity_levels` | Per-date activity (light / moderate / intense) |
+| Table                   | Purpose                                            |
+| ----------------------- | -------------------------------------------------- |
+| `foods`                 | Food Library per user                              |
+| `log_entries`           | Daily Log lines                                    |
+| `user_settings`         | Profile JSON, default activity level               |
+| `daily_activity_levels` | Per-date activity (light / moderate / intense)     |
+| `feedback`              | "Send Feedback" submissions (rate-limited to 2/day) |
 
 
 Apply migrations to the linked project:
@@ -131,12 +131,7 @@ supabase link --project-ref crhpnplqqwfgkmmulvuz
 supabase db push
 ```
 
-To allow a new user, insert their email into `allowed_users` (via SQL editor or a new migration). Example:
-
-```sql
-insert into public.allowed_users (email) values ('person@example.com')
-on conflict (email) do nothing;
-```
+Anyone with a Google account can sign in. To revoke access for a specific user, ban them in the Supabase dashboard (Authentication → Users → "…" → Ban user).
 
 ## Deployment (production)
 
@@ -186,8 +181,8 @@ Copy `config.example.js` to `config.js` and set real `SUPABASE_URL` and `SUPABAS
 **Google sign-in fails or redirects to a blank page**  
 Check Supabase redirect URLs match exactly how you open the app (localhost vs production path).
 
-**“This Google account does not have access yet”**  
-Add the account email to `allowed_users` in Supabase.
+**Sign-in stuck or signed out unexpectedly**
+Check the Supabase dashboard (Authentication → Users) — banned users are blocked at the auth layer.
 
 **Changes not visible on phone**  
 Force-quit the PWA and reopen, or refresh in Safari first to bust cache.
@@ -205,8 +200,9 @@ Confirm `icon-180x180.png` and `icon-512x512.png` exist and load at
 
 ## Security notes
 
-- All Supabase tables use **RLS**; users only read/write their own rows (except `allowed_users`, which authenticated users can read for their own email check).
-- Auth is enforced by Supabase; the client checks `allowed_users` for product access control.
+- All Supabase tables use **RLS**; users only read/write their own rows.
+- Auth is enforced by Supabase. Any Google account can sign in; ban users in the Supabase dashboard if needed.
+- `feedback` inserts are rate-limited at the DB layer (max 2 per user per 24h) and never readable by clients.
 - Do not commit service role keys or Google OAuth client secrets to the repo.
 
 ## Related docs

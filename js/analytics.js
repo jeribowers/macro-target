@@ -36,3 +36,21 @@ export function trackDailyLogFoodAdded({ meal, source, dateKey, itemCount }) {
 
   track('logging_day_summary', { log_date: dateKey, item_count: itemCount });
 }
+
+/** Fires when the user opens the in-app Send Feedback modal. */
+export function trackFeedbackOpened() {
+  track('feedback_opened');
+}
+
+/** Fires after a feedback row has been written to Supabase. */
+export function trackFeedbackSubmitted({ recommend, shareEmail }) {
+  track('feedback_submitted', {
+    recommend: typeof recommend === 'boolean' ? String(recommend) : 'skipped',
+    share_email: shareEmail ? 'true' : 'false',
+  });
+}
+
+/** Fires when a feedback submission fails. */
+export function trackFeedbackFailed(reason) {
+  track('feedback_failed', { reason: reason || 'unknown' });
+}

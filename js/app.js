@@ -1,5 +1,6 @@
 import * as sync from './sync-service.js';
-import { trackDailyLogFoodAdded, trackSessionStart } from './analytics.js';
+import { trackDailyLogFoodAdded, trackFeedbackFailed, trackFeedbackOpened, trackFeedbackSubmitted, trackSessionStart } from './analytics.js';
+import { submitFeedback } from './feedback-service.js';
 import {
   calculateTargets,
   convertHeightValue,
@@ -502,7 +503,7 @@ function endAuthBootstrap() {
 function handleSignedOut() {
   bootstrappedUserId = null;
   sync.setCurrentUserId(null);
-  ['personalizeModal', 'backupDataModal', 'addFoodModal', 'editFoodModal', 'createFoodModal', 'addToLogModal'].forEach((id) => {
+  ['personalizeModal', 'backupDataModal', 'feedbackModal', 'addFoodModal', 'editFoodModal', 'createFoodModal', 'addToLogModal'].forEach((id) => {
     document.getElementById(id)?.classList.remove('active');
   });
   hideAllFieldInfoTips();
@@ -1111,7 +1112,7 @@ function searchFoods(query) {
       isBuiltIn: isBuiltInFood(food.id),
     });
   });
-  document.getElementById('searchResults').innerHTML = html || '<p class="search-empty">No foods found</p>';
+  document.getElementById('searchResults').innerHTML = html || `<div class="empty-state"><img class="empty-state__illustration" src="assets/empty-states/search.png" alt=""><h3 class="empty-state__title">No foods found</h3><p class="empty-state__body">Search or add a new food above.</p></div>`;
   refreshIcons();
 }
 
@@ -1790,6 +1791,11 @@ function initAppMenu() {
     menu?.classList.remove('open');
     openModal('backupDataModal');
   });
+  document.getElementById('openFeedbackBtn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menu?.classList.remove('open');
+    openFeedbackModal();
+  });
   document.getElementById('menuSignOutBtn')?.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -1819,6 +1825,121 @@ function initStickyMacroSummary() {
 
 document.getElementById('personalizeClose')?.addEventListener('click', () => closeModal('personalizeModal'));
 document.getElementById('backupDataClose')?.addEventListener('click', () => closeModal('backupDataModal'));
+document.getElementById('feedbackClose')?.addEventListener('click', () => closeModal('feedbackModal'));
+
+function openFeedbackModal() {
+  resetFeedbackForm();
+  openModal('feedbackModal');
+  trackFeedbackOpened();
+  window.setTimeout(() => document.getElementById('feedbackMessage')?.focus(), 100);
+}
+
+function resetFeedbackForm() {
+  const form = document.getElementById('feedbackForm');
+  form?.reset();
+  const fields = document.getElementById('feedbackFields');
+  const success = document.getElementById('feedbackSuccess');
+  const error = document.getElementById('feedbackError');
+  const emailValue = document.getElementById('feedbackShareEmailValue');
+  const submit = document.getElementById('feedbackSubmit');
+  if (fields) fields.hidden = false;
+  if (success) success.hidden = true;
+  if (error) { error.hidden = true; error.textContent = ''; }
+  if (emailValue) { emailValue.hidden = true; emailValue.textContent = ''; }
+  if (submit) {
+    submit.disabled = false;
+    submit.textContent = 'Send feedback';
+    delete submit.dataset.mode;
+  }
+}
+
+function initFeedbackForm() {
+  const form = document.getElementById('feedbackForm');
+  if (!form) return;
+  const shareEmailCheckbox = document.getElementById('feedbackShareEmail');
+  const emailValueEl = document.getElementById('feedbackShareEmailValue');
+  const errorEl = document.getElementById('feedbackError');
+  const submitBtn = document.getElementById('feedbackSubmit');
+  const fieldsEl = document.getElementById('feedbackFields');
+  const successEl = document.getElementById('feedbackSuccess');
+  const messageEl = document.getElementById('feedbackMessage');
+
+  shareEmailCheckbox?.addEventListener('change', async () => {
+    if (!emailValueEl) return;
+    if (shareEmailCheckbox.checked) {
+      try {
+        const session = await sync.getSession();
+        const email = session?.user?.email;
+        if (email) {
+          emailValueEl.textContent = email;
+          emailValueEl.hidden = false;
+          return;
+        }
+      } catch {
+        /* fall through and hide */
+      }
+      emailValueEl.hidden = true;
+      emailValueEl.textContent = '';
+    } else {
+      emailValueEl.hidden = true;
+      emailValueEl.textContent = '';
+    }
+  });
+
+  submitBtn?.addEventListener('click', (e) => {
+    if (submitBtn.dataset.mode === 'close') {
+      e.preventDefault();
+      closeModal('feedbackModal');
+    }
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (submitBtn?.dataset.mode === 'close') return;
+    if (!messageEl || !submitBtn) return;
+    const message = messageEl.value.trim();
+    if (!message) {
+      if (errorEl) { errorEl.textContent = 'Please write a short message before sending.'; errorEl.hidden = false; }
+      messageEl.focus();
+      return;
+    }
+    if (errorEl) { errorEl.textContent = ''; errorEl.hidden = true; }
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
+
+    const recommendValue = document.querySelector('input[name="feedbackRecommend"]:checked')?.value;
+    const recommend = recommendValue === 'yes' ? true : recommendValue === 'no' ? false : null;
+    const shareEmail = !!shareEmailCheckbox?.checked;
+    let email = null;
+    if (shareEmail) {
+      try {
+        const session = await sync.getSession();
+        email = session?.user?.email || null;
+      } catch {
+        email = null;
+      }
+    }
+
+    try {
+      await submitFeedback({ message, recommend, shareEmail, email });
+      trackFeedbackSubmitted({ recommend, shareEmail });
+      if (fieldsEl) fieldsEl.hidden = true;
+      if (successEl) successEl.hidden = false;
+      refreshIcons();
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Close';
+      submitBtn.dataset.mode = 'close';
+    } catch (err) {
+      const message = err?.message || 'Could not send feedback. Please try again.';
+      if (errorEl) { errorEl.textContent = message; errorEl.hidden = false; }
+      trackFeedbackFailed(err?.message || 'unknown');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send feedback';
+    }
+  });
+}
+
+initFeedbackForm();
 
 initClearOnFocusInputs();
 initInputClearButtons();
@@ -1989,14 +2110,6 @@ async function handleSession(session) {
   suppressAuthGate = true;
   setAuthBootstrapping(true);
   try {
-    const allowed = await sync.isAllowedUser(session.user.email);
-    if (!allowed) {
-      bootstrappedUserId = null;
-      await sync.signOut();
-      reportAuthError(new Error('This Google account does not have access yet.'));
-      revealAuthGate();
-      return;
-    }
     await initializeSignedInUser(session.user.id);
   } catch (error) {
     bootstrappedUserId = null;

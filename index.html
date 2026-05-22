@@ -134,6 +134,7 @@
           <div class="dropdown-menu right-aligned" id="appMenu" role="menu">
             <button type="button" class="menu-item-btn" id="openPersonalizeBtn" role="menuitem">Personalize Targets</button>
             <button type="button" class="menu-item-btn" id="openBackupBtn" role="menuitem">Settings</button>
+            <button type="button" class="menu-item-btn" id="openFeedbackBtn" role="menuitem">Send Feedback</button>
             <button type="button" class="menu-item-btn" id="menuSignOutBtn" role="menuitem">Sign Out</button>
           </div>
         </div>
@@ -454,8 +455,54 @@
 </div>
 
 
+<div class="modal-overlay" id="feedbackModal">
+  <div class="modal modal--primary-footer">
+    <div class="modal-header">
+      <h2>Send Feedback</h2>
+      <button type="button" class="modal-close" id="feedbackClose" aria-label="Close"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="feedbackForm" novalidate>
+        <div class="modal-body__scroll feedback-form">
+          <div class="empty-state feedback-success" id="feedbackSuccess" hidden role="status" aria-live="polite">
+            <img class="empty-state__illustration" src="assets/empty-states/well-done.png" alt="">
+            <h3 class="empty-state__title">Thanks for the feedback!</h3>
+            <p class="empty-state__body">Your input helps shape what comes next.</p>
+          </div>
+          <div class="feedback-fields" id="feedbackFields">
+            <p class="section-description">Tell me what's working, what's broken, or what you'd love to see next.</p>
+            <div class="form-group">
+              <label for="feedbackMessage">Your feedback</label>
+              <textarea id="feedbackMessage" name="message" class="form-textarea" rows="5" maxlength="2000" placeholder="What's working? What's not?" required></textarea>
+            </div>
+            <fieldset class="radio-fieldset">
+              <legend class="radio-fieldset-legend">Would you recommend this to a friend?</legend>
+              <div class="radio-row">
+                <label class="radio-pill"><input type="radio" name="feedbackRecommend" value="yes"> Yes</label>
+                <label class="radio-pill"><input type="radio" name="feedbackRecommend" value="no"> No</label>
+              </div>
+            </fieldset>
+            <div class="feedback-share">
+              <label class="form-checkbox" for="feedbackShareEmail">
+                <input type="checkbox" id="feedbackShareEmail" name="shareEmail">
+                <span>Share my email so I can follow up</span>
+              </label>
+              <p class="feedback-share__hint">Only used to reply to your feedback. No newsletters, no marketing.</p>
+              <p class="feedback-share__email" id="feedbackShareEmailValue" hidden></p>
+            </div>
+            <p class="feedback-error" id="feedbackError" hidden role="alert"></p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn-primary btn-block" id="feedbackSubmit">Send feedback</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <div class="save-toast" id="saveToast" role="status" aria-live="polite">Targets Saved</div>
 <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
-<script type="module" src="./js/app.js?v=20260518"></script>
+<script type="module" src="./js/app.js?v=20260522i"></script>
 </body>
 </html>
