@@ -46,6 +46,14 @@
   --color-action-primary: #1E40AF;
   --color-on-primary: #FFFFFF;
   --color-danger: #B42318;
+  --color-danger-bg: #FDECEC;
+  --color-danger-border: rgba(180, 35, 24, 0.28);
+  --color-warning: #8A5A00;
+  --color-warning-bg: #FFF4D6;
+  --color-warning-border: rgba(138, 90, 0, 0.3);
+  --color-success: var(--brand-green);
+  --color-success-bg: var(--brand-green-bg);
+  --color-success-border: var(--brand-green-border);
   --color-link: var(--color-action-primary);
   --color-negative: var(--macro-cal);
 

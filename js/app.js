@@ -25,6 +25,7 @@ import { createMeasureInput } from './components/measure-input.js';
 import { attachClearOnFocus } from './components/clear-on-focus-input.js';
 import { attachInputClearButton, syncInputClearButton } from './components/input-clear-button.js';
 import { hideAllFieldInfoTips, initFieldInfoTips } from './components/field-info-tip.js';
+import { initAlertDismiss } from './components/alert.js';
 import { STARTER_FOODS, STARTER_LOG_ENTRIES } from './starter-foods.js';
 import {
   renderFoodCategoryBlock,
@@ -1851,6 +1852,20 @@ function resetFeedbackForm() {
     submit.textContent = 'Send Feedback';
     delete submit.dataset.mode;
   }
+  updateFeedbackCharacterCounter();
+}
+
+function updateFeedbackCharacterCounter() {
+  const messageEl = document.getElementById('feedbackMessage');
+  const counterEl = document.getElementById('feedbackMessageCounter');
+  if (!messageEl || !counterEl) return;
+
+  const maxLength = Number(messageEl.getAttribute('maxlength')) || 0;
+  const length = messageEl.value.length;
+  const atLimit = maxLength > 0 && length >= maxLength;
+
+  counterEl.textContent = atLimit ? `${length} / ${maxLength} limit reached` : `${length} / ${maxLength}`;
+  counterEl.classList.toggle('form-character-counter--at-limit', atLimit);
 }
 
 function initFeedbackForm() {
@@ -1863,6 +1878,9 @@ function initFeedbackForm() {
   const fieldsEl = document.getElementById('feedbackFields');
   const successEl = document.getElementById('feedbackSuccess');
   const messageEl = document.getElementById('feedbackMessage');
+
+  messageEl?.addEventListener('input', updateFeedbackCharacterCounter);
+  updateFeedbackCharacterCounter();
 
   shareEmailCheckbox?.addEventListener('change', async () => {
     if (!emailValueEl) return;
@@ -1947,6 +1965,7 @@ initProfileMeasureInputs();
 initCreateFoodReferenceMeasure();
 initEditFoodReferenceMeasure();
 initFieldInfoTips();
+initAlertDismiss();
 
 document.getElementById('profileAge')?.addEventListener('input', profileBodyChange);
 

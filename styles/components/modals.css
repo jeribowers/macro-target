@@ -27,6 +27,8 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 .form-checkbox { display: flex; align-items: center; gap: var(--space-2); margin: 0; font-size: var(--text-md); font-weight: 400; color: var(--color-text-primary); cursor: pointer; }
 .form-checkbox input { margin: 0; width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--color-action-primary); }
 .form-group input { width: 100%; padding: 0 var(--space-3); height: var(--input-md-height); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: var(--text-md); font-family: var(--font-sans); background: var(--color-background-primary); color: var(--color-text-primary); }
+.form-character-counter { margin-top: var(--space-1); font-size: var(--text-xs); line-height: 1.45; color: var(--color-text-secondary); text-align: right; }
+.form-character-counter--at-limit { color: var(--color-danger); }
 #addToLogModal .modal-body,
 #personalizeModal .modal-body,
 #backupDataModal .modal-body { display: flex; flex-direction: column; row-gap: var(--space-4); }
@@ -72,8 +74,8 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 .feedback-fields { display: flex; flex-direction: column; row-gap: var(--space-4); }
 .feedback-fields[hidden] { display: none; }
 .feedback-share { display: flex; flex-direction: column; row-gap: var(--space-1); }
-.feedback-share__hint { margin: 0; font-size: var(--text-xs); line-height: 1.45; color: var(--color-text-secondary); }
-.feedback-share__email { margin: var(--space-1) 0 0; padding: var(--space-1) var(--space-2); font-size: var(--text-xs); color: var(--color-text-primary); background: var(--color-background-secondary); border-radius: var(--border-radius-md); align-self: flex-start; }
+.feedback-share__row { display: flex; align-items: center; gap: var(--space-1); }
+.feedback-share__email { margin: 0 0 0 var(--space-4); padding: var(--space-1) var(--space-2); font-size: var(--text-xs); color: var(--color-text-primary); background: var(--color-background-secondary); border-radius: var(--border-radius-md); align-self: flex-start; }
 .feedback-share__email[hidden] { display: none; }
 .feedback-error { margin: 0; font-size: var(--text-xs); line-height: 1.45; color: var(--color-danger); }
 .feedback-error[hidden] { display: none; }
@@ -162,12 +164,12 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
   flex: 1 1 auto;
   min-height: 0;
   overflow: hidden;
-  padding: var(--modal-gap-after-header) var(--screen-pad-inline) 0;
+  padding: 0 var(--screen-pad-inline);
 }
 .modal--primary-footer .modal-body__scroll {
   flex: 1 1 auto;
   min-height: 0;
-  padding: var(--focus-ring-outset);
+  padding: var(--modal-gap-after-header) var(--focus-ring-outset) var(--modal-pad-bottom);
   box-sizing: border-box;
   overflow-x: visible;
   overflow-y: auto;

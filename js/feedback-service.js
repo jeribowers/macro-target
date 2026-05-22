@@ -1,7 +1,7 @@
 import { getClient, initSupabase } from './sync-service.js';
 
 const APP_VERSION = '20260522';
-const MESSAGE_MAX = 2000;
+const MESSAGE_MAX = 1000;
 
 function clip(value, max) {
   if (typeof value !== 'string') return null;

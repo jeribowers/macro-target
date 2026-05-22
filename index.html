@@ -478,11 +478,7 @@
             <p class="empty-state__body">Your input helps shape what comes next.</p>
           </div>
           <div class="feedback-fields" id="feedbackFields">
-            <p class="section-description">Your input directly shapes how Macro Target evolves.</p>
-            <div class="form-group">
-              <label for="feedbackMessage">Your Feedback <span class="form-required" aria-hidden="true">*</span></label>
-              <textarea id="feedbackMessage" name="message" class="form-textarea" rows="5" maxlength="2000" placeholder="What's working? What's not?" required></textarea>
-            </div>
+            <p class="section-description">Your feedback makes Macro Target better.</p>
             <fieldset class="radio-fieldset">
               <legend class="radio-fieldset-legend">Would you recommend this to a friend?</legend>
               <div class="radio-row">
@@ -490,12 +486,24 @@
                 <label class="radio-pill"><input type="radio" name="feedbackRecommend" value="no"> No</label>
               </div>
             </fieldset>
+            <div class="form-group">
+              <label for="feedbackMessage">Your Feedback <span class="form-required" aria-hidden="true">*</span></label>
+              <textarea id="feedbackMessage" name="message" class="form-textarea" rows="5" maxlength="1000" placeholder="What should we fix? What would make this great?" aria-describedby="feedbackMessageCounter" required></textarea>
+              <div id="feedbackMessageCounter" class="form-character-counter" aria-live="polite">0 / 1000</div>
+            </div>
             <div class="feedback-share">
-              <label class="form-checkbox" for="feedbackShareEmail">
-                <input type="checkbox" id="feedbackShareEmail" name="shareEmail">
-                <span>Share my email so you can reply</span>
-              </label>
-              <p class="feedback-share__hint">I'll only use your email to reply to your feedback (no spam, no newsletter).</p>
+              <div class="feedback-share__row">
+                <label class="form-checkbox" for="feedbackShareEmail">
+                  <input type="checkbox" id="feedbackShareEmail" name="shareEmail">
+                  <span>Share your email so we can reply</span>
+                </label>
+                <span class="field-info-tip">
+                  <button type="button" class="info-tip-btn" aria-label="About Sharing Your Email" aria-describedby="feedbackShareEmailTip">
+                    <i data-lucide="info" aria-hidden="true"></i>
+                  </button>
+                  <span id="feedbackShareEmailTip" class="info-tip-content" role="tooltip">We'll only use your email to reply to your feedback — no spam, no newsletter.</span>
+                </span>
+              </div>
               <p class="feedback-share__email" id="feedbackShareEmailValue" hidden></p>
             </div>
             <p class="feedback-error" id="feedbackError" hidden role="alert"></p>

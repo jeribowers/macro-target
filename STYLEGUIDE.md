@@ -119,6 +119,14 @@ See [Divider Tokens](#divider-tokens) for divider usage.
 | `colorActionPrimary` | `--color-action-primary` | Primary buttons, links, checkbox accent |
 | `colorOnPrimary` | `--color-on-primary` | Text/icons on primary and danger fills |
 | `colorDanger` | `--color-danger` | Delete, errors, swipe-delete |
+| `colorDangerBg` | `--color-danger-bg` | Error alert background |
+| `colorDangerBorder` | `--color-danger-border` | Error alert border |
+| `colorWarning` | `--color-warning` | Warning alert icon/title |
+| `colorWarningBg` | `--color-warning-bg` | Warning alert background |
+| `colorWarningBorder` | `--color-warning-border` | Warning alert border |
+| `colorSuccess` | `--color-success` | Success alert icon/title; aliases `--brand-green` |
+| `colorSuccessBg` | `--color-success-bg` | Success alert background; aliases `--brand-green-bg` |
+| `colorSuccessBorder` | `--color-success-border` | Success alert border; aliases `--brand-green-border` |
 | `colorLink` | `--color-link` | Text links (aliases action primary) |
 | `colorNegative` | `--color-negative` | Over-target macro values (aliases `macroCal`) |
 | `colorButtonGhostBackground` | `--color-button-ghost-background` | Transparent icon button fill |
@@ -293,6 +301,7 @@ All modals share body padding tokens in `index.html`:
 
 - `--modal-gap-after-header` (16px): space between the modal title bar and first content row.
 - `--modal-pad-bottom` (24px) + safe area: scroll past the last control without clipping (e.g. personalize hint, backup actions).
+- In `.modal--primary-footer`, both `--modal-gap-after-header` (top breathing room) and `--modal-pad-bottom` (above the sticky `.modal-footer`) sit **inside** `.modal-body__scroll` so they scroll with the content. The outer `.modal-body` has no vertical padding, eliminating any opaque "dead zone" below the header that would clip content as it scrolls.
 
 ## Component Catalog
 
@@ -311,11 +320,13 @@ All modals share body padding tokens in `index.html`:
 | Auth landing | `.auth-landing`, `.auth-feature-list`, `.auth-feature`, `.auth-feature__icon-chip`, `.auth-install-note`, `.btn-google-sign-in` | Signed-out landing / sign-in screen |
 | Primary / secondary button | `.btn-primary`, `.btn-secondary`, `.btn-icon` | Actions globally |
 | Ghost icon button | `.btn-icon.btn-ghost` | Icon-only on inset panels (e.g. `.log-food-preview__edit-library`) |
+| Alert | `.alert`, `.alert--error`, `.alert--warning`, `.alert--success`, `.alert--info` | Condensed status message for the top of a page or modal content area. Structure: icon → message → optional dismiss. Use `role="alert"` for urgent errors, `role="status"` for passive info/success. |
 | Modal primary footer | `.modal--primary-footer`, `.modal-footer` | Fixed bottom bar for primary action (Add/Save) on add-to-log and food forms |
 | Modal secondary action | `.modal-secondary-actions`, `.modal-text-action` | `textXs`, `colorTextSecondary`, Lucide `x` + underlined label; strip sits **above** fixed `.modal-footer`, outside `.modal-body__scroll` |
-| Feedback modal | `#feedbackModal` (uses `.modal--primary-footer`), `.feedback-form`, `.feedback-fields`, `.feedback-share`, `.feedback-share__hint`, `.feedback-share__email`, `.feedback-error`, `.feedback-success` | Native in-app form for "Send Feedback" → Supabase `public.feedback`. Textarea, optional Yes/No `radio-pill`, opt-in "share email" `form-checkbox` with hint + revealed email chip, inline `.feedback-error`. Success state reuses the shared `.empty-state` pattern with `well-done.png` illustration. |
+| Feedback modal | `#feedbackModal` (uses `.modal--primary-footer`), `.feedback-form`, `.feedback-fields`, `.feedback-share`, `.feedback-share__row`, `.feedback-share__email`, `.feedback-error`, `.feedback-success` | Native in-app form for "Send Feedback" → Supabase `public.feedback`. Textarea with `.form-character-counter`, optional Yes/No `radio-pill`, opt-in "share email" `form-checkbox` paired with the shared `.field-info-tip` (Lucide `info`) explaining how the email is used, revealed email chip, inline `.feedback-error`. Success state reuses the shared `.empty-state` pattern with `well-done.png` illustration. |
 | Empty state | `.empty-state`, `.empty-state__illustration`, `.empty-state__title`, `.empty-state__body`, `.empty-state__action` | Reusable zero / success / error state with illustration above text and an optional primary CTA. **Structure:** illustration → `textLg` bold title (`colorTextPrimary`) → `textSm` description (`colorTextSecondary`, max-width 32ch) → optional `.btn-primary` action. **Spacing:** image → title = `space-2` (8px); title → description = `space-1` (4px); description → action = `space-4` (16px). **Copy:** sentence case for both title and description; one sentence each. **Illustration source:** PNGs in `assets/empty-states/`, all flat-vector style, **cropped tight to the visible artwork** (no transparent or near-white padding) so the rendered size is consistent across uses. New illustrations added to this folder must be cropped the same way before commit. **Rendering:** `--empty-state-illustration-size` (160px) sets both width and height; `object-fit: contain` preserves the artwork's native aspect ratio inside that box. `alt=""` when text below carries the meaning. **In use:** Add Food search results (`search.png`, no action) and Send Feedback success (`well-done.png`, no action). |
 | Textarea | `.form-textarea` | Multiline text input (e.g. Send Feedback message). Vertical resize, same border + radius as `.form-group input`. |
+| Character counter | `.form-character-counter`, `.form-character-counter--at-limit` | Right-aligned `textXs` helper below capped text fields. Use secondary text by default; switch to `--color-danger` only when the user reaches `maxlength`. Pair with `aria-describedby` and `aria-live="polite"` when the counter text updates dynamically. |
 | Required-field mark | `.form-required` | Inline `<span aria-hidden="true">*</span>` after a label, in `--color-danger`. Visual cue only; the `required` attribute on the input handles accessibility. |
 
 HTML fragments for repeated Daily Log / search markup: `js/templates/dom-templates.js`.
@@ -328,6 +339,7 @@ HTML fragments for repeated Daily Log / search markup: `js/templates/dom-templat
 - **Checkbox:** `.form-checkbox` — accent `--color-action-primary`.
 - **Serving (create/edit food):** `.serving-size-input`, `.serving-input-group`, `.quantity-input-group`.
 - **Clear value (text only):** `.input-with-clear` + `.input-clear-btn` — show a trailing **X** (Lucide `x`, `aria-label="Clear"`) only while the field is **focused and non-empty** (class `show-clear`). Wire with `attachInputClearButton()` in `js/components/input-clear-button.js`. Call `syncInputClearButton(input)` after programmatic `.value` updates if focus state may have changed.
+- **Character counter:** `.form-character-counter` below a capped field; right-aligned, secondary text until the `maxlength` is reached, then `.form-character-counter--at-limit` uses danger text and should include a short "limit reached" message.
 - **No clear X on numeric-only fields** — `inputmode="numeric"` or `inputmode="decimal"`, measure inputs (`.measure-input`), serving/quantity groups, and fields using `attachClearOnFocus({ numericOnly })` keep clear-on-focus behavior only.
 - **Modal layout (primary action):** `.modal--primary-footer` — `.modal-body` is a flex column: `.modal-body__scroll` (fields, `overflow-y: auto`) + `.modal-secondary-actions` (remove/delete link, pinned above footer). Primary button in fixed `.modal-footer` (`btn-primary btn-block`, use `form="…"` when submit is outside the form).
 - **Errors:** `.inline-error` or `.auth-error` — `--color-danger`, sentence case (see [States](#states)).
@@ -337,11 +349,31 @@ HTML fragments for repeated Daily Log / search markup: `js/templates/dom-templat
 | State | Pattern | Notes |
 | --- | --- | --- |
 | Loading | `.app-loading`, `.app-loading-spinner`, `.app-loading--fullscreen` | Circular branded spinner; fullscreen during auth boot; scrim variant uses `--color-loading-scrim`. Spins via `app-loading-spin`; under `prefers-reduced-motion` switches to gentle `app-loading-pulse` opacity animation instead of going static. |
+| Alert | `.alert.alert--*` | Top-of-page or top-of-modal message. Keep to one short sentence when possible; optional title lead-in uses `.alert__title`. |
 | Empty (list row) | `.food-item` + `.food-macros` inside `.food-list` | Sentence case, e.g. “No foods added.” Used as a row inside an otherwise empty meal list. |
 | Empty (illustration) | `.empty-state`, `.empty-state__illustration`, `.empty-state__title`, `.empty-state__body` | See Component Catalog. Use for full-area zero / success states (search results, feedback success). |
 | Error | `.inline-error`, `.auth-error` | Danger text; empty node hidden via `:empty` |
 | Locked field | `.profile-target-field.is-locked`, `.profile-target-lock-icon` | Targets hint with lock icon + text link |
 | Selected | `.dropdown-item.selected`, `.radio-pill:has(input:checked)` | Highlight tokens |
+
+## Alert Pattern
+
+Use alerts for compact status messages that need to sit at the top of a page or modal content area. They should be direct, sparse, and easy to scan.
+
+- **Error:** `.alert alert--error`, icon `circle-x`, `role="alert"` for failed actions or blocking states.
+- **Warning:** `.alert alert--warning`, icon `triangle-alert`, `role="status"` unless immediate action is required.
+- **Success:** `.alert alert--success`, icon `circle-check`, `role="status"` for confirmation that still belongs in context.
+- **Info:** `.alert alert--info`, icon `info`, `role="status"` for neutral guidance.
+- **Dismiss:** optional `.alert__dismiss` button with Lucide `x`; omit dismiss when the message remains true, such as a rate limit.
+
+Example:
+
+```html
+<div class="alert alert--error" role="alert">
+  <i class="alert__icon" data-lucide="circle-x" aria-hidden="true"></i>
+  <div class="alert__content">You can send up to 2 feedback messages per day. Please try again tomorrow.</div>
+</div>
+```
 
 ## Auth Landing (Signed Out)
 
