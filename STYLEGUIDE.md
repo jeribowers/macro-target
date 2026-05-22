@@ -149,6 +149,7 @@ Foreground values: `#C41E1E`, `#1E40AF`, `#166534`, `#7C3AED`.
 Background tints (cards, meal totals): `#F8E7E7`, `#EFF4FF`, `#EDF7EF`, `#F3E8FF`.
 
 Use foreground tokens for progress bars, macro lines, and badge text. Use background + border tokens for macro cards and filled meal-total badges.
+Daily summary macro card labels use the corresponding foreground token (`Calories` → `--macro-cal`, `Fat` → `--macro-fat`, `Carbs` → `--macro-carb`, `Protein` → `--macro-prot`).
 
 ### Brand accent palette
 

@@ -5,6 +5,10 @@
 .macro-card.protein { border: 0.5px solid var(--macro-prot-border); background: var(--macro-prot-bg); }
 .macro-card.fat { border: 0.5px solid var(--macro-fat-border); background: var(--macro-fat-bg); }
 .macro-card .label { font-size: var(--text-xs); line-height: 1.2; margin-bottom: 2px; text-align: center; color: var(--color-text-primary); font-weight: 600; }
+.macro-card.calories .label { color: var(--macro-cal); }
+.macro-card.carbs .label { color: var(--macro-carb); }
+.macro-card.protein .label { color: var(--macro-prot); }
+.macro-card.fat .label { color: var(--macro-fat); }
 .macro-card .remainder { display: flex; justify-content: center; align-items: baseline; gap: var(--space-1); margin-bottom: var(--space-1); transition: margin var(--macro-compact-transition); }
 .macro-card .value { font-size: var(--text-lg); line-height: 1.2; font-weight: 600; color: var(--color-text-primary); text-align: center; }
 .macro-card .remainder-suffix { font-size: var(--text-xs); line-height: 1.2; color: var(--color-text-secondary); font-weight: 400; }

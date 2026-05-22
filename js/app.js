@@ -1928,18 +1928,9 @@ function initFeedbackForm() {
     const recommendValue = document.querySelector('input[name="feedbackRecommend"]:checked')?.value;
     const recommend = recommendValue === 'yes' ? true : recommendValue === 'no' ? false : null;
     const shareEmail = !!shareEmailCheckbox?.checked;
-    let email = null;
-    if (shareEmail) {
-      try {
-        const session = await sync.getSession();
-        email = session?.user?.email || null;
-      } catch {
-        email = null;
-      }
-    }
 
     try {
-      await submitFeedback({ message, recommend, shareEmail, email });
+      await submitFeedback({ message, recommend, shareEmail });
       trackFeedbackSubmitted({ recommend, shareEmail });
       if (fieldsEl) fieldsEl.hidden = true;
       if (successEl) successEl.hidden = false;

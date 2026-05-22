@@ -11,11 +11,11 @@ function clip(value, max) {
 }
 
 /**
- * Insert a feedback row for the signed-in user. The DB fills in user_id from
- * the authenticated session (default auth.uid()), so the client never sends it.
- * @param {{ message: string, recommend: boolean|null, shareEmail: boolean, email: string|null }} input
+ * Insert a feedback row for the signed-in user. The DB fills in user_id and,
+ * when requested, email from the authenticated session.
+ * @param {{ message: string, recommend: boolean|null, shareEmail: boolean }} input
  */
-export async function submitFeedback({ message, recommend, shareEmail, email }) {
+export async function submitFeedback({ message, recommend, shareEmail }) {
   let client = getClient();
   if (!client) client = initSupabase();
   if (!client) throw new Error('Could not connect. Please try again.');
@@ -27,13 +27,16 @@ export async function submitFeedback({ message, recommend, shareEmail, email }) 
     message: cleanMessage,
     recommend: typeof recommend === 'boolean' ? recommend : null,
     share_email: !!shareEmail,
-    email: shareEmail && email ? email : null,
     app_version: APP_VERSION,
     user_agent: clip(navigator.userAgent || '', 500),
   };
 
   const { error } = await client.from('feedback').insert(row);
   if (error) {
-    throw new Error(error.message || 'Could not send feedback. Please try again.');
+    const errorMessage = error.message || '';
+    if (errorMessage.includes('You can send up to 2 feedback messages per day')) {
+      throw new Error('You can send up to 2 feedback messages per day. Please try again tomorrow.');
+    }
+    throw new Error('Could not send feedback. Please try again.');
   }
 }
