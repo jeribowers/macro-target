@@ -1,2 +1,11 @@
 # Vite build output (production app is root index.html + js/)
 dist/
+
+# Vite dev cache
+node_modules/.vite/
+
+# Supabase CLI local state (linked project, versions, temp files)
+supabase/.temp/
+
+# macOS metadata
+.DS_Store
