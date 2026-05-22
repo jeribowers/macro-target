@@ -167,6 +167,8 @@ html.modal-open .app-container { overflow: hidden; touch-action: none; }
 .modal--primary-footer .modal-body__scroll {
   flex: 1 1 auto;
   min-height: 0;
+  padding: var(--focus-ring-outset);
+  box-sizing: border-box;
   overflow-x: visible;
   overflow-y: auto;
   touch-action: pan-y;

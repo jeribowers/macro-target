@@ -265,7 +265,7 @@ Phone-first: selection and focus, not hover.
 ## Touch Targets and Accessibility
 
 - Interactive controls at least **44px** tall (`buttonSm` / `iconButton` = 40px minimum — prefer full-width tap areas or padding where needed).
-- **Focus:** `:focus-visible` uses `--focus-ring-shadow` (never `outline: none` without a visible replacement).
+- **Focus:** `:focus-visible` uses `--focus-ring-shadow` (never `outline: none` without a visible replacement). Scrollable modal bodies (`.modal-body__scroll` in `.modal--primary-footer`) add inner padding `--focus-ring-outset` (4px) so the ring is not clipped by `overflow-y: auto`.
 - **Icon-only buttons:** always `aria-label` (and `title` when helpful): modal close, date nav, swipe delete, add/edit food.
 - **Modals:** `aria-label` on close; trap focus when implementing new overlays (existing pattern: full-screen modal + sticky header).
 - **Errors:** `.inline-error` / `.auth-error` — `colorDanger`, sentence case message.

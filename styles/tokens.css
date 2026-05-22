@@ -124,6 +124,7 @@
   /* Focus */
   --focus-ring: var(--color-border-highlight);
   --focus-ring-shadow: 0 0 0 2px var(--color-background-primary), 0 0 0 4px var(--focus-ring);
+  --focus-ring-outset: 4px;
 
   /* Layout */
   --app-max-width: 480px;
