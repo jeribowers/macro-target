@@ -470,9 +470,9 @@
             <p class="empty-state__body">Your input helps shape what comes next.</p>
           </div>
           <div class="feedback-fields" id="feedbackFields">
-            <p class="section-description">Tell me what's working, what's broken, or what you'd love to see next.</p>
+            <p class="section-description">Your input directly shapes how Macro Target evolves.</p>
             <div class="form-group">
-              <label for="feedbackMessage">Your feedback</label>
+              <label for="feedbackMessage">Your Feedback <span class="form-required" aria-hidden="true">*</span></label>
               <textarea id="feedbackMessage" name="message" class="form-textarea" rows="5" maxlength="2000" placeholder="What's working? What's not?" required></textarea>
             </div>
             <fieldset class="radio-fieldset">
@@ -485,16 +485,16 @@
             <div class="feedback-share">
               <label class="form-checkbox" for="feedbackShareEmail">
                 <input type="checkbox" id="feedbackShareEmail" name="shareEmail">
-                <span>Share my email so I can follow up</span>
+                <span>Share my email so you can reply</span>
               </label>
-              <p class="feedback-share__hint">Only used to reply to your feedback. No newsletters, no marketing.</p>
+              <p class="feedback-share__hint">I'll only use your email to reply to your feedback (no spam, no newsletter).</p>
               <p class="feedback-share__email" id="feedbackShareEmailValue" hidden></p>
             </div>
             <p class="feedback-error" id="feedbackError" hidden role="alert"></p>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn-primary btn-block" id="feedbackSubmit">Send feedback</button>
+          <button type="submit" class="btn-primary btn-block" id="feedbackSubmit">Send Feedback</button>
         </div>
       </form>
     </div>
@@ -503,6 +503,6 @@
 
 <div class="save-toast" id="saveToast" role="status" aria-live="polite">Targets Saved</div>
 <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
-<script type="module" src="./js/app.js?v=20260522i"></script>
+<script type="module" src="./js/app.js?v=20260522j"></script>
 </body>
 </html>

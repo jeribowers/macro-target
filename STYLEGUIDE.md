@@ -42,9 +42,10 @@ The **smallest text in the app** is `textXs` (13px / `--text-xs`).
 #### Use title case for
 
 - Headers and section titles
-- Button labels
+- Button labels (every button, in every state — including transient labels like Sending…)
 - Navigation items
 - Short UI labels (e.g. Activity Level, Export Data)
+- **Form field labels** (e.g. Food Name, Calories, Your Feedback)
 - **Proper nouns** — product and feature names as shown in the app: Daily Log, Food Library, Library
 
 **Headline-style title case** (when title case applies):
@@ -65,7 +66,8 @@ Title case examples:
 
 #### Use sentence case for
 
-- Checkbox and radio labels
+- Checkbox labels (e.g. "I'm open to follow-up")
+- Fieldset legends or labels that read as a **full statement or question** (e.g. "Would you recommend this to a friend?") — even if they sit above form controls
 - Empty states and messages
 - Helper text and descriptions
 - Any full sentence or prose-like content
@@ -314,6 +316,7 @@ All modals share body padding tokens in `index.html`:
 | Feedback modal | `#feedbackModal` (uses `.modal--primary-footer`), `.feedback-form`, `.feedback-fields`, `.feedback-share`, `.feedback-share__hint`, `.feedback-share__email`, `.feedback-error`, `.feedback-success` | Native in-app form for "Send Feedback" → Supabase `public.feedback`. Textarea, optional Yes/No `radio-pill`, opt-in "share email" `form-checkbox` with hint + revealed email chip, inline `.feedback-error`. Success state reuses the shared `.empty-state` pattern with `well-done.png` illustration. |
 | Empty state | `.empty-state`, `.empty-state__illustration`, `.empty-state__title`, `.empty-state__body`, `.empty-state__action` | Reusable zero / success / error state with illustration above text and an optional primary CTA. **Structure:** illustration → `textLg` bold title (`colorTextPrimary`) → `textSm` description (`colorTextSecondary`, max-width 32ch) → optional `.btn-primary` action. **Spacing:** image → title = `space-2` (8px); title → description = `space-1` (4px); description → action = `space-4` (16px). **Copy:** sentence case for both title and description; one sentence each. **Illustration source:** PNGs in `assets/empty-states/`, all flat-vector style, **cropped tight to the visible artwork** (no transparent or near-white padding) so the rendered size is consistent across uses. New illustrations added to this folder must be cropped the same way before commit. **Rendering:** `--empty-state-illustration-size` (160px) sets both width and height; `object-fit: contain` preserves the artwork's native aspect ratio inside that box. `alt=""` when text below carries the meaning. **In use:** Add Food search results (`search.png`, no action) and Send Feedback success (`well-done.png`, no action). |
 | Textarea | `.form-textarea` | Multiline text input (e.g. Send Feedback message). Vertical resize, same border + radius as `.form-group input`. |
+| Required-field mark | `.form-required` | Inline `<span aria-hidden="true">*</span>` after a label, in `--color-danger`. Visual cue only; the `required` attribute on the input handles accessibility. |
 
 HTML fragments for repeated Daily Log / search markup: `js/templates/dom-templates.js`.
 

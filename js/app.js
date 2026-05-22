@@ -1848,7 +1848,7 @@ function resetFeedbackForm() {
   if (emailValue) { emailValue.hidden = true; emailValue.textContent = ''; }
   if (submit) {
     submit.disabled = false;
-    submit.textContent = 'Send feedback';
+    submit.textContent = 'Send Feedback';
     delete submit.dataset.mode;
   }
 }
@@ -1934,7 +1934,7 @@ function initFeedbackForm() {
       if (errorEl) { errorEl.textContent = message; errorEl.hidden = false; }
       trackFeedbackFailed(err?.message || 'unknown');
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Send feedback';
+      submitBtn.textContent = 'Send Feedback';
     }
   });
 }
