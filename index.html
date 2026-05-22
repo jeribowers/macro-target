@@ -13,12 +13,29 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Macro Target">
 <meta name="theme-color" content="#F5F4EE">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Macro Target",
+  "description": "Track macros without the bloat. Adjust targets for Light, Moderate, or Intense days. See exactly what you have left to eat.",
+  "applicationCategory": "HealthApplication",
+  "url": "https://macrotarget.app",
+  "operatingSystem": "Web, iOS, Android",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <link rel="apple-touch-icon" sizes="180x180" href="./icon-180x180.png">
 <link rel="apple-touch-icon" sizes="152x152" href="./icon-180x180.png">
 <link rel="icon" type="image/png" sizes="512x512" href="./icon-512x512.png">
 <link rel="manifest" href="./manifest.json">
-<title>Macro Target</title>
+<title>Macro Target | Simple Macro Tracker to Hit Your Daily Goals</title>
+<meta name="description" content="Track macros without the bloat. Adjust targets for Light, Moderate, or Intense days. See exactly what you have left to eat. Free.">
 <link rel="stylesheet" href="./styles/main.css">
 <script>
 (function () {
@@ -94,15 +111,10 @@
         <span class="auth-feature__icon-chip" aria-hidden="true"><i data-lucide="sliders-horizontal"></i></span>
         <div class="auth-feature__body">
           <h2 class="auth-feature__title">My Targets</h2>
-          <p class="auth-feature__description">Days aren&rsquo;t all the same. Your targets adjust when your activity changes.</p>
+          <p class="auth-feature__description">Days aren’t all the same. Your targets adjust when your activity changes.</p>
         </div>
       </li>
     </ul>
-
-    <aside class="auth-install-note" role="note">
-      <p class="auth-install-note__eyebrow">How to install on iPhone</p>
-      <p class="auth-install-note__body">Open this page in Safari. Tap the Share button <svg class="auth-install-note__inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg> at the bottom, then select <strong>&ldquo;Add to Home Screen&rdquo;</strong>.</p>
-    </aside>
 
     <p id="authError" class="auth-error" role="alert"></p>
 
@@ -111,7 +123,31 @@
       <span>Sign in with Google</span>
     </button>
 
-    <p class="auth-landing__footer">Keep your targets synced across devices. Track toward your goal, anywhere.</p>
+    <details class="auth-install-note">
+      <summary class="auth-install-note__summary">
+        <i class="auth-install-note__icon" data-lucide="smartphone" aria-hidden="true"></i>
+        <span>Add to Home Screen</span>
+      </summary>
+      <div class="auth-install-note__platforms">
+        <div class="auth-install-note__platform">
+          <p class="auth-install-note__platform-title">iPhone</p>
+          <ol class="auth-install-note__platform-steps">
+            <li>Open this page in <strong>Safari</strong></li>
+            <li>Tap the <strong>Share button</strong> <svg class="auth-install-note__inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg></li>
+            <li>Select <strong>Add to Home Screen</strong></li>
+          </ol>
+        </div>
+        <div class="auth-install-note__platform">
+          <p class="auth-install-note__platform-title">Android</p>
+          <ol class="auth-install-note__platform-steps">
+            <li>Open this page in <strong>Chrome</strong></li>
+            <li>Tap the <strong>menu button</strong> <svg class="auth-install-note__inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg> in the top right</li>
+            <li>Select <strong>Add to Home Screen</strong></li>
+          </ol>
+        </div>
+      </div>
+    </details>
+
   </div>
 </div>
 
