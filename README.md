@@ -212,3 +212,11 @@ Confirm `icon-180x180.png` and `icon-512x512.png` exist and load at
 - [Supabase docs](https://supabase.com/docs)
 - [Vite docs](https://vitejs.dev/)
 
+## Credits
+
+- **Empty State Graphics**: [12 Empty States Icons](https://ui8.net/supercharged/products/12-empty-states-icons) by [Supercharged](https://ui8.net/supercharged) — Licensed for free public and commercial use
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
